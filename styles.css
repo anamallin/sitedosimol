@@ -135,6 +135,7 @@ body {
     justify-content: center;
     animation: fadeInRight 1s ease forwards 0.5s;
     opacity: 0;
+    margin-right: -150px; /* Puxa o texto mais para a direita */
 }
 
 @keyframes fadeInRight {
@@ -390,6 +391,7 @@ body {
     .event-info {
         text-align: center;
         margin-top: 10px;
+        margin-right: 0;
     }
 
     .event-date {
