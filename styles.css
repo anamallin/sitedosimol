@@ -341,43 +341,87 @@ body {
     }
 }
 
-/* Responsividade */
+/* Responsividade para Celulares e Tablets */
 @media (max-width: 860px) {
+    .container {
+        padding: 40px 15px;
+    }
+
     .header {
         flex-direction: column;
         text-align: center;
-        gap: 25px;
+        gap: 20px;
+    }
+    
+    .logo-container {
+        margin-left: 0;
+    }
+    
+    .logo {
+        max-width: 250px; /* Logo um pouco menor no celular */
     }
     
     .header-text {
         border-left: none;
         border-top: 4px solid var(--color-1);
         padding-left: 0;
-        padding-top: 30px;
+        padding-top: 25px;
     }
     
     .header-text h1 {
-        font-size: 3.5rem;
+        font-size: 2.8rem;
     }
     
     .button-grid {
         flex-direction: column;
-        border-right: none;
-        border-left: none;
+        gap: 10px; /* Adiciona espaçamento entre botões */
+        border: none;
+        margin-left: 0;
+        margin-right: 0;
+        width: 100%;
+        margin-bottom: 40px;
+    }
+    
+    .button-grid::after {
+        display: none; /* Remove o fundo infinito branco no celular */
     }
     
     .action-btn {
-        border-right: none;
-        border-bottom: 1.5px solid var(--color-2);
+        border: 1.5px solid var(--color-2);
+        border-radius: 12px;
+        background: #fff;
+        padding: 15px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    }
+    
+    .action-btn:first-child {
+        border-left: 1.5px solid var(--color-2);
+        background: linear-gradient(135deg, var(--color-3), var(--color-4));
+        color: white;
+        border: none;
+    }
+
+    .action-btn:first-child span {
+        color: white; /* Garante que o texto fique branco */
     }
     
     .action-btn:last-child {
-        border-bottom: none;
+        border-bottom: 1.5px solid var(--color-2);
     }
     
     .subtitle {
-        font-size: 1.15rem;
-        margin-bottom: 40px;
+        font-size: 1.1rem;
+        margin-bottom: 30px;
+    }
+
+    /* Diminui a proteína significativamente no celular */
+    .mascot-protein {
+        max-width: 180px; 
+    }
+    
+    .mascot-container {
+        bottom: -10px;
+        right: -10px;
     }
 }
 
