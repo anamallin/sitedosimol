@@ -426,6 +426,24 @@ body {
         bottom: -10px;
         right: -10px;
     }
+
+    .speech-bubble {
+        font-size: 0.85rem;
+        padding: 10px 15px;
+        white-space: normal;
+        width: 180px;
+        text-align: center;
+        left: 0;
+        bottom: 90%;
+        animation: showBubble 5s forwards 1s; /* Aparece automático após 1 segundo */
+    }
+
+    @keyframes showBubble {
+        0% { opacity: 0; transform: translateX(-50%) translateY(20px); }
+        10% { opacity: 1; transform: translateX(-50%) translateY(-20px); }
+        90% { opacity: 1; transform: translateX(-50%) translateY(-20px); }
+        100% { opacity: 0; transform: translateX(-50%) translateY(20px); }
+    }
 }
 
 /* Container da Mascote */
@@ -435,6 +453,43 @@ body {
     right: -20px;
     z-index: 100;
     transition: transform 0.1s ease-out; /* Suavidade para o mousemove */
+}
+
+/* Balão de Fala */
+.speech-bubble {
+    position: absolute;
+    bottom: 100%;
+    left: 20%;
+    transform: translateX(-50%) translateY(20px);
+    background-color: #fff;
+    border: 2px solid var(--color-1);
+    color: var(--color-4);
+    padding: 15px 20px;
+    border-radius: 20px;
+    border-bottom-right-radius: 0;
+    font-size: 1rem;
+    font-weight: bold;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    z-index: -1;
+}
+
+.speech-bubble::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    right: -2px;
+    border-width: 10px 10px 0 0;
+    border-style: solid;
+    border-color: var(--color-1) transparent transparent transparent;
+}
+
+.mascot-container:hover .speech-bubble {
+    opacity: 1;
+    transform: translateX(-50%) translateY(-20px);
 }
 
 /* Proteína Mascote (Imagem) */
