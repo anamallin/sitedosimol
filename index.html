@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>I SIMOL - Simpósio Integrado de Genética, Biologia Celular e Bioquímica</title>
+    <meta name="description" content="I SIMOL - Simpósio Integrado de Genética, Biologia Celular e Bioquímica. Uma parceria entre os PPGs mais moleculares da UFPR.">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="background-elements">
+        <div class="parallax-layer" data-speed="-2">
+            <div class="shape shape-1"></div>
+        </div>
+        <div class="parallax-layer" data-speed="1.5">
+            <div class="shape shape-2"></div>
+        </div>
+        <div class="parallax-layer" data-speed="3">
+            <div class="shape shape-3"></div>
+        </div>
+    </div>
+    
+    <div class="container">
+        <header class="header animate-on-load">
+            <div class="logo-container">
+                <a href="https://www.instagram.com/simol.ufpr/" target="_blank" rel="noopener noreferrer" class="logo-link">
+                    <img src="SiMOL - esqueleto.png" alt="Logo I SIMOL" class="logo">
+                    <span class="logo-tooltip">Abrir Instagram</span>
+                </a>
+            </div>
+        </header>
+
+        <main class="main-content">
+
+
+            <div class="button-grid animate-on-load delay-2">
+                <button id="open-aviso-btn" class="action-btn" style="border: none; background: transparent; cursor: pointer; width: 100%; height: 100%;">
+                    <span>Faça sua inscrição</span>
+                </button>
+                <a href="ppgs.html" class="action-btn">
+                    <span>Conheça sobre os PPGs</span>
+                </a>
+                <a href="resumo.html" class="action-btn">
+                    <span>Submeta seu resumo</span>
+                </a>
+                <a href="organizadores.html" class="action-btn">
+                    <span>Conheça os Organizadores</span>
+                </a>
+            </div>
+        </main>
+
+        <footer class="footer animate-on-load delay-3">
+            <p>Em caso de dúvidas, contate um membro da organização ou o <a href="mailto:contato@isimol.com">email do evento</a>.</p>
+        </footer>
+    </div>
+    <div class="mascot-container">
+        <img src="Icone_Proteina_Óculos.png" alt="Proteína Mascote" class="mascot-protein">
+    </div>
+
+    <!-- Modal de Aviso -->
+    <div id="aviso-modal" class="modal">
+        <div class="modal-content">
+            <h2 style="color: var(--color-4); margin-bottom: 20px;">AVISO IMPORTANTE</h2>
+            <div class="modal-text" style="text-align: left; margin-bottom: 25px; line-height: 1.6; color: #444; font-size: 0.95rem;">
+                <p style="margin-bottom: 10px;"><strong>LEIA COM ATENÇÃO</strong> - A inscrição no evento será confirmada <em>apenas mediante o pagamento</em>. Conforme legislação, o inscrito tem até 7 dias para ter reembolso do valor caso desista de participar.</p>
+                <p style="margin-bottom: 10px;">- Preencha todos os campos com os dados corretos, eles serão utilizados para confirmar sua participação no SIMOL.</p>
+                <p style="margin-bottom: 10px;">- É incluído, no valor da inscrição, o total de X MINICURSOS, que deverão ser selecionados em formulários separados posteriormente. Mais detalhes serão fornecidos na inscrição dos minicursos, que abrirá no dia XX/XX/XXXX.</p>
+                <p>- Fique atento ao seu email, nos comunicaremos por lá! :)</p>
+            </div>
+            
+            <div class="modal-actions" style="display: flex; flex-direction: column; gap: 15px;">
+                <label class="checkbox-container" style="display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer; user-select: none;">
+                    <input type="checkbox" id="agree-checkbox" style="width: 18px; height: 18px; cursor: pointer;">
+                    <span style="font-weight: bold; color: var(--color-3);">Eu li e concordo com os termos</span>
+                </label>
+                
+                <button id="proceed-btn" class="submit-btn" disabled style="opacity: 0.5; cursor: not-allowed; transition: all 0.3s ease;">
+                    <span>Prosseguir para Inscrição</span>
+                </button>
+                
+                <button id="close-modal-btn" class="back-btn" style="border: none; background: transparent; cursor: pointer; text-decoration: underline;">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

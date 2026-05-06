@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inscrição - I SIMOL</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .page-content { text-align: center; margin-top: 100px; }
+        .back-btn { display: inline-block; margin-top: 30px; color: var(--color-4); font-weight: 600; text-decoration: none; }
+        .back-btn:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="background-elements">
+        <div class="parallax-layer" data-speed="-2">
+            <div class="shape shape-1"></div>
+        </div>
+        <div class="parallax-layer" data-speed="1.5">
+            <div class="shape shape-2"></div>
+        </div>
+    </div>
+
+    <div class="container page-content" style="max-width: 800px; background: rgba(255,255,255,0.9); padding: 40px; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); backdrop-filter: blur(10px); margin-bottom: 50px;">
+        <h1 style="color: var(--color-4); margin-bottom: 10px;">Faça sua inscrição</h1>
+        <p style="color: #666; margin-bottom: 30px;">Preencha os dados abaixo para se inscrever no I SIMOL.</p>
+
+        <form id="registration-form" class="simol-form">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="nome">Nome Completo *</label>
+                    <input type="text" id="nome" name="nome" required placeholder="Digite seu nome completo">
+                </div>
+                <div class="form-group">
+                    <label for="nome_cracha">Nome no Crachá *</label>
+                    <input type="text" id="nome_cracha" name="nome_cracha" required placeholder="Como quer ser chamado(a)?">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="email">E-mail *</label>
+                    <input type="email" id="email" name="email" required placeholder="seu@email.com">
+                </div>
+                <div class="form-group">
+                    <label for="telefone">Telefone / WhatsApp *</label>
+                    <input type="tel" id="telefone" name="telefone" required placeholder="(00) 00000-0000">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="instituicao">Instituição de Ensino *</label>
+                    <input type="text" id="instituicao" name="instituicao" required placeholder="Ex: UFPR, UTFPR, PUC...">
+                </div>
+                <div class="form-group">
+                    <label for="curso">Curso *</label>
+                    <input type="text" id="curso" name="curso" required placeholder="Ex: Ciências Biológicas, Farmácia...">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="vinculo">Vínculo *</label>
+                <select id="vinculo" name="vinculo" required>
+                    <option value="" disabled selected>Selecione seu vínculo</option>
+                    <option value="Graduação">Estudante de Graduação</option>
+                    <option value="Pós-Graduação">Estudante de Pós-Graduação</option>
+                    <option value="Docente">Docente / Pesquisador</option>
+                    <option value="Profissional">Profissional da área</option>
+                    <option value="Outro">Outro</option>
+                </select>
+            </div>
+
+            <div class="form-message" id="form-message" style="display: none;"></div>
+
+            <button type="submit" class="submit-btn" id="submit-btn">
+                <span>Ir para página de Pagamento</span>
+                <div class="spinner" style="display: none;"></div>
+            </button>
+        </form>
+
+
+        <a href="index.html" class="back-btn" style="margin-top: 20px;">← Voltar para a página inicial</a>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

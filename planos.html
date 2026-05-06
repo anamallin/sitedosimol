@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Escolha seu Plano - I SIMOL</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .page-content { text-align: center; margin-top: 50px; }
+        .back-btn { display: inline-block; margin-top: 30px; color: var(--color-4); font-weight: 600; text-decoration: none; }
+        .back-btn:hover { text-decoration: underline; }
+        
+        .planos-container {
+            display: flex;
+            gap: 30px;
+            margin-top: 40px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .plano-card {
+            background: #fff;
+            border-radius: 15px;
+            padding: 40px 30px;
+            width: 320px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .plano-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+            border-color: var(--color-2);
+        }
+
+        .plano-card.plus {
+            border-color: var(--color-1);
+            background: linear-gradient(to bottom, #fff, #fcfafc);
+        }
+
+        .plano-card.plus::before {
+            content: 'MAIS POPULAR';
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, var(--color-3), var(--color-4));
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        .plano-title {
+            font-size: 1.5rem;
+            color: var(--color-4);
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .plano-price {
+            font-size: 2.5rem;
+            color: var(--color-3);
+            font-weight: 700;
+            margin-bottom: 25px;
+        }
+
+        .plano-price span {
+            font-size: 1.2rem;
+            color: #888;
+            font-weight: 500;
+        }
+
+        .plano-features {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 30px 0;
+            text-align: left;
+            flex: 1;
+        }
+
+        .plano-features li {
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+            color: #555;
+            display: flex;
+            align-items: center;
+        }
+
+        .plano-features li::before {
+            content: '✓';
+            color: var(--color-1);
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .btn-escolher {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background: var(--color-2);
+            color: var(--color-4);
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .plano-card.plus .btn-escolher {
+            background: linear-gradient(135deg, var(--color-3), var(--color-4));
+            color: white;
+        }
+
+        .btn-escolher:hover {
+            opacity: 0.9;
+            transform: scale(1.05);
+        }
+
+        @media (max-width: 768px) {
+            .planos-container {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="background-elements">
+        <div class="parallax-layer" data-speed="-2">
+            <div class="shape shape-1"></div>
+        </div>
+        <div class="parallax-layer" data-speed="1.5">
+            <div class="shape shape-2"></div>
+        </div>
+    </div>
+
+    <div class="container page-content" style="max-width: 900px; background: rgba(255,255,255,0.9); padding: 40px; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); backdrop-filter: blur(10px); margin-bottom: 50px;">
+        
+        <div class="success-icon" style="font-size: 3rem; margin-bottom: 15px;">🎉</div>
+        <h1 style="color: var(--color-4); margin-bottom: 10px;">Inscrição Quase Concluída!</h1>
+        <p style="color: #666; font-size: 1.1rem;">Seus dados já foram salvos. Agora, escolha o formato da sua inscrição para gerar o pagamento.</p>
+
+        <div class="planos-container">
+            <!-- Plano Padrão -->
+            <div class="plano-card">
+                <h2 class="plano-title">Inscrição Padrão</h2>
+                <div class="plano-price">R$ 35<span>,00</span></div>
+                
+                <ul class="plano-features">
+                    <li>Acesso a todas as palestras</li>
+                    <li>Certificado de participação</li>
+                    <li>Acesso à submissão de resumos</li>
+                    <li>Direito de escolha de minicursos (sujeito à lotação)</li>
+                </ul>
+
+                <a href="pagamento.html" class="btn-escolher">Escolher Padrão</a>
+            </div>
+
+            <!-- Plano Plus -->
+            <div class="plano-card plus">
+                <h2 class="plano-title">Inscrição Plus</h2>
+                <div class="plano-price">R$ 85<span>,00</span></div>
+                
+                <ul class="plano-features">
+                    <li><strong>Tudo do plano Padrão</strong></li>
+                    <li><span style="color: var(--color-1); font-weight: bold;">Camiseta Exclusiva do Evento</span></li>
+                    <li><span style="color: var(--color-1); font-weight: bold;">Xícara Personalizada do SIMOL</span></li>
+                </ul>
+
+                <a href="pagamento-plus.html" class="btn-escolher">Quero o Plano Plus!</a>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
