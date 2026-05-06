@@ -116,7 +116,7 @@ body {
 .header {
     display: flex;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: space-between;
     gap: 40px;
     margin-bottom: 40px;
     flex-wrap: wrap;
@@ -126,6 +126,37 @@ body {
     flex-shrink: 0;
     perspective: 1000px;
     margin-left: -250px;
+}
+
+.event-info {
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    animation: fadeInRight 1s ease forwards 0.5s;
+    opacity: 0;
+}
+
+@keyframes fadeInRight {
+    from { opacity: 0; transform: translateX(30px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+.event-date {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--color-4);
+    margin-bottom: 5px;
+    background: linear-gradient(to right, var(--color-4), var(--color-3));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.event-location {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: #666;
+    line-height: 1.4;
 }
 
 .logo-link {
@@ -354,6 +385,15 @@ body {
         flex-direction: column;
         text-align: center;
         gap: 20px;
+    }
+    
+    .event-info {
+        text-align: center;
+        margin-top: 10px;
+    }
+
+    .event-date {
+        font-size: 1.6rem;
     }
     
     .logo-container {
