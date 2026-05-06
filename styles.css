@@ -135,7 +135,7 @@ body {
     justify-content: center;
     animation: fadeInRight 1s ease forwards 0.5s;
     opacity: 0;
-    margin-right: -150px; /* Puxa o texto mais para a direita */
+    margin-right: -250px; /* Puxa o texto ainda mais para a direita */
 }
 
 @keyframes fadeInRight {
