@@ -741,4 +741,13 @@ body {
         90% { opacity: 1; transform: translateX(-50%) translateY(-20px); }
         100% { opacity: 0; transform: translateX(-50%) translateY(20px); }
     }
+
+    .mascot-protein {
+        max-width: 50px; 
+    }
+    
+    .mascot-container {
+        bottom: -10px;
+        right: -10px;
+    }
 }
