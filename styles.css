@@ -728,18 +728,19 @@ body {
         font-size: 0.85rem;
         padding: 10px 15px;
         white-space: normal;
-        width: 180px;
+        width: 150px;
         text-align: center;
-        left: 0;
-        bottom: 90%;
-        animation: showBubble 5s forwards 1s; /* Aparece automático após 1 segundo */
+        left: auto;
+        right: 0;
+        bottom: 100%;
+        animation: showBubbleMobile 5s forwards 1s; /* Aparece automático após 1 segundo */
     }
 
-    @keyframes showBubble {
-        0% { opacity: 0; transform: translateX(-50%) translateY(20px); }
-        10% { opacity: 1; transform: translateX(-50%) translateY(-20px); }
-        90% { opacity: 1; transform: translateX(-50%) translateY(-20px); }
-        100% { opacity: 0; transform: translateX(-50%) translateY(20px); }
+    @keyframes showBubbleMobile {
+        0% { opacity: 0; transform: translateX(-20px) translateY(20px); }
+        10% { opacity: 1; transform: translateX(-20px) translateY(-10px); }
+        90% { opacity: 1; transform: translateX(-20px) translateY(-10px); }
+        100% { opacity: 0; transform: translateX(-20px) translateY(20px); }
     }
 
     .mascot-protein {
