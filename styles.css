@@ -461,7 +461,7 @@ body {
 
     /* Diminui a proteína significativamente no celular */
     .mascot-protein {
-        max-width: 85px; 
+        max-width: 50px; 
     }
     
     .mascot-container {
