@@ -1,10 +1,10 @@
 :root {
-    --color-1: #8A57B5; /* Roxo vibrante */
-    --color-2: #E1CCEA; /* Lilás claro */
-    --color-3: #6564CA; /* Azul roxeado */
-    --color-4: #3B28A0; /* Azul escuro/Roxo profundo */
-    --bg-color: #FDFBF7; /* Off-white amarelado */
-    --text-color: #2C2C2C;
+    --color-1: #672a93; /* Roxo da Logo */
+    --color-2: #E1CCEA; /* Mantido lilás claro para contraste */
+    --color-3: #7b3ba5; /* Tom levemente mais claro do roxo da logo */
+    --color-4: #4d1d70; /* Tom levemente mais escuro do roxo da logo */
+    --bg-color: #FDFBF7; 
+    --text-color: #672a93;
 }
 
 * {
@@ -156,7 +156,8 @@ body {
 .event-location {
     font-size: 1.1rem;
     font-weight: 500;
-    color: #666;
+    color: #672a93;
+    opacity: 0.8;
     line-height: 1.4;
 }
 
@@ -165,24 +166,61 @@ body {
     position: relative;
     text-decoration: none;
     outline: none;
+    /* overflow: hidden removido para o tooltip aparecer */
 }
 
+/* Sparkles animation */
+@keyframes sparkle-anim {
+    0%, 100% { transform: scale(0) rotate(0deg); opacity: 0; }
+    50% { transform: scale(1.2) rotate(180deg); opacity: 1; }
+}
+
+.logo-link .sparkle {
+    position: absolute;
+    background: white;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    pointer-events: none;
+    opacity: 0;
+    z-index: 5;
+    box-shadow: 0 0 10px #fff, 0 0 20px var(--color-1);
+}
+
+.logo-link:hover .sparkle {
+    animation: sparkle-anim 0.8s ease-in-out infinite;
+}
+
+/* Posicionamento dos brilhos */
+.sparkle-1 { top: 10%; left: 10%; animation-delay: 0.1s !important; }
+.sparkle-2 { top: 20%; right: 15%; animation-delay: 0.3s !important; }
+.sparkle-3 { bottom: 15%; left: 20%; animation-delay: 0.5s !important; }
+.sparkle-4 { bottom: 25%; right: 10%; animation-delay: 0.2s !important; }
+.sparkle-5 { top: 50%; left: 5%; animation-delay: 0.4s !important; }
+.sparkle-6 { top: 40%; right: 5%; animation-delay: 0.6s !important; }
+
 .logo {
-    max-width: 400px;
+    max-width: 380px;
     height: auto;
-    filter: drop-shadow(0 15px 25px rgba(59, 40, 160, 0.15));
-    transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), filter 0.5s ease;
+    filter: drop-shadow(0 15px 25px rgba(103, 42, 147, 0.15));
+    transition: filter 0.5s ease; /* Removido transform transition do zoom */
     transform-style: preserve-3d;
+    display: block;
 }
 
 .logo:hover {
-    transform: scale(1.08) rotate(-2deg) translateZ(20px);
-    filter: drop-shadow(0 25px 35px rgba(59, 40, 160, 0.25));
+    /* Zoom removido a pedido */
+    filter: drop-shadow(0 25px 35px rgba(103, 42, 147, 0.35));
+}
+
+.logo-link:hover .logo-tooltip {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
 }
 
 .logo-tooltip {
     position: absolute;
-    bottom: -35px;
+    bottom: -45px; /* Ajustado um pouco mais para baixo */
     left: 50%;
     transform: translateX(-50%) translateY(10px);
     background-color: var(--color-4);
@@ -195,7 +233,7 @@ body {
     opacity: 0;
     pointer-events: none;
     transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
     z-index: 10;
 }
 
@@ -758,6 +796,25 @@ body {
 
 .checkbox-container span {
     font-size: 1.05rem;
+}
+
+/* Seção de Boas-vindas */
+.welcome-section {
+    margin-top: 50px;
+    text-align: left;
+    color: #000000 !important; /* Texto em preto conforme solicitado */
+}
+
+.welcome-section h2 {
+    color: var(--color-4);
+    margin-bottom: 20px;
+    font-size: 1.8rem;
+}
+
+.welcome-section p {
+    margin-bottom: 15px;
+    line-height: 1.6;
+    color: #000000 !important;
 }
 
 /* Correções específicas para Mobile que devem ficar no fim do arquivo */
