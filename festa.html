@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Festa de Encerramento - I SIMOL</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .festa-container {
+            max-width: 650px;
+            margin: 0 auto;
+            background: rgba(255,255,255,0.9);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            margin-bottom: 50px;
+            text-align: center;
+        }
+
+        .festa-title {
+            color: var(--color-4);
+            margin-bottom: 8px;
+            font-size: 2rem;
+        }
+
+        .festa-subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1rem;
+        }
+
+        /* Cards de seleção */
+        .option-cards {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .option-card {
+            flex: 1;
+            padding: 25px 15px;
+            border: 2px solid var(--color-2);
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #fff;
+            text-align: center;
+        }
+
+        .option-card:hover {
+            border-color: var(--color-1);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(138, 87, 181, 0.15);
+        }
+
+        .option-card.selected {
+            border-color: var(--color-4);
+            background: linear-gradient(135deg, rgba(138,87,181,0.08), rgba(101,100,202,0.08));
+            box-shadow: 0 8px 25px rgba(59, 40, 160, 0.15);
+            transform: translateY(-3px);
+        }
+
+        .option-card .card-icon {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .option-card .card-title {
+            font-weight: 700;
+            color: var(--color-4);
+            font-size: 1rem;
+            margin-bottom: 6px;
+        }
+
+        .option-card .card-price {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: var(--color-3);
+        }
+
+        /* Formulário */
+        .festa-form-section {
+            display: none;
+            text-align: left;
+            margin-bottom: 25px;
+            animation: fadeInUp 0.4s ease forwards;
+        }
+
+        .festa-form-section.visible {
+            display: block;
+        }
+
+        .festa-form-section .form-group {
+            margin-bottom: 18px;
+        }
+
+        .festa-form-section label {
+            display: block;
+            font-weight: 600;
+            color: var(--color-4);
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        .festa-form-section input {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: inherit;
+            background-color: #fcfcfc;
+            transition: all 0.2s ease;
+            box-sizing: border-box;
+        }
+
+        .festa-form-section input:focus {
+            outline: none;
+            border-color: var(--color-1);
+            box-shadow: 0 0 0 3px rgba(138, 87, 181, 0.2);
+            background-color: #fff;
+        }
+
+        /* Botão verificar */
+        .verify-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--color-1), var(--color-3));
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.05rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+            gap: 10px;
+        }
+
+        .verify-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(138, 87, 181, 0.3);
+        }
+
+        .verify-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Status de verificação */
+        .verify-status {
+            display: none;
+            padding: 14px;
+            border-radius: 10px;
+            margin-top: 15px;
+            font-weight: 500;
+            font-size: 0.95rem;
+            text-align: center;
+        }
+
+        .verify-status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .verify-status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        /* Seção de pagamento */
+        .festa-payment-section {
+            display: none;
+            animation: fadeInUp 0.5s ease forwards;
+        }
+
+        .festa-payment-section.visible {
+            display: block;
+        }
+
+        .payment-value-tag {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--color-3), var(--color-4));
+            color: white;
+            padding: 8px 20px;
+            border-radius: 30px;
+            font-weight: 800;
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+        }
+
+        /* Separador visual */
+        .section-divider {
+            border: none;
+            border-top: 1.5px solid var(--color-2);
+            margin: 30px 0;
+        }
+
+        /* Modal de sucesso */
+        .festa-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .festa-modal-content {
+            background: #fff;
+            padding: 45px;
+            border-radius: 20px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            text-align: center;
+            animation: scaleUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        .festa-modal-content .modal-icon {
+            font-size: 4rem;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .festa-modal-content h2 {
+            color: var(--color-4);
+            margin-bottom: 15px;
+        }
+
+        .festa-modal-content p {
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .festa-modal-content .close-festa-modal {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, var(--color-3), var(--color-4));
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+            text-decoration: none;
+        }
+
+        .festa-modal-content .close-festa-modal:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(59, 40, 160, 0.25);
+        }
+
+        /* Responsivo */
+        @media (max-width: 600px) {
+            .option-cards {
+                flex-direction: column;
+            }
+            .festa-container {
+                padding: 25px 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="background-elements">
+        <div class="parallax-layer" data-speed="-2">
+            <div class="shape shape-1"></div>
+        </div>
+        <div class="parallax-layer" data-speed="1.5">
+            <div class="shape shape-2"></div>
+        </div>
+    </div>
+
+    <div class="container page-content" style="margin-top: 80px;">
+        <div class="festa-container">
+
+            <div style="font-size: 3rem; margin-bottom: 10px;">🎉</div>
+            <h1 class="festa-title">Festa de Encerramento</h1>
+            <p class="festa-subtitle">Garanta sua vaga na festa de encerramento do I SIMOL!</p>
+
+            <!-- PASSO 1: Seleção de tipo -->
+            <div class="option-cards" id="option-cards">
+                <div class="option-card" data-option="inscrito" id="card-inscrito">
+                    <span class="card-icon">🎓</span>
+                    <div class="card-title">Estou inscrito no SIMOL</div>
+                    <div class="card-price">R$ 50,00</div>
+                </div>
+                <div class="option-card" data-option="externo" id="card-externo">
+                    <span class="card-icon">🎶</span>
+                    <div class="card-title">Quero apenas participar da festa</div>
+                    <div class="card-price">R$ 60,00</div>
+                </div>
+            </div>
+
+            <!-- PASSO 2: Formulário de dados -->
+            <div class="festa-form-section" id="festa-form-section">
+                <hr class="section-divider">
+                <h2 style="color: var(--color-4); font-size: 1.3rem; margin-bottom: 15px; text-align: center;" id="form-section-title">Seus Dados</h2>
+
+                <div class="form-group">
+                    <label for="festa-nome">Nome Completo *</label>
+                    <input type="text" id="festa-nome" required placeholder="Conforme usado na inscrição, se inscrito">
+                </div>
+
+                <div class="form-group">
+                    <label for="festa-cpf">CPF *</label>
+                    <input type="text" id="festa-cpf" required placeholder="Somente números" maxlength="11" inputmode="numeric">
+                    <small style="color: #888; display: block; margin-top: 5px;">Digite apenas os números, sem pontos ou hífen.</small>
+                </div>
+
+                <!-- Botão de verificar (apenas para inscritos) -->
+                <button type="button" class="verify-btn" id="verify-btn" style="display: none;">
+                    <span id="verify-btn-text">Verificar Inscrição</span>
+                    <div class="spinner" id="verify-spinner" style="display: none;"></div>
+                </button>
+
+                <!-- Botão prosseguir (apenas para externos) -->
+                <button type="button" class="submit-btn" id="proceed-festa-btn" style="display: none;">
+                    <span>Prosseguir para Pagamento</span>
+                </button>
+
+                <div class="verify-status" id="verify-status"></div>
+            </div>
+
+            <!-- PASSO 3: Pagamento PIX -->
+            <div class="festa-payment-section" id="festa-payment-section">
+                <hr class="section-divider">
+
+                <h2 style="color: var(--color-3); font-size: 1.4rem; margin-bottom: 10px;">Pagamento via PIX</h2>
+                <div class="payment-value-tag" id="festa-valor-tag">R$ 50,00</div>
+                <p style="color: #777; font-size: 0.9rem; margin-bottom: 20px;">I SIMOL - UFPR</p>
+
+                <!-- QR Code placeholder -->
+                <div style="width: 200px; height: 200px; background: #e0e0e0; margin: 0 auto 20px; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #888; border: 2px dashed #bbb;">
+                    <span style="font-size: 0.9rem;">(Cole aqui seu QR Code)</span>
+                </div>
+
+                <p style="font-weight: bold; margin-bottom: 5px;">Chave PIX (E-mail):</p>
+                <div style="background: #fff; border: 1px solid #ccc; border-radius: 6px; padding: 10px; font-family: monospace; font-size: 1.1rem; margin-bottom: 10px; user-select: all;">
+                    pagamento@isimol.com.br
+                </div>
+                <p style="font-size: 0.85rem; color: #888; margin-bottom: 25px;">Copie a chave acima ou escaneie o código.</p>
+
+                <!-- Upload de comprovante -->
+                <div style="text-align: left;">
+                    <h2 style="color: var(--color-4); font-size: 1.3rem; margin-bottom: 10px;">Envie seu Comprovante</h2>
+                    <p style="font-size: 0.9rem; color: #666; margin-bottom: 15px;">Sua participação só será confirmada após o envio do comprovante.</p>
+
+                    <form id="festa-upload-form" class="simol-form">
+                        <input type="hidden" id="festa-tipo" value="">
+                        <input type="hidden" id="festa-valor" value="">
+                        <input type="hidden" id="festa-nome-hidden" value="">
+                        <input type="hidden" id="festa-cpf-hidden" value="">
+
+                        <div class="form-group">
+                            <label>Comprovante (PDF, JPG, PNG) *</label>
+                            <div id="festa-drop-area" class="drop-area">
+                                <p>Arraste e solte seu arquivo aqui<br>ou clique para selecionar</p>
+                                <input type="file" id="festa-file-input" name="file" accept=".pdf,image/png,image/jpeg" required style="display: none;">
+                            </div>
+                            <div id="festa-file-name" style="margin-top: 10px; font-size: 0.9rem; font-weight: 600; color: var(--color-3);"></div>
+                        </div>
+
+                        <div class="form-message" id="festa-upload-message" style="display: none;"></div>
+
+                        <button type="submit" class="submit-btn" id="festa-upload-btn">
+                            <span>Enviar Comprovante</span>
+                            <div class="spinner" style="display: none;"></div>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <a href="index.html" class="back-btn" style="text-decoration: none; margin-top: 25px; display: inline-block; color: var(--color-4); font-weight: 600;">← Voltar para a página inicial</a>
+        </div>
+    </div>
+
+    <!-- Modal de Sucesso -->
+    <div class="festa-modal" id="festa-success-modal">
+        <div class="festa-modal-content">
+            <span class="modal-icon">🎊</span>
+            <h2>Inscrição na Festa Confirmada!</h2>
+            <p>Seu comprovante foi enviado com sucesso.</p>
+            <p>Você receberá um <strong>e-mail de confirmação</strong> em breve com todos os detalhes da festa.</p>
+            <p style="font-size: 0.9rem; color: #888; margin-top: 10px;">Nos vemos lá! 🥳</p>
+            <a href="index.html" class="close-festa-modal">Voltar para o início</a>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

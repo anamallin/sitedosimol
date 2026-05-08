@@ -53,13 +53,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('registration-form');
     if (form) {
         // --- COLE SEU LINK DO GOOGLE APPS SCRIPT AQUI ---
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbxB2H867vxXwrzIIeIVf59KxiWDZ45tYcTvdgGgmOyNr3EgOs6RTCtC7M1BnCYQxQs1/exec'; 
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbypSLrBw8jCcDKGMUscia_o3_a9TzvJ60SqXp5CKfLB_tYOMRJjrebQug3uJ1hLvMmsuw/exec'; 
         
         const submitBtn = document.getElementById('submit-btn');
         const spinner = submitBtn.querySelector('.spinner');
         const btnText = submitBtn.querySelector('span');
         const formMessage = document.getElementById('form-message');
 
+        // Modal de aviso pré-pagamento
+        const avisoPagamentoModal = document.getElementById('aviso-pagamento-modal');
+        const confirmPagamentoBtn = document.getElementById('confirm-pagamento-btn');
+        const cancelPagamentoBtn = document.getElementById('cancel-pagamento-btn');
+        const confirmSpinner = document.getElementById('confirm-spinner');
+        const confirmBtnText = confirmPagamentoBtn ? confirmPagamentoBtn.querySelector('span') : null;
+
+        // Ao submeter o formulário, mostra o modal de aviso primeiro
         form.addEventListener('submit', e => {
             e.preventDefault();
             
@@ -68,31 +76,61 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            // UI Loading State
-            submitBtn.disabled = true;
-            spinner.style.display = 'block';
-            btnText.textContent = 'Enviando...';
-            formMessage.style.display = 'none';
+            // Valida o formulário nativamente antes de abrir o modal
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
 
-            // Coletar dados via FormData
-            const formData = new FormData(form);
-
-            fetch(scriptURL, { method: 'POST', body: formData })
-                .then(response => {
-                    // Após envio bem-sucedido, vai para a página de escolha de planos
-                    window.location.href = 'planos.html';
-                })
-                .catch(error => {
-                    console.error('Erro!', error.message);
-                    showMessage('Ocorreu um erro ao enviar sua inscrição. Tente novamente mais tarde.', 'error');
-                })
-                .finally(() => {
-                    // Restaurar UI
-                    submitBtn.disabled = false;
-                    spinner.style.display = 'none';
-                    btnText.textContent = 'Confirmar Inscrição';
-                });
+            // Abre o modal de aviso
+            avisoPagamentoModal.style.display = 'flex';
         });
+
+        // Botão cancelar: fecha o modal
+        if (cancelPagamentoBtn) {
+            cancelPagamentoBtn.addEventListener('click', () => {
+                avisoPagamentoModal.style.display = 'none';
+            });
+        }
+
+        // Fechar ao clicar fora
+        if (avisoPagamentoModal) {
+            window.addEventListener('click', (e) => {
+                if (e.target === avisoPagamentoModal) {
+                    avisoPagamentoModal.style.display = 'none';
+                }
+            });
+        }
+
+        // Botão confirmar: envia os dados
+        if (confirmPagamentoBtn) {
+            confirmPagamentoBtn.addEventListener('click', () => {
+                // UI Loading State
+                confirmPagamentoBtn.disabled = true;
+                confirmSpinner.style.display = 'block';
+                confirmBtnText.textContent = 'Enviando...';
+
+                // Coletar dados via FormData
+                const formData = new FormData(form);
+
+                fetch(scriptURL, { method: 'POST', body: formData })
+                    .then(response => {
+                        // Após envio bem-sucedido, vai para a página de escolha de planos
+                        window.location.href = 'planos.html';
+                    })
+                    .catch(error => {
+                        console.error('Erro!', error.message);
+                        avisoPagamentoModal.style.display = 'none';
+                        showMessage('Ocorreu um erro ao enviar sua inscrição. Tente novamente mais tarde.', 'error');
+                    })
+                    .finally(() => {
+                        // Restaurar UI
+                        confirmPagamentoBtn.disabled = false;
+                        confirmSpinner.style.display = 'none';
+                        confirmBtnText.textContent = 'Entendi, prosseguir para pagamento';
+                    });
+            });
+        }
 
         function showMessage(text, type) {
             formMessage.textContent = text;
@@ -116,7 +154,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let selectedFile = null;
 
         // --- COLE SEU LINK DO GOOGLE APPS SCRIPT AQUI ---
-        const uploadScriptURL = 'https://script.google.com/macros/s/AKfycbxB2H867vxXwrzIIeIVf59KxiWDZ45tYcTvdgGgmOyNr3EgOs6RTCtC7M1BnCYQxQs1/exec'; 
+        const uploadScriptURL = 'https://script.google.com/macros/s/AKfycbypSLrBw8jCcDKGMUscia_o3_a9TzvJ60SqXp5CKfLB_tYOMRJjrebQug3uJ1hLvMmsuw/exec'; 
 
         // Abrir seletor ao clicar
         dropArea.addEventListener('click', () => fileInput.click());
@@ -285,6 +323,259 @@ document.addEventListener('DOMContentLoaded', () => {
         // Redireciona para a página de inscrição ao clicar em prosseguir
         proceedBtn.addEventListener('click', () => {
             window.location.href = 'inscricao.html';
+        });
+    }
+
+    // ========================================
+    // Lógica da Página - Festa de Encerramento
+    // ========================================
+    const festaCards = document.getElementById('option-cards');
+    if (festaCards) {
+        const cardInscrito = document.getElementById('card-inscrito');
+        const cardExterno = document.getElementById('card-externo');
+        const formSection = document.getElementById('festa-form-section');
+        const formTitle = document.getElementById('form-section-title');
+        const verifyBtn = document.getElementById('verify-btn');
+        const proceedFestaBtn = document.getElementById('proceed-festa-btn');
+        const verifyBtnText = document.getElementById('verify-btn-text');
+        const verifySpinner = document.getElementById('verify-spinner');
+        const verifyStatus = document.getElementById('verify-status');
+        const nomeInput = document.getElementById('festa-nome');
+        const cpfInput = document.getElementById('festa-cpf');
+        const paymentSection = document.getElementById('festa-payment-section');
+        const valorTag = document.getElementById('festa-valor-tag');
+        const successModal = document.getElementById('festa-success-modal');
+
+        // URL do Google Apps Script (mesmo já usado no projeto)
+        const festaScriptURL = 'https://script.google.com/macros/s/AKfycbypSLrBw8jCcDKGMUscia_o3_a9TzvJ60SqXp5CKfLB_tYOMRJjrebQug3uJ1hLvMmsuw/exec';
+
+        let selectedOption = null;
+
+        // CPF: aceitar apenas números
+        cpfInput.addEventListener('input', function() {
+            this.value = this.value.replace(/\D/g, '').slice(0, 11);
+        });
+
+        // Seleção de cards
+        function selectOption(option) {
+            selectedOption = option;
+            cardInscrito.classList.toggle('selected', option === 'inscrito');
+            cardExterno.classList.toggle('selected', option === 'externo');
+
+            // Mostrar formulário
+            formSection.classList.add('visible');
+            verifyStatus.style.display = 'none';
+            paymentSection.classList.remove('visible');
+
+            if (option === 'inscrito') {
+                formTitle.textContent = 'Verifique sua Inscrição';
+                nomeInput.placeholder = 'Nome completo conforme usado na inscrição';
+                verifyBtn.style.display = 'flex';
+                proceedFestaBtn.style.display = 'none';
+            } else {
+                formTitle.textContent = 'Seus Dados';
+                nomeInput.placeholder = 'Seu nome completo';
+                verifyBtn.style.display = 'none';
+                proceedFestaBtn.style.display = 'flex';
+            }
+        }
+
+        cardInscrito.addEventListener('click', () => selectOption('inscrito'));
+        cardExterno.addEventListener('click', () => selectOption('externo'));
+
+        // Botão prosseguir (externo — sem verificação)
+        proceedFestaBtn.addEventListener('click', () => {
+            const nome = nomeInput.value.trim();
+            const cpf = cpfInput.value.trim();
+            if (!nome || cpf.length < 11) {
+                verifyStatus.textContent = 'Por favor, preencha o nome completo e o CPF corretamente.';
+                verifyStatus.className = 'verify-status error';
+                verifyStatus.style.display = 'block';
+                return;
+            }
+            verifyStatus.style.display = 'none';
+            showPayment('60,00', 'Externo', nome, cpf);
+        });
+
+        // Botão verificar inscrição
+        verifyBtn.addEventListener('click', () => {
+            const nome = nomeInput.value.trim();
+            const cpf = cpfInput.value.trim();
+
+            if (!nome || cpf.length < 11) {
+                verifyStatus.textContent = 'Por favor, preencha o nome completo e o CPF corretamente.';
+                verifyStatus.className = 'verify-status error';
+                verifyStatus.style.display = 'block';
+                return;
+            }
+
+            // Loading
+            verifyBtn.disabled = true;
+            verifyBtnText.textContent = 'Verificando...';
+            verifySpinner.style.display = 'block';
+            verifyStatus.style.display = 'none';
+
+            const url = festaScriptURL + '?action=verificarInscricao&nome=' + encodeURIComponent(nome) + '&cpf=' + encodeURIComponent(cpf);
+
+            fetch(url, { method: 'POST' })
+                .then(response => response.text())
+                .then(text => {
+                    let data;
+                    try {
+                        data = JSON.parse(text);
+                    } catch(parseErr) {
+                        data = null;
+                    }
+
+                    if (data && data.encontrado) {
+                        verifyStatus.textContent = '✅ Inscrição encontrada! Prossiga com o pagamento abaixo.';
+                        verifyStatus.className = 'verify-status success';
+                        verifyStatus.style.display = 'block';
+                        showPayment('50,00', 'Inscrito SIMOL', nome, cpf);
+                    } else {
+                        verifyStatus.innerHTML = '❌ Inscrição não encontrada. Verifique se o nome e CPF estão iguais aos usados na inscrição.<br><small style="margin-top:8px;display:inline-block;">Se preferir, selecione a opção "Quero apenas participar da festa" (R$ 60,00).</small>';
+                        verifyStatus.className = 'verify-status error';
+                        verifyStatus.style.display = 'block';
+                        paymentSection.classList.remove('visible');
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro na verificação:', error);
+                    verifyStatus.textContent = 'Erro ao verificar. Tente novamente mais tarde.';
+                    verifyStatus.className = 'verify-status error';
+                    verifyStatus.style.display = 'block';
+                })
+                .finally(() => {
+                    verifyBtn.disabled = false;
+                    verifyBtnText.textContent = 'Verificar Inscrição';
+                    verifySpinner.style.display = 'none';
+                });
+        });
+
+        function showPayment(valor, tipo, nome, cpf) {
+            valorTag.textContent = 'R$ ' + valor;
+            document.getElementById('festa-tipo').value = tipo;
+            document.getElementById('festa-valor').value = valor;
+            document.getElementById('festa-nome-hidden').value = nome;
+            document.getElementById('festa-cpf-hidden').value = cpf;
+            paymentSection.classList.add('visible');
+            // Scroll suave até a seção de pagamento
+            setTimeout(() => {
+                paymentSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+
+        // Upload de comprovante — Festa
+        const festaUploadForm = document.getElementById('festa-upload-form');
+        const festaDropArea = document.getElementById('festa-drop-area');
+        const festaFileInput = document.getElementById('festa-file-input');
+        const festaFileName = document.getElementById('festa-file-name');
+        const festaUploadBtn = document.getElementById('festa-upload-btn');
+        const festaUploadSpinner = festaUploadBtn.querySelector('.spinner');
+        const festaUploadBtnText = festaUploadBtn.querySelector('span');
+        const festaUploadMessage = document.getElementById('festa-upload-message');
+        let festaSelectedFile = null;
+
+        festaDropArea.addEventListener('click', () => festaFileInput.click());
+
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            festaDropArea.addEventListener(eventName, (e) => { e.preventDefault(); e.stopPropagation(); }, false);
+        });
+        ['dragenter', 'dragover'].forEach(eventName => {
+            festaDropArea.addEventListener(eventName, () => festaDropArea.classList.add('highlight'), false);
+        });
+        ['dragleave', 'drop'].forEach(eventName => {
+            festaDropArea.addEventListener(eventName, () => festaDropArea.classList.remove('highlight'), false);
+        });
+
+        festaDropArea.addEventListener('drop', (e) => {
+            handleFestaFiles(e.dataTransfer.files);
+        });
+
+        festaFileInput.addEventListener('change', function() {
+            handleFestaFiles(this.files);
+        });
+
+        function handleFestaFiles(files) {
+            if (files.length > 0) {
+                festaSelectedFile = files[0];
+                festaFileName.textContent = 'Arquivo selecionado: ' + festaSelectedFile.name;
+            }
+        }
+
+        festaUploadForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            if (!festaSelectedFile) {
+                showFestaUploadMessage('Por favor, selecione um arquivo de comprovante.', 'error');
+                return;
+            }
+
+            // Loading
+            festaUploadBtn.disabled = true;
+            festaUploadSpinner.style.display = 'block';
+            festaUploadBtnText.textContent = 'Enviando...';
+            festaUploadMessage.style.display = 'none';
+
+            const reader = new FileReader();
+            reader.onload = function(ev) {
+                const base64Data = ev.target.result.split(',')[1];
+                const nome = document.getElementById('festa-nome-hidden').value;
+                const cpf = document.getElementById('festa-cpf-hidden').value;
+                const tipo = document.getElementById('festa-tipo').value;
+                const valor = document.getElementById('festa-valor').value;
+
+                const formData = new URLSearchParams();
+                formData.append('action', 'uploadFesta');
+                formData.append('nome', nome);
+                formData.append('cpf', cpf);
+                formData.append('tipo', tipo);
+                formData.append('valor', valor);
+                formData.append('filename', festaSelectedFile.name);
+                formData.append('mimeType', festaSelectedFile.type);
+                formData.append('fileData', base64Data);
+
+                fetch(festaScriptURL, {
+                    method: 'POST',
+                    body: formData,
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+                })
+                .then(response => {
+                    // Mostrar modal de sucesso
+                    successModal.style.display = 'flex';
+                })
+                .catch(error => {
+                    console.error('Erro!', error.message);
+                    showFestaUploadMessage('Erro ao enviar comprovante. Tente novamente.', 'error');
+                })
+                .finally(() => {
+                    festaUploadBtn.disabled = false;
+                    festaUploadSpinner.style.display = 'none';
+                    festaUploadBtnText.textContent = 'Enviar Comprovante';
+                });
+            };
+
+            reader.onerror = function() {
+                showFestaUploadMessage('Erro ao ler o arquivo.', 'error');
+                festaUploadBtn.disabled = false;
+                festaUploadSpinner.style.display = 'none';
+                festaUploadBtnText.textContent = 'Enviar Comprovante';
+            };
+
+            reader.readAsDataURL(festaSelectedFile);
+        });
+
+        function showFestaUploadMessage(text, type) {
+            festaUploadMessage.textContent = text;
+            festaUploadMessage.className = 'form-message ' + type;
+            festaUploadMessage.style.display = 'block';
+        }
+
+        // Fechar modal ao clicar fora
+        window.addEventListener('click', (e) => {
+            if (e.target === successModal) {
+                successModal.style.display = 'none';
+            }
         });
     }
 
