@@ -450,7 +450,7 @@
 
             const url = scriptURL + '?action=verificarInscricao&nome=' + encodeURIComponent(nome) + '&cpf=' + encodeURIComponent(cpf);
 
-            fetch(url, { method: 'POST' })
+            fetch(url, { method: 'GET' })
                 .then(response => response.json())
                 .then(data => {
                     if (data && data.encontrado) {
