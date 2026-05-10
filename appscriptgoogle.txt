@@ -1,0 +1,179 @@
+const sheetName = 'Página1'; 
+const FOLDER_ID = '1aftFKtaxgsKLQNC2zxw-PP_xTBjbJ0_x'; 
+
+const scriptProp = PropertiesService.getScriptProperties();
+
+function initialSetup () {
+  const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+  scriptProp.setProperty('key', activeSpreadsheet.getId());
+}
+
+function doPost(e) {
+  const lock = LockService.getScriptLock();
+  lock.tryLock(10000);
+
+  try {
+    const action = e.parameter.action;
+    const spreadsheetId = scriptProp.getProperty('key');
+    const doc = SpreadsheetApp.openById(spreadsheetId);
+
+    // ====== 1. UPLOAD DE COMPROVANTE (Inscrição Normal) ======
+    if (action === 'upload') {
+      const folder = DriveApp.getFolderById(FOLDER_ID);
+      const fileData = Utilities.base64Decode(e.parameter.fileData);
+      
+      const blob = Utilities.newBlob(fileData, e.parameter.mimeType, e.parameter.nome + " - " + e.parameter.filename);
+      const file = folder.createFile(blob);
+      
+      const sheet = doc.getSheetByName(sheetName);
+      const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+      const data = sheet.getDataRange().getValues();
+      
+      let nomeIndex = headers.indexOf('nome');
+      let compIndex = headers.indexOf('comprovante');
+      let tipoIndex = headers.indexOf('tipo_inscricao');
+      
+      if (compIndex === -1) {
+         compIndex = headers.length;
+         sheet.getRange(1, compIndex + 1).setValue('comprovante');
+         headers.push('comprovante');
+      }
+      
+      if (tipoIndex === -1) {
+         tipoIndex = headers.length;
+         sheet.getRange(1, tipoIndex + 1).setValue('tipo_inscricao');
+         headers.push('tipo_inscricao');
+      }
+      
+      let rowToUpdate = -1;
+      if (nomeIndex !== -1) {
+        for (let i = data.length - 1; i > 0; i--) {
+          if (data[i][nomeIndex] && data[i][nomeIndex].toString().trim().toLowerCase() === e.parameter.nome.toString().trim().toLowerCase()) {
+            rowToUpdate = i + 1;
+            break;
+          }
+        }
+      }
+      
+      if (rowToUpdate !== -1) {
+          sheet.getRange(rowToUpdate, compIndex + 1).setValue(file.getUrl());
+          sheet.getRange(rowToUpdate, tipoIndex + 1).setValue(e.parameter.tipo || 'Padrão');
+      } else {
+          const newRow = headers.map(function(header) {
+            if (header === 'Data') return new Date();
+            if (header === 'nome') return e.parameter.nome;
+            if (header === 'comprovante') return file.getUrl();
+            if (header === 'tipo_inscricao') return (e.parameter.tipo || 'Padrão');
+            return "Pendente"; 
+          });
+          sheet.appendRow(newRow);
+      }
+
+      return ContentService
+        .createTextOutput(JSON.stringify({ 'result': 'success', 'fileUrl': file.getUrl() }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
+    // ====== 2. UPLOAD DE COMPROVANTE (Festa de Encerramento) ======
+    else if (action === 'uploadFesta') {
+      const folder = DriveApp.getFolderById(FOLDER_ID);
+      const fileData = Utilities.base64Decode(e.parameter.fileData);
+      
+      const blob = Utilities.newBlob(fileData, e.parameter.mimeType, "FESTA - " + e.parameter.nome + " - " + e.parameter.filename);
+      const file = folder.createFile(blob);
+      
+      const sheetFesta = doc.getSheetByName('Festa');
+      var cpfFesta = "'" + (e.parameter.cpf || '').toString();
+      
+      sheetFesta.appendRow([
+        new Date(),
+        e.parameter.nome,
+        cpfFesta,
+        e.parameter.tipo,
+        'R$ ' + e.parameter.valor,
+        file.getUrl()
+      ]);
+
+      return ContentService
+        .createTextOutput(JSON.stringify({ 'result': 'success', 'fileUrl': file.getUrl() }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
+// ====== 3. VERIFICAÇÃO DE INSCRIÇÃO (Festa) - DINÂMICO ======
+    else if (action === 'verificarInscricao') {
+      const nomeBusca = (e.parameter.nome || '').trim().toLowerCase();
+      const cpfBusca = (e.parameter.cpf || '').replace(/\D/g, '').padStart(11, '0');
+      
+      const sheetVerif = doc.getSheetByName(sheetName);
+      const headers = sheetVerif.getRange(1, 1, 1, sheetVerif.getLastColumn()).getValues()[0];
+      const data = sheetVerif.getDataRange().getValues();
+      
+      // Encontra as colunas dinamicamente
+      const nomeCol = headers.indexOf('nome'); // Altere para o nome exato do cabeçalho na sua planilha
+      const cpfCol = headers.indexOf('CPF');   // Altere para o nome exato do cabeçalho na sua planilha
+
+      let encontrado = false;
+
+      if (nomeCol !== -1 && cpfCol !== -1) {
+        for (var i = 1; i < data.length; i++) {
+          var nomeSheet = (data[i][nomeCol] || '').toString().trim().toLowerCase();
+          var cpfSheet = (data[i][cpfCol] || '').toString().replace(/\D/g, '').padStart(11, '0');
+          
+          if (nomeSheet === nomeBusca && cpfSheet === cpfBusca) {
+            encontrado = true;
+            break;
+          }
+        }
+      }
+      
+      return ContentService.createTextOutput(
+        JSON.stringify({ encontrado: encontrado, status: "verificado" })
+      ).setMimeType(ContentService.MimeType.JSON);
+    }
+
+    // ====== 4. INSCRIÇÃO NORMAL (Dados do Formulário) ======
+    else {
+      const sheetBase = doc.getSheetByName(sheetName);
+      const headersBase = sheetBase.getRange(1, 1, 1, sheetBase.getLastColumn()).getValues()[0];
+      const nextRow = sheetBase.getLastRow() + 1;
+
+      const newRowData = headersBase.map(function(header) {
+        if (header === 'Data') return new Date();
+        
+        if (header === 'RESTRICAO_ALIMENTAR') {
+          var valores = e.parameters['RESTRICAO_ALIMENTAR'] || [];
+          var outro = e.parameter['RESTRICAO_ALIMENTAR_OUTRO'] || '';
+          var resultado = valores.join(', ');
+          if (outro) {
+            resultado = resultado.replace('Outro', 'Outro: ' + outro);
+          }
+          return resultado || '';
+        }
+        
+        if (header === 'AUTORIZACAO _IMAGEM') {
+          return e.parameter['AUTORIZACAO_IMAGEM'] || '';
+        }
+        
+        if (header === 'CPF') {
+          var cpfVal = (e.parameter['CPF'] || '').toString();
+          return "'" + cpfVal;
+        }
+        
+        return e.parameter[header] || '';
+      });
+
+      sheetBase.getRange(nextRow, 1, 1, newRowData.length).setValues([newRowData]);
+
+      return ContentService
+        .createTextOutput(JSON.stringify({ 'result': 'success', 'row': nextRow }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
+  } catch (error) {
+    return ContentService
+      .createTextOutput(JSON.stringify({ 'result': 'error', 'error': error.toString() }))
+      .setMimeType(ContentService.MimeType.JSON);
+  } finally {
+    lock.releaseLock();
+  }
+}

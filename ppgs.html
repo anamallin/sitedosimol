@@ -9,6 +9,14 @@
     <style>
         :root {
             --lock-bg: rgba(255, 255, 255, 0.9);
+            --schedule-bg: rgba(255, 255, 255, 0.8);
+            --morning-color: #e3f2fd;
+            --night-color: #f3e5f5;
+            
+            /* Cores por Departamento */
+            --color-biocel: #2ecc71;
+            --color-bioquimica: #e67e22;
+            --color-genetica: #3498db;
         }
 
         body {
@@ -16,6 +24,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            flex-direction: column;
         }
 
         /* Bloqueio Temporário */
@@ -37,236 +46,630 @@
             animation: fadeIn 0.8s ease forwards;
         }
 
-        .lock-icon {
-            font-size: 50px;
-            margin-bottom: 20px;
-            color: var(--color-1);
-        }
+        .lock-icon { font-size: 50px; margin-bottom: 20px; color: var(--color-1); }
+        #lock-screen h2 { color: var(--color-4); margin-bottom: 15px; font-size: 1.5rem; }
+        #lock-screen p { color: #555; margin-bottom: 25px; line-height: 1.6; }
 
-        #lock-screen h2 {
-            color: var(--color-4);
-            margin-bottom: 15px;
-            font-size: 1.5rem;
-        }
-
-        #lock-screen p {
-            color: #555;
-            margin-bottom: 25px;
-            line-height: 1.6;
-        }
-
-        .code-input-container {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            width: 100%;
-        }
-
+        .code-input-container { display: flex; flex-direction: column; gap: 15px; width: 100%; }
         #org-code {
-            padding: 15px;
-            border: 2px solid var(--color-2);
-            border-radius: 12px;
-            font-size: 1rem;
-            text-align: center;
-            transition: all 0.3s ease;
-            outline: none;
-            text-transform: uppercase;
+            padding: 15px; border: 2px solid var(--color-2); border-radius: 12px;
+            font-size: 1rem; text-align: center; outline: none; text-transform: uppercase;
         }
-
-        #org-code:focus {
-            border-color: var(--color-1);
-            box-shadow: 0 0 0 4px rgba(103, 42, 147, 0.1);
-        }
-
         #unlock-btn {
             background: linear-gradient(135deg, var(--color-3), var(--color-4));
-            color: white;
-            border: none;
-            padding: 15px;
-            border-radius: 12px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
+            color: white; border: none; padding: 15px; border-radius: 12px;
+            font-weight: bold; cursor: pointer; transition: all 0.3s ease;
         }
 
-        #unlock-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 15px rgba(103, 42, 147, 0.2);
-        }
-
-        .error-msg {
-            color: #e74c3c;
-            font-size: 0.9rem;
-            margin-top: 10px;
-            display: none;
-        }
-
-        /* Conteúdo da Página (Escondido) */
+        /* Conteúdo da Página */
         #main-content {
             display: none;
             width: 100%;
             max-width: 1100px;
             margin: 0 auto;
-            padding: 60px 20px;
+            padding: 40px 20px;
             animation: slideUp 0.8s ease forwards;
         }
 
         .dept-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 30px;
-            margin-top: 50px;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
         }
 
         .dept-card {
-            background: white;
-            border-radius: 20px;
-            padding: 30px;
-            text-align: center;
-            text-decoration: none;
-            color: inherit;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            border: 1.5px solid var(--color-2);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 20px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.03);
+            background: white; border-radius: 15px; padding: 15px;
+            text-align: center; cursor: pointer; transition: all 0.3s ease;
+            border: 2px solid var(--color-2); display: flex; flex-direction: column;
+            align-items: center; gap: 10px;
         }
-
-        .dept-card:hover {
-            transform: translateY(-15px);
-            box-shadow: 0 25px 40px rgba(103, 42, 147, 0.15);
+        .dept-card:hover, .dept-card.active {
+            transform: translateY(-5px);
             border-color: var(--color-1);
+            box-shadow: 0 10px 20px rgba(103, 42, 147, 0.1);
+        }
+        .dept-card.active { background: var(--color-2); }
+        .dept-card img { width: 100%; max-height: 80px; object-fit: contain; }
+
+        /* Lista de Minicursos */
+        #course-list-section {
+            margin-top: 30px;
+            background: rgba(255,255,255,0.6);
+            border-radius: 20px;
+            padding: 25px;
+            display: none;
+            border: 1px solid var(--color-2);
+        }
+        .course-item {
+            background: white; border-radius: 12px; padding: 20px;
+            margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            border-left: 5px solid #ccc;
+        }
+        
+        /* Cores das bordas na lista */
+        .item-BIOCEL { border-left-color: var(--color-biocel); }
+        .item-BIOQUIMICA { border-left-color: var(--color-bioquimica); }
+        .item-GENETICA { border-left-color: var(--color-genetica); }
+
+        .course-info h4 { color: var(--color-4); margin-bottom: 5px; }
+        .course-meta { font-size: 0.9rem; color: #666; }
+        .course-actions { display: flex; gap: 10px; }
+        
+        .btn-add {
+            background: var(--color-1); color: white; border: none;
+            padding: 8px 15px; border-radius: 8px; cursor: pointer;
+            font-weight: 600; font-size: 0.9rem; transition: background 0.3s;
+        }
+        .btn-add:hover { background: var(--color-4); }
+        .btn-details {
+            background: #eee; color: #333; border: none;
+            padding: 8px 15px; border-radius: 8px; cursor: pointer;
+            font-size: 0.9rem;
         }
 
-        .dept-card img {
-            width: 100%;
-            height: auto;
-            max-height: 120px;
-            object-fit: contain;
-            transition: transform 0.4s ease;
+        /* Agenda Semanal */
+        .schedule-section { margin-top: 50px; }
+        .schedule-table {
+            width: 100%; border-collapse: separate; border-spacing: 5px;
+            margin-top: 20px; table-layout: fixed;
         }
-
-        .dept-card:hover img {
-            transform: scale(1.1);
+        
+        /* Header Unificado */
+        .schedule-table thead tr {
+            background: var(--color-4);
         }
-
-        .dept-card span {
-            font-weight: 700;
-            color: var(--color-4);
-            font-size: 1.2rem;
-        }
-
-        .back-link {
-            display: inline-block;
-            margin-top: 40px;
-            color: var(--color-1);
-            text-decoration: none;
+        .schedule-table th {
+            color: white; padding: 15px;
             font-weight: 600;
-            transition: opacity 0.3s;
+            border: none;
+        }
+        .schedule-table th:first-child { border-radius: 15px 0 0 15px; }
+        .schedule-table th:last-child { border-radius: 0 15px 15px 0; }
+
+        .schedule-table td {
+            height: 100px; background: var(--schedule-bg);
+            border-radius: 10px; padding: 10px; vertical-align: top;
+            border: 1px dashed #ccc; transition: all 0.3s;
+        }
+        .period-label {
+            font-weight: bold; font-size: 0.8rem; color: var(--color-3);
+            margin-bottom: 5px; display: block; text-transform: uppercase;
+        }
+        
+        /* Estilos dos Cursos Agendados */
+        .scheduled-course {
+            color: white; padding: 8px;
+            border-radius: 6px; font-size: 0.85rem; position: relative;
+            animation: popIn 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .course-BIOCEL { background: var(--color-biocel); }
+        .course-BIOQUIMICA { background: var(--color-bioquimica); }
+        .course-GENETICA { background: var(--color-genetica); }
+
+        .remove-btn {
+            position: absolute; top: -5px; right: -5px; background: #fff;
+            color: #333; border: none; width: 18px; height: 18px;
+            border-radius: 50%; font-size: 12px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
 
-        .back-link:hover {
-            opacity: 0.7;
+        /* Modal de Detalhes */
+        .modal-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%;
+            height: 100%; background: rgba(0,0,0,0.6); z-index: 2000;
+            align-items: center; justify-content: center;
+        }
+        .course-modal {
+            background: white; padding: 35px; border-radius: 20px;
+            max-width: 600px; width: 90%; position: relative;
+        }
+        .close-modal {
+            position: absolute; top: 20px; right: 20px; font-size: 24px;
+            cursor: pointer; color: #888;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.95); }
-            to { opacity: 1; transform: scale(1); }
-        }
-
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @media (max-width: 600px) {
-            .dept-grid {
-                grid-template-columns: 1fr;
-            }
-        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     </style>
 </head>
 <body>
-    <!-- 
-        INSTRUÇÃO PARA REMOVER O BLOQUEIO:
-        1. Apague a div #lock-screen abaixo.
-        2. Mude o estilo de #main-content para "display: block".
-        3. Remova o script de verificação no final do body.
-    -->
 
     <div id="lock-screen">
         <div class="lock-icon">🔒</div>
         <h2>Acesso Restrito</h2>
-        <p>A inscrição nos minicursos ainda não foi aberta, digite o código de organizador para ver o preview, caso você não seja um organizador, espere até a abertura das inscrições 😊</p>
-        
+        <p>A inscrição nos minicursos ainda não foi aberta, digite o código de organizador para ver o preview 😊</p>
         <div class="code-input-container">
             <input type="text" id="org-code" placeholder="Digite o código" autocomplete="off">
             <button id="unlock-btn">Acessar Preview</button>
-            <div id="error-msg" class="error-msg">Código incorreto. Tente novamente.</div>
+            <div id="error-msg" style="color: #e74c3c; display: none; margin-top: 10px;">Código incorreto.</div>
         </div>
-        
-        <a href="index.html" class="back-link" style="margin-top: 25px;">Voltar para Home</a>
+        <a href="index.html" style="margin-top: 20px; color: var(--color-1); text-decoration: none;">Voltar para Home</a>
     </div>
 
     <div id="main-content">
-        <header style="text-align: center; margin-bottom: 50px;">
-            <h1 style="color: var(--color-4); font-size: 2.5rem; margin-bottom: 15px;">Minicursos</h1>
-            <p style="font-size: 1.15rem; max-width: 800px; margin: 0 auto; line-height: 1.6; color: #555;">
-                Os minicursos serão ofertados pelos 3 departamentos das pós-graduações participantes. 
-                Clique nos botões abaixo para explorar as opções de cada área:
-            </p>
+        <header style="text-align: center;">
+            <h1 style="color: var(--color-4); margin-bottom: 10px;">Inscrição em Minicursos</h1>
+            <div id="greeting-area" style="display: none; margin-bottom: 20px;">
+                <h3 id="user-greeting" style="color: var(--color-1);"></h3>
+                <p>Monte sua semana de minicursos (20 a 24 de Julho).</p>
+            </div>
         </header>
 
-        <div class="dept-grid">
-            <a href="#" class="dept-card">
-                <img src="BIOCEL.png" alt="Biologia Celular e Molecular">
-            </a>
-            <a href="#" class="dept-card">
-                <img src="BIOQUIMICA.png" alt="Bioquímica">
-            </a>
-            <a href="#" class="dept-card">
-                <img src="GENETICA.png" alt="Genética">
-            </a>
+        <!-- Seção de Verificação de Inscrição -->
+        <section id="verification-section" style="max-width: 600px; margin: 30px auto; background: white; padding: 35px; border-radius: 24px; box-shadow: 0 15px 40px rgba(0,0,0,0.08); text-align: center; border: 1px solid rgba(103, 42, 147, 0.1);">
+            <h3 style="color: var(--color-4); margin-bottom: 15px;">Verifique sua Inscrição no SIMOL</h3>
+            
+            <!-- Aviso de Taxas -->
+            <div style="background: #fff9db; border-left: 5px solid #fcc419; padding: 15px; margin-bottom: 25px; text-align: left; font-size: 0.9rem; line-height: 1.5; border-radius: 8px; color: #856404;">
+                <strong>Atenção:</strong> A inscrição no SIMOL disponibiliza a inscrição gratuita em <strong>DOIS MINICURSOS</strong>. Caso deseje participar em mais de dois, deverá ser paga a taxa de <strong>QUINZE REAIS</strong> por minicurso adicional. Você será redirecionado para uma página de pagamento após selecionar os minicursos, caso opte por isso.
+            </div>
+
+            <div id="verify-form-main">
+                <p style="font-size: 0.95rem; color: #555; margin-bottom: 20px;">Insira seus dados para prosseguir:</p>
+                
+                <div class="code-input-container" style="text-align: left; gap: 8px;">
+                    <label style="font-weight: 600; font-size: 0.85rem; color: var(--color-4); text-transform: uppercase;">Nome Completo</label>
+                    <input type="text" id="verify-name" placeholder="Ex: Maria Silva" style="padding: 12px; border: 1.5px solid #eee; border-radius: 10px; margin-bottom: 15px; width: 100%;">
+                    
+                    <label style="font-weight: 600; font-size: 0.85rem; color: var(--color-4); text-transform: uppercase;">CPF</label>
+                    <input type="text" id="verify-cpf" placeholder="Apenas números (11 dígitos)" maxlength="11" style="padding: 12px; border: 1.5px solid #eee; border-radius: 10px; margin-bottom: 20px; width: 100%;">
+                    
+                    <button id="check-reg-btn" style="background: linear-gradient(135deg, var(--color-3), var(--color-4)); color: white; border: none; padding: 16px; border-radius: 12px; font-weight: bold; cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; transition: transform 0.2s;">
+                        <span>Verificar Inscrição</span>
+                        <div id="verify-spinner" class="spinner" style="display: none; width: 18px; height: 18px; border-width: 2px;"></div>
+                    </button>
+                    
+                    <div id="reg-error-msg" style="color: #e74c3c; display: none; margin-top: 15px; font-size: 0.9rem; text-align: center; font-weight: 500;"></div>
+                </div>
+
+                <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
+                    <button id="external-reg-btn" style="background: none; border: 1.5px solid var(--color-1); color: var(--color-1); padding: 12px; border-radius: 10px; font-weight: 600; cursor: pointer; width: 100%; transition: all 0.3s ease;">
+                        Não estou inscrito no SIMOL, mas gostaria de me inscrever em algum minicurso
+                    </button>
+                </div>
+            </div>
+
+            <!-- Formulário Placeholder para Não Inscritos -->
+            <div id="external-form-placeholder" style="display: none; text-align: left; animation: fadeIn 0.5s;">
+                <h4 style="color: var(--color-1); margin-bottom: 15px;">Inscrição Avulsa (Minicursos)</h4>
+                <p style="font-size: 0.9rem; margin-bottom: 15px;">Preencha seus dados para realizar a inscrição apenas nos minicursos (R$ 15,00 cada).</p>
+                <div class="code-input-container">
+                    <input type="text" id="ext-name" placeholder="Nome Completo" style="padding: 12px; border: 1px solid #eee; border-radius: 8px; margin-bottom: 10px;">
+                    <input type="email" id="ext-email" placeholder="E-mail" style="padding: 12px; border: 1px solid #eee; border-radius: 8px; margin-bottom: 10px;">
+                    <input type="text" id="ext-cpf" placeholder="CPF (Apenas números)" maxlength="11" style="padding: 12px; border: 1px solid #eee; border-radius: 8px; margin-bottom: 15px;">
+                    <button onclick="proceedExternal()" style="background: var(--color-1); color: white; border: none; padding: 14px; border-radius: 10px; font-weight: bold; width: 100%;">Prosseguir para Seleção</button>
+                    <button onclick="toggleForms(true)" style="background: none; border: none; color: #888; font-size: 0.85rem; margin-top: 15px; cursor: pointer; text-decoration: underline; width: 100%;">Voltar para verificação</button>
+                </div>
+            </div>
+        </section>
+
+        <div id="planner-area" style="display: none;">
+            <div class="dept-grid">
+                <div class="dept-card" onclick="showCourses('BIOCEL')">
+                    <img src="BIOCEL.png" alt="Biologia Celular">
+                </div>
+                <div class="dept-card" onclick="showCourses('BIOQUIMICA')">
+                    <img src="BIOQUIMICA.png" alt="Bioquímica">
+                </div>
+                <div class="dept-card" onclick="showCourses('GENETICA')">
+                    <img src="GENETICA.png" alt="Genética">
+                </div>
+            </div>
+
+            <section id="course-list-section">
+                <h3 id="dept-title" style="color: var(--color-1); margin-bottom: 15px;">Cursos Disponíveis</h3>
+                <div id="course-container"></div>
+            </section>
+
+            <section class="schedule-section">
+                <h2 style="color: var(--color-4); text-align: center;">Minha Agenda (Julho 2026)</h2>
+                <table class="schedule-table">
+                    <thead>
+                        <tr>
+                            <th>Seg (20)</th>
+                            <th>Ter (21)</th>
+                            <th>Qua (22)</th>
+                            <th>Qui (23)</th>
+                            <th>Sex (24)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="schedule-body">
+                        <tr>
+                            <td id="day0-morning"><span class="period-label">Manhã (8h-12h)</span></td>
+                            <td id="day1-morning"><span class="period-label">Manhã (8h-12h)</span></td>
+                            <td id="day2-morning"><span class="period-label">Manhã (8h-12h)</span></td>
+                            <td id="day3-morning"><span class="period-label">Manhã (8h-12h)</span></td>
+                            <td id="day4-morning"><span class="period-label">Manhã (8h-12h)</span></td>
+                        </tr>
+                        <tr>
+                            <td id="day0-night"><span class="period-label">Noite (19h-21h)</span></td>
+                            <td id="day1-night"><span class="period-label">Noite (19h-21h)</span></td>
+                            <td id="day2-night"><span class="period-label">Noite (19h-21h)</span></td>
+                            <td id="day3-night"><span class="period-label">Noite (19h-21h)</span></td>
+                            <td id="day4-night"><span class="period-label">Noite (19h-21h)</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- Botão de Finalização -->
+                <div style="text-align: center; margin-top: 40px;">
+                    <button id="final-confirm-btn" style="background: linear-gradient(135deg, #27ae60, #2ecc71); color: white; border: none; padding: 18px 40px; border-radius: 15px; font-size: 1.2rem; font-weight: 800; cursor: pointer; box-shadow: 0 10px 20px rgba(46, 204, 113, 0.2); transition: all 0.3s ease;">
+                        Finalizar e Confirmar Inscrição
+                    </button>
+                    <p style="font-size: 0.85rem; color: #888; margin-top: 10px;">Revise seus horários antes de confirmar.</p>
+                </div>
+            </section>
         </div>
 
-        <div style="text-align: center; margin-top: 50px;">
-            <a href="index.html" class="back-link">← Voltar para a página inicial</a>
+        <div style="text-align: center; margin-top: 40px;">
+            <a href="index.html" style="color: var(--color-4); font-weight: bold; text-decoration: none;">← Sair do Preview</a>
+        </div>
+    </div>
+
+    <!-- Modal de Detalhes -->
+    <div class="modal-overlay" id="modal-overlay">
+        <div class="course-modal">
+            <span class="close-modal" onclick="closeModal()">&times;</span>
+            <h2 id="modal-title" style="color: var(--color-1);"></h2>
+            <p id="modal-meta" style="font-weight: bold; margin: 10px 0;"></p>
+            <hr>
+            <div style="margin-top: 20px;">
+                <h4>Ementa:</h4>
+                <p id="modal-syllabus"></p>
+                <h4 style="margin-top: 15px;">Ministrantes:</h4>
+                <p id="modal-instructors"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Confirmação Final -->
+    <div class="modal-overlay" id="confirm-modal-overlay">
+        <div class="course-modal" style="text-align: center;">
+            <h2 style="color: #e67e22; margin-bottom: 20px;">⚠️ Aviso Importante</h2>
+            <p style="text-align: left; line-height: 1.6; color: #444; margin-bottom: 25px;">
+                Ao confirmar, você declara estar ciente de que <strong>não é possível trocar os minicursos após a inscrição</strong>. 
+                Em caso de pagamentos, o reembolso pode ser solicitado em até 7 dias úteis. 
+                <br><br>
+                Por favor, revise todos os seus dados e sua agenda antes de finalizar.
+            </p>
+            <div style="display: flex; gap: 15px; justify-content: center;">
+                <button onclick="closeConfirmModal()" style="background: #eee; border: none; padding: 12px 25px; border-radius: 10px; font-weight: 600; cursor: pointer;">Revisar</button>
+                <button id="real-finish-btn" style="background: var(--color-1); color: white; border: none; padding: 12px 25px; border-radius: 10px; font-weight: 600; cursor: pointer;">Estou Ciente e Quero Finalizar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tela de Sucesso -->
+    <div class="modal-overlay" id="success-overlay">
+        <div class="course-modal" style="text-align: center; border-top: 8px solid #2ecc71;">
+            <div style="font-size: 60px; margin-bottom: 20px;">✅</div>
+            <h2 style="color: var(--color-4);">Inscrição Realizada!</h2>
+            <p style="margin: 20px 0; line-height: 1.6;">O comprovante de inscrição nos minicursos será mandado para o seu e-mail! Nos vemos no SIMOL.</p>
+            <a href="index.html" style="display: inline-block; background: var(--color-1); color: white; padding: 12px 30px; border-radius: 10px; text-decoration: none; font-weight: bold;">Voltar para Home</a>
         </div>
     </div>
 
     <script>
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbypSLrBw8jCcDKGMUscia_o3_a9TzvJ60SqXp5CKfLB_tYOMRJjrebQug3uJ1hLvMmsuw/exec';
+        const SECRET_CODE = 'SIMOL_ORG_2026_PREVIEW';
+
+        const courses = [
+            // BIOCEL (Verde)
+            { id: 1, dept: 'BIOCEL', title: 'Microscopia Confocal', day: 0, period: 'morning', instructors: 'Dr. Silva, Dra. Santos', syllabus: 'Princípios da fluorescência e aplicações em biologia celular.' },
+            { id: 2, dept: 'BIOCEL', title: 'Cultivo de Células-Tronco', day: 1, period: 'night', instructors: 'Dra. Oliveira', syllabus: 'Técnicas de isolamento e manutenção de linhagens.' },
+            { id: 7, dept: 'BIOCEL', title: 'Sinalização Intracelular', day: 2, period: 'night', instructors: 'Dra. Ferreira', syllabus: 'Cascata de quinases e receptores de membrana.' },
+            { id: 9, dept: 'BIOCEL', title: 'Morte Celular Programada', day: 3, period: 'morning', instructors: 'Dr. Veloso', syllabus: 'Apoptose, autofagia e necrose regulada.' },
+            { id: 10, dept: 'BIOCEL', title: 'Dinâmica de Organelas', day: 4, period: 'night', instructors: 'Dra. Neves', syllabus: 'Tráfego de vesículas e interações mitocondriais.' },
+
+            // BIOQUIMICA (Laranja/Vermelho)
+            { id: 3, dept: 'BIOQUIMICA', title: 'Proteômica Aplicada', day: 2, period: 'morning', instructors: 'Dr. Costa, Dra. Lima', syllabus: 'Espectrometria de massas para identificação de proteínas.' },
+            { id: 4, dept: 'BIOQUIMICA', title: 'Metabolismo de Lipídios', day: 0, period: 'night', instructors: 'Dr. Rocha', syllabus: 'Vias bioquímicas e regulação hormonal.' },
+            { id: 8, dept: 'BIOQUIMICA', title: 'Enzimologia Industrial', day: 4, period: 'night', instructors: 'Dr. Castro', syllabus: 'Cinética enzimática e aplicações em bioprocessos.' },
+            { id: 11, dept: 'BIOQUIMICA', title: 'Bioenergética Mitocondrial', day: 1, period: 'morning', instructors: 'Dr. Antunes', syllabus: 'Cadeia transportadora de elétrons e síntese de ATP.' },
+            { id: 12, dept: 'BIOQUIMICA', title: 'Glicobiologia Estrutural', day: 3, period: 'night', instructors: 'Dra. Prado', syllabus: 'Importância biológica dos carboidratos complexos.' },
+
+            // GENETICA (Azul)
+            { id: 5, dept: 'GENETICA', title: 'Edição Genômica CRISPR', day: 3, period: 'morning', instructors: 'Dra. Almeida, Dr. Souza', syllabus: 'Design de guias e ferramentas de edição precisa.' },
+            { id: 6, dept: 'GENETICA', title: 'Bioinformática Básica', day: 4, period: 'morning', instructors: 'Dr. Menezes', syllabus: 'Alinhamento de sequências e bancos de dados genômicos.' },
+            { id: 13, dept: 'GENETICA', title: 'Genética de Populações', day: 0, period: 'morning', instructors: 'Dr. Lins', syllabus: 'Equilíbrio de Hardy-Weinberg e deriva genética.' },
+            { id: 14, dept: 'GENETICA', title: 'Epigenética e Cromatina', day: 2, period: 'night', instructors: 'Dra. Ramos', syllabus: 'Metilação do DNA e modificações de histonas.' },
+            { id: 15, dept: 'GENETICA', title: 'Genômica Humana Aplicada', day: 1, period: 'night', instructors: 'Dr. Barbosa', syllabus: 'Interpretação de variantes clínicas e GWAS.' }
+        ];
+
+        let selectedCourses = [];
+        let isExternalUser = false;
+        let currentUserData = { nome: '', cpf: '' };
+
+        // Lock screen logic
         const lockScreen = document.getElementById('lock-screen');
         const mainContent = document.getElementById('main-content');
         const unlockBtn = document.getElementById('unlock-btn');
         const codeInput = document.getElementById('org-code');
-        const errorMsg = document.getElementById('error-msg');
 
-        const SECRET_CODE = 'SIMOL_ORG_2026_PREVIEW';
-
-        function checkCode() {
-            const val = codeInput.value.trim().toUpperCase();
-            if (val === SECRET_CODE) {
+        unlockBtn.addEventListener('click', () => {
+            if (codeInput.value.trim().toUpperCase() === SECRET_CODE) {
                 lockScreen.style.display = 'none';
                 mainContent.style.display = 'block';
-                document.body.style.display = 'block'; // Reset flex if needed
+                document.body.style.display = 'block';
                 document.body.style.alignItems = 'initial';
                 document.body.style.justifyContent = 'initial';
             } else {
-                errorMsg.style.display = 'block';
-                codeInput.style.borderColor = '#e74c3c';
-                setTimeout(() => {
-                    errorMsg.style.display = 'none';
-                    codeInput.style.borderColor = 'var(--color-2)';
-                }, 3000);
+                document.getElementById('error-msg').style.display = 'block';
+            }
+        });
+
+        // Lógica de Verificação de Inscrição
+        const checkRegBtn = document.getElementById('check-reg-btn');
+        const verifyName = document.getElementById('verify-name');
+        const verifyCpf = document.getElementById('verify-cpf');
+        const regErrorMsg = document.getElementById('reg-error-msg');
+        const verifySpinner = document.getElementById('verify-spinner');
+        const plannerArea = document.getElementById('planner-area');
+        const verificationSection = document.getElementById('verification-section');
+        const greetingArea = document.getElementById('greeting-area');
+        const userGreeting = document.getElementById('user-greeting');
+
+        checkRegBtn.addEventListener('click', () => {
+            const nome = verifyName.value.trim();
+            const cpf = verifyCpf.value.trim();
+
+            if (!nome || cpf.length < 11) {
+                regErrorMsg.textContent = 'Por favor, preencha o nome completo e o CPF corretamente.';
+                regErrorMsg.style.display = 'block';
+                return;
+            }
+
+            checkRegBtn.disabled = true;
+            verifySpinner.style.display = 'block';
+            regErrorMsg.style.display = 'none';
+
+            const url = scriptURL + '?action=verificarInscricao&nome=' + encodeURIComponent(nome) + '&cpf=' + encodeURIComponent(cpf);
+
+            fetch(url, { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.encontrado) {
+                        isExternalUser = false;
+                        currentUserData = { nome, cpf };
+                        verificationSection.style.display = 'none';
+                        plannerArea.style.display = 'block';
+                        greetingArea.style.display = 'block';
+                        userGreeting.textContent = `Olá, ${nome}! 👋`;
+                    } else {
+                        regErrorMsg.textContent = '❌ Inscrição não encontrada. Verifique se os dados estão corretos.';
+                        regErrorMsg.style.display = 'block';
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    regErrorMsg.textContent = 'Erro ao verificar. Tente novamente mais tarde.';
+                    regErrorMsg.style.display = 'block';
+                })
+                .finally(() => {
+                    checkRegBtn.disabled = false;
+                    verifySpinner.style.display = 'none';
+                });
+        });
+
+        // Botão de Finalização
+        const finalConfirmBtn = document.getElementById('final-confirm-btn');
+        const confirmModalOverlay = document.getElementById('confirm-modal-overlay');
+        const realFinishBtn = document.getElementById('real-finish-btn');
+
+        finalConfirmBtn.addEventListener('click', () => {
+            if (selectedCourses.length === 0) {
+                alert('Por favor, selecione ao menos um minicurso antes de finalizar.');
+                return;
+            }
+            confirmModalOverlay.style.display = 'flex';
+        });
+
+        function closeConfirmModal() {
+            confirmModalOverlay.style.display = 'none';
+        }
+
+        realFinishBtn.addEventListener('click', () => {
+            realFinishBtn.disabled = true;
+            realFinishBtn.innerText = 'Processando...';
+
+            const count = selectedCourses.length;
+            const coursesList = selectedCourses.map(c => c.title).join(', ');
+            const tipo = isExternalUser ? 'Inscrito Externo' : 'Inscrito SIMOL';
+
+            const formData = new URLSearchParams();
+            formData.append('action', 'inscreverMinicursos');
+            formData.append('nome', currentUserData.nome);
+            formData.append('cpf', currentUserData.cpf);
+            formData.append('minicursos', coursesList);
+            formData.append('n_minicursos', count);
+            formData.append('tipo', tipo);
+
+            fetch(scriptURL, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.result === 'success') {
+                    proceedToNextStep(count);
+                } else {
+                    alert('Erro ao salvar inscrição. Tente novamente.');
+                }
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                alert('Erro de conexão. Sua inscrição pode não ter sido salva.');
+            })
+            .finally(() => {
+                closeConfirmModal();
+                realFinishBtn.disabled = false;
+                realFinishBtn.innerText = 'Estou Ciente e Quero Finalizar';
+            });
+        });
+
+        function proceedToNextStep(count) {
+            const baseUrl = `pagamento-minicursos.html?value=${count * 15}&count=${count}&nome=${encodeURIComponent(currentUserData.nome)}&cpf=${currentUserData.cpf}`;
+            if (isExternalUser) {
+                window.location.href = `${baseUrl}&type=external`;
+            } else {
+                if (count <= 2) {
+                    document.getElementById('success-overlay').style.display = 'flex';
+                } else {
+                    const extra = count - 2;
+                    const total = extra * 15;
+                    window.location.href = `pagamento-minicursos.html?value=${total}&count=${count}&type=registered&nome=${encodeURIComponent(currentUserData.nome)}&cpf=${currentUserData.cpf}`;
+                }
             }
         }
 
-        unlockBtn.addEventListener('click', checkCode);
-        codeInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') checkCode();
-        });
+        // Toggle Forms (Externo)
+        const externalRegBtn = document.getElementById('external-reg-btn');
+        const verifyFormMain = document.getElementById('verify-form-main');
+        const externalFormPlaceholder = document.getElementById('external-form-placeholder');
+
+        function toggleForms(showMain) {
+            if (showMain) {
+                verifyFormMain.style.display = 'block';
+                externalFormPlaceholder.style.display = 'none';
+            } else {
+                verifyFormMain.style.display = 'none';
+                externalFormPlaceholder.style.display = 'block';
+            }
+        }
+
+        externalRegBtn.addEventListener('click', () => toggleForms(false));
+
+        function proceedExternal() {
+            const nome = document.getElementById('ext-name').value.trim();
+            const cpf = document.getElementById('ext-cpf').value.trim();
+
+            if (!nome || cpf.length < 11) {
+                alert('Por favor, preencha Nome e CPF corretamente.');
+                return;
+            }
+
+            isExternalUser = true;
+            currentUserData = { nome, cpf };
+            verificationSection.style.display = 'none';
+            plannerArea.style.display = 'block';
+            greetingArea.style.display = 'block';
+            userGreeting.textContent = `Bem-vindo(a), ${nome}! 👋`;
+        }
+
+        // Funções de Interface do Planejador
+        function showCourses(dept) {
+            const section = document.getElementById('course-list-section');
+            const container = document.getElementById('course-container');
+            const cards = document.querySelectorAll('.dept-card');
+            
+            section.style.display = 'block';
+            container.innerHTML = '';
+            
+            cards.forEach(c => {
+                const img = c.querySelector('img').src;
+                if (img.includes(dept)) c.classList.add('active');
+                else c.classList.remove('active');
+            });
+
+            const deptCourses = courses.filter(c => c.dept === dept);
+            deptCourses.forEach(c => {
+                const item = document.createElement('div');
+                item.className = `course-item item-${c.dept}`;
+                item.innerHTML = `
+                    <div class="course-info">
+                        <h4>${c.title}</h4>
+                        <div class="course-meta">${getDayName(c.day)} | ${c.period === 'morning' ? '8h-12h' : '19h-21h'}</div>
+                    </div>
+                    <div class="course-actions">
+                        <button class="btn-details" onclick="showDetails(${c.id})">Ementa</button>
+                        <button class="btn-add" onclick="addCourse(${c.id})">Adicionar</button>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+            section.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function addCourse(id) {
+            const course = courses.find(c => c.id === id);
+            const conflict = selectedCourses.find(c => c.day === course.day && c.period === course.period);
+            
+            if (conflict) {
+                alert(`⚠️ CONFLITO DE HORÁRIO!\n\nVocê já selecionou o minicurso "${conflict.title}" para este mesmo período (${getDayName(course.day)} - ${course.period === 'morning' ? 'Manhã' : 'Noite'}).`);
+                return;
+            }
+
+            selectedCourses.push(course);
+            updateSchedule();
+        }
+
+        function removeCourse(id) {
+            selectedCourses = selectedCourses.filter(c => c.id !== id);
+            updateSchedule();
+        }
+
+        function updateSchedule() {
+            const cells = document.querySelectorAll('.schedule-table td');
+            cells.forEach(cell => {
+                const label = cell.querySelector('.period-label');
+                cell.innerHTML = '';
+                cell.appendChild(label);
+            });
+
+            selectedCourses.forEach(c => {
+                const cellId = `day${c.day}-${c.period}`;
+                const cell = document.getElementById(cellId);
+                const div = document.createElement('div');
+                div.className = `scheduled-course course-${c.dept}`;
+                div.innerHTML = `
+                    <strong>${c.title}</strong>
+                    <button class="remove-btn" onclick="removeCourse(${c.id})">&times;</button>
+                `;
+                cell.appendChild(div);
+            });
+        }
+
+        function showDetails(id) {
+            const c = courses.find(course => course.id === id);
+            document.getElementById('modal-title').innerText = c.title;
+            document.getElementById('modal-meta').innerText = `${getDayName(c.day)} | ${c.period === 'morning' ? 'Manhã' : 'Noite'}`;
+            document.getElementById('modal-syllabus').innerText = c.syllabus;
+            document.getElementById('modal-instructors').innerText = c.instructors;
+            document.getElementById('modal-overlay').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('modal-overlay').style.display = 'none';
+        }
+
+        function getDayName(day) {
+            return ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta'][day];
+        }
     </script>
 </body>
 </html>

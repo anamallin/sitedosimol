@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pagamento Minicursos - I SIMOL</title>
+    <link rel="icon" type="image/png" href="Icone_Proteina_Óculos.png">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .payment-card {
+            background: white;
+            padding: 40px;
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+        .pix-box {
+            background: #f1f3f5;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            border: 2px dashed var(--color-1);
+        }
+        .qr-placeholder {
+            width: 180px;
+            height: 180px;
+            margin: 0 auto 15px;
+            background: #fff;
+            padding: 10px;
+            border-radius: 10px;
+        }
+        .value-tag {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: var(--color-4);
+            margin: 10px 0;
+        }
+
+        /* Área de Upload */
+        .upload-section {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            text-align: left;
+        }
+        .upload-label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: var(--color-4);
+        }
+        .file-drop-area {
+            border: 2px dashed #ccc;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #fafafa;
+        }
+        .file-drop-area:hover {
+            border-color: var(--color-1);
+            background: #fdfdfd;
+        }
+        #file-name {
+            display: block;
+            margin-top: 10px;
+            font-size: 0.85rem;
+            color: var(--color-1);
+            font-weight: 600;
+        }
+        .btn-upload {
+            background: var(--color-4);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            width: 100%;
+            margin-top: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .btn-upload:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .btn-home {
+            display: block;
+            margin-top: 20px;
+            color: #888;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="payment-card">
+        <h2 style="color: var(--color-4);">Pagamento de Minicursos</h2>
+        <p id="user-info" style="font-weight: 600; color: var(--color-1); margin-top: 5px;"></p>
+        <p style="font-size: 0.9rem; color: #666;">Você selecionou <span id="course-count">0</span> minicurso(s).</p>
+        
+        <div class="value-tag">R$ <span id="total-value">0,00</span></div>
+        
+        <div class="pix-box">
+            <p style="font-weight: 600; margin-bottom: 10px;">Pague via PIX</p>
+            <div class="qr-placeholder">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=SIMOL_PIX_MINICURSOS" alt="QR Code" style="width: 100%;">
+            </div>
+            <code style="font-size: 0.8rem; word-break: break-all; color: var(--color-1);">chave-pix-minicursos-simol@gmail.com</code>
+        </div>
+
+        <!-- Seção de Upload de Comprovante -->
+        <div class="upload-section">
+            <label class="upload-label">Anexe seu comprovante aqui:</label>
+            <div class="file-drop-area" id="drop-area" onclick="document.getElementById('file-input').click()">
+                <span>Clique ou arraste o arquivo aqui</span>
+                <input type="file" id="file-input" hidden accept="image/*,.pdf">
+                <span id="file-name">Nenhum arquivo selecionado</span>
+            </div>
+            <button id="upload-btn" class="btn-upload" disabled>Enviar Comprovante</button>
+        </div>
+        
+        <a href="index.html" class="btn-home">Voltar para a página inicial</a>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const value = urlParams.get('value') || '0';
+        const count = urlParams.get('count') || '0';
+        const nome = urlParams.get('nome') || '';
+        const cpf = urlParams.get('cpf') || '';
+        const type = urlParams.get('type');
+
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbypSLrBw8jCcDKGMUscia_o3_a9TzvJ60SqXp5CKfLB_tYOMRJjrebQug3uJ1hLvMmsuw/exec';
+
+        document.getElementById('total-value').innerText = parseFloat(value).toFixed(2).replace('.', ',');
+        document.getElementById('course-count').innerText = count;
+        document.getElementById('user-info').innerText = nome;
+
+        // Lógica de Seleção de Arquivo
+        const fileInput = document.getElementById('file-input');
+        const fileNameDisplay = document.getElementById('file-name');
+        const uploadBtn = document.getElementById('upload-btn');
+
+        fileInput.addEventListener('change', function(e) {
+            if (this.files && this.files[0]) {
+                fileNameDisplay.innerText = "Arquivo: " + this.files[0].name;
+                uploadBtn.disabled = false;
+            }
+        });
+
+        // Lógica de Upload
+        uploadBtn.addEventListener('click', function() {
+            const file = fileInput.files[0];
+            if (!file) return;
+
+            uploadBtn.disabled = true;
+            uploadBtn.innerText = 'Enviando...';
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const base64Data = e.target.result.split(',')[1];
+                const formData = new URLSearchParams();
+                formData.append('action', 'uploadMinicurso');
+                formData.append('fileData', base64Data);
+                formData.append('filename', file.name);
+                formData.append('mimeType', file.type);
+                formData.append('nome', nome);
+                formData.append('cpf', cpf);
+
+                fetch(scriptURL, {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.result === 'success') {
+                        alert('✅ Comprovante enviado com sucesso! Sua vaga será confirmada em breve.');
+                        window.location.href = 'index.html';
+                    } else {
+                        alert('❌ Erro ao enviar comprovante. Tente novamente.');
+                        uploadBtn.disabled = false;
+                        uploadBtn.innerText = 'Enviar Comprovante';
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    alert('Erro de conexão. Tente novamente.');
+                    uploadBtn.disabled = false;
+                    uploadBtn.innerText = 'Enviar Comprovante';
+                });
+            };
+            reader.readAsDataURL(file);
+        });
+    </script>
+</body>
+</html>
