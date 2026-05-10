@@ -7,6 +7,78 @@
     <link rel="icon" type="image/png" href="Icone_Proteina_Óculos.png">
     <link rel="stylesheet" href="styles.css">
     <style>
+        /* ==================================================
+           BLOQUEIO TEMPORÁRIO — REMOVER QUANDO ABRIR A FESTA:
+           1. Apague a div #lock-screen abaixo.
+           2. Remova o estilo do body com display:flex.
+           3. Remova o <script> de verificação no final do body.
+           ================================================== */
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        #lock-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            box-shadow: 0 20px 50px rgba(103, 42, 147, 0.15);
+            max-width: 500px;
+            width: 90%;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            animation: lockFadeIn 0.8s ease forwards;
+            z-index: 10;
+        }
+
+        .lock-icon-festa { font-size: 50px; margin-bottom: 20px; }
+        #lock-screen h2 { color: var(--color-4); margin-bottom: 15px; font-size: 1.5rem; }
+        #lock-screen p { color: #555; margin-bottom: 25px; line-height: 1.6; }
+        .code-input-container { display: flex; flex-direction: column; gap: 15px; width: 100%; }
+
+        #org-code-festa {
+            padding: 15px;
+            border: 2px solid var(--color-2);
+            border-radius: 12px;
+            font-size: 1rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            outline: none;
+            text-transform: uppercase;
+            font-family: inherit;
+        }
+        #org-code-festa:focus { border-color: var(--color-1); box-shadow: 0 0 0 4px rgba(103, 42, 147, 0.1); }
+
+        #unlock-btn-festa {
+            background: linear-gradient(135deg, var(--color-3), var(--color-4));
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+            font-size: 1rem;
+        }
+        #unlock-btn-festa:hover { transform: translateY(-2px); box-shadow: 0 8px 15px rgba(103, 42, 147, 0.2); }
+        .error-msg-festa { color: #e74c3c; font-size: 0.9rem; margin-top: 5px; display: none; }
+        .back-link-lock { display: inline-block; margin-top: 25px; color: var(--color-1); text-decoration: none; font-weight: 600; }
+        .back-link-lock:hover { opacity: 0.7; }
+
+        #main-content-festa { display: none; width: 100%; animation: festaSlideUp 0.8s ease forwards; }
+        @keyframes lockFadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        @keyframes festaSlideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
         .festa-container {
             max-width: 650px;
             margin: 0 auto;
@@ -281,6 +353,28 @@
     </style>
 </head>
 <body>
+
+    <!-- 
+        INSTRUÇÃO PARA REMOVER O BLOQUEIO:
+        1. Apague a div #lock-screen abaixo.
+        2. Remova os estilos body e #lock-screen no <style> acima.
+        3. Remova o <script> de verificação no final do body.
+        4. Mude o atributo id="main-content-festa" da div abaixo para nada (pode apagar o id).
+    -->
+
+    <div id="lock-screen">
+        <div class="lock-icon-festa">🎉</div>
+        <h2>Festa ainda não disponível</h2>
+        <p>As inscrições para a Festa de Encerramento do I SIMOL ainda não foram abertas. Fique de olho e volte em breve para garantir sua vaga! Se você é um organizador e deseja ver o preview, digite o código abaixo 😊</p>
+        <div class="code-input-container">
+            <input type="text" id="org-code-festa" placeholder="Código de organizador" autocomplete="off">
+            <button id="unlock-btn-festa">Ver Preview</button>
+            <div id="error-msg-festa" class="error-msg-festa">Código incorreto. Tente novamente.</div>
+        </div>
+        <a href="index.html" class="back-link-lock">← Voltar para Home</a>
+    </div>
+
+    <div id="main-content-festa">
     <div class="background-elements">
         <div class="parallax-layer" data-speed="-2">
             <div class="shape shape-1"></div>
@@ -414,6 +508,38 @@
         </div>
     </div>
 
+    </div> <!-- /main-content-festa -->
+
     <script src="script.js"></script>
+
+    <script>
+        const lockScreenFesta = document.getElementById('lock-screen');
+        const mainContentFesta = document.getElementById('main-content-festa');
+        const unlockBtnFesta = document.getElementById('unlock-btn-festa');
+        const codeInputFesta = document.getElementById('org-code-festa');
+        const errorMsgFesta = document.getElementById('error-msg-festa');
+
+        const SECRET_CODE = 'SIMOL_ORG_2026_PREVIEW';
+
+        function checkCodeFesta() {
+            if (codeInputFesta.value.trim().toUpperCase() === SECRET_CODE) {
+                lockScreenFesta.style.display = 'none';
+                mainContentFesta.style.display = 'block';
+                document.body.style.display = 'block';
+                document.body.style.alignItems = 'initial';
+                document.body.style.justifyContent = 'initial';
+            } else {
+                errorMsgFesta.style.display = 'block';
+                codeInputFesta.style.borderColor = '#e74c3c';
+                setTimeout(() => {
+                    errorMsgFesta.style.display = 'none';
+                    codeInputFesta.style.borderColor = 'var(--color-2)';
+                }, 3000);
+            }
+        }
+
+        unlockBtnFesta.addEventListener('click', checkCodeFesta);
+        codeInputFesta.addEventListener('keypress', (e) => { if (e.key === 'Enter') checkCodeFesta(); });
+    </script>
 </body>
 </html>

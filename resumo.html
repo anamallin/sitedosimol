@@ -7,16 +7,149 @@
     <link rel="icon" type="image/png" href="Icone_Proteina_Óculos.png">
     <link rel="stylesheet" href="styles.css">
     <style>
-        .page-content { text-align: center; margin-top: 100px; }
-        .back-btn { display: inline-block; margin-top: 30px; color: var(--color-4); font-weight: 600; text-decoration: none; }
-        .back-btn:hover { text-decoration: underline; }
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* ==================================================
+           BLOQUEIO TEMPORÁRIO — REMOVER QUANDO ABRIR A SUBMISSÃO:
+           1. Apague a div #lock-screen abaixo.
+           2. Mude o estilo de #main-content para "display: block".
+           3. Remova o <script> de verificação no final do body.
+           ================================================== */
+
+        #lock-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            box-shadow: 0 20px 50px rgba(103, 42, 147, 0.15);
+            max-width: 500px;
+            width: 90%;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            animation: fadeIn 0.8s ease forwards;
+        }
+
+        .lock-icon { font-size: 50px; margin-bottom: 20px; }
+
+        #lock-screen h2 { color: var(--color-4); margin-bottom: 15px; font-size: 1.5rem; }
+
+        #lock-screen p { color: #555; margin-bottom: 25px; line-height: 1.6; }
+
+        .code-input-container { display: flex; flex-direction: column; gap: 15px; width: 100%; }
+
+        #org-code {
+            padding: 15px;
+            border: 2px solid var(--color-2);
+            border-radius: 12px;
+            font-size: 1rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            outline: none;
+            text-transform: uppercase;
+            font-family: inherit;
+        }
+
+        #org-code:focus { border-color: var(--color-1); box-shadow: 0 0 0 4px rgba(103, 42, 147, 0.1); }
+
+        #unlock-btn {
+            background: linear-gradient(135deg, var(--color-3), var(--color-4));
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+            font-size: 1rem;
+        }
+
+        #unlock-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 15px rgba(103, 42, 147, 0.2); }
+
+        .error-msg { color: #e74c3c; font-size: 0.9rem; margin-top: 5px; display: none; }
+
+        #main-content { display: none; width: 100%; max-width: 800px; margin: 0 auto; padding: 60px 20px; animation: slideUp 0.8s ease forwards; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+        .back-link { display: inline-block; margin-top: 25px; color: var(--color-1); text-decoration: none; font-weight: 600; }
+        .back-link:hover { opacity: 0.7; }
     </style>
 </head>
 <body>
-    <div class="container page-content">
-        <h1 style="color: var(--color-4); margin-bottom: 20px;">Submeta seu resumo</h1>
-        <p>Página de submissão em construção.</p>
-        <a href="index.html" class="back-btn">← Voltar para a página inicial</a>
+
+    <!-- 
+        INSTRUÇÃO PARA REMOVER O BLOQUEIO:
+        1. Apague a div #lock-screen abaixo.
+        2. Mude o estilo de #main-content para "display: block".
+        3. Remova o script de verificação no final do body.
+    -->
+
+    <div id="lock-screen">
+        <div class="lock-icon">📄</div>
+        <h2>Submissão não disponível ainda</h2>
+        <p>A submissão de resumos ainda não foi aberta. Quando estiver no período correto, você poderá enviar seu trabalho por aqui. Se você é um organizador e deseja ver o preview, digite o código abaixo 😊</p>
+
+        <div class="code-input-container">
+            <input type="text" id="org-code" placeholder="Código de organizador" autocomplete="off">
+            <button id="unlock-btn">Ver Preview</button>
+            <div id="error-msg" class="error-msg">Código incorreto. Tente novamente.</div>
+        </div>
+
+        <a href="index.html" class="back-link" style="margin-top: 25px;">← Voltar para Home</a>
     </div>
+
+    <div id="main-content">
+        <div style="text-align: center; margin-bottom: 40px;">
+            <div style="font-size: 3rem; margin-bottom: 10px;">📄</div>
+            <h1 style="color: var(--color-4); font-size: 2.2rem; margin-bottom: 15px;">Submissão de Resumos</h1>
+            <p style="color: #555; max-width: 600px; margin: 0 auto; line-height: 1.6;">
+                Página de submissão em construção. Em breve você poderá enviar seus trabalhos aqui.
+            </p>
+        </div>
+        <div style="text-align: center;">
+            <a href="index.html" class="back-link">← Voltar para a página inicial</a>
+        </div>
+    </div>
+
+    <script>
+        const lockScreen = document.getElementById('lock-screen');
+        const mainContent = document.getElementById('main-content');
+        const unlockBtn = document.getElementById('unlock-btn');
+        const codeInput = document.getElementById('org-code');
+        const errorMsg = document.getElementById('error-msg');
+
+        const SECRET_CODE = 'SIMOL_ORG_2026_PREVIEW';
+
+        function checkCode() {
+            if (codeInput.value.trim().toUpperCase() === SECRET_CODE) {
+                lockScreen.style.display = 'none';
+                mainContent.style.display = 'block';
+                document.body.style.display = 'block';
+                document.body.style.alignItems = 'initial';
+                document.body.style.justifyContent = 'initial';
+            } else {
+                errorMsg.style.display = 'block';
+                codeInput.style.borderColor = '#e74c3c';
+                setTimeout(() => {
+                    errorMsg.style.display = 'none';
+                    codeInput.style.borderColor = 'var(--color-2)';
+                }, 3000);
+            }
+        }
+
+        unlockBtn.addEventListener('click', checkCode);
+        codeInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') checkCode(); });
+    </script>
 </body>
 </html>
