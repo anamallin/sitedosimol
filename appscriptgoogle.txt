@@ -1,6 +1,8 @@
+// ====== CONFIGURAÇÕES GERAIS ======
 const sheetName = 'Página1'; 
-const FOLDER_ID = '1aftFKtaxgsKLQNC2zxw-PP_xTBjbJ0_x'; 
+const FOLDER_ID = '1aftFKtaxgsKLQNC2zxw-PP_xTBjbJ0_x'; // Pasta de inscrições normais
 const ID_PLANILHA_MINICURSOS = '1-278Vp_ofZRnqhlVD5F08qe4SbLBPP8cE716ApxWFQY';
+const FOLDER_ID_MINICURSOS = '1pjAg6wLFzTjPFgHRMWCZKZC8jsSRW4xC'; // Pasta de comprovantes minicursos
 
 const scriptProp = PropertiesService.getScriptProperties();
 
@@ -9,26 +11,28 @@ function initialSetup () {
   scriptProp.setProperty('key', activeSpreadsheet.getId());
 }
 
+function doGet(e) {
+  return doPost(e);
+}
+
 function doPost(e) {
   const lock = LockService.getScriptLock();
   lock.tryLock(10000);
 
   try {
     const action = e.parameter.action;
-    const spreadsheetId = scriptProp.getProperty('key');
+    const spreadsheetId = scriptProp.getProperty('key') || SpreadsheetApp.getActiveSpreadsheet().getId();
     const doc = SpreadsheetApp.openById(spreadsheetId);
 
-    // ====== 1. INSCRIÇÃO EM MINICURSOS (NOVA!) ======
+    // ====== 1. INSCRIÇÃO EM MINICURSOS ======
     if (action === 'inscreverMinicursos') {
       const cpfBusca = (e.parameter.cpf || '').replace(/\D/g, '').padStart(11, '0');
-      
       const sheetPrincipal = doc.getSheetByName(sheetName);
-      const headersPrincipal = sheetPrincipal.getRange(1, 1, 1, sheetPrincipal.getLastColumn()).getValues()[0];
       const dataPrincipal = sheetPrincipal.getDataRange().getValues();
+      const headersPrincipal = dataPrincipal[0].map(h => h.toString().toLowerCase().trim());
       
-      // Mapeia colunas da planilha principal
       const nomeCol = headersPrincipal.indexOf('nome');
-      const cpfCol = headersPrincipal.indexOf('CPF');
+      const cpfCol = headersPrincipal.indexOf('cpf');
       const emailCol = headersPrincipal.indexOf('email');
       const telCol = headersPrincipal.indexOf('telefone');
 
@@ -36,7 +40,6 @@ function doPost(e) {
       let tel = "Não cadastrado";
       let nomeReal = e.parameter.nome;
 
-      // Busca dados do usuário para preencher a nova planilha
       for (var i = 1; i < dataPrincipal.length; i++) {
         var cpfSheet = (dataPrincipal[i][cpfCol] || '').toString().replace(/\D/g, '').padStart(11, '0');
         if (cpfSheet === cpfBusca) {
@@ -47,27 +50,26 @@ function doPost(e) {
         }
       }
 
-      // Abre a planilha de MINICURSOS e salva
       const ssMinicursos = SpreadsheetApp.openById(ID_PLANILHA_MINICURSOS);
       const sheetMinicursos = ssMinicursos.getSheets()[0];
       
-      // Colunas: tipo_inscricao | nome | CPF | minicursos | n_minicursos | email | telefone | pagamento
       sheetMinicursos.appendRow([
-        e.parameter.tipo,
-        nomeReal,
-        "'" + cpfBusca,
-        e.parameter.minicursos,
-        e.parameter.n_minicursos,
-        email,
-        tel,
+        e.parameter.tipo, 
+        nomeReal, 
+        "'" + cpfBusca, 
+        e.parameter.minicursos, 
+        e.parameter.n_minicursos, 
+        email, 
+        tel, 
         "Pendente"
       ]);
 
       return ContentService.createTextOutput(JSON.stringify({ result: 'success' })).setMimeType(ContentService.MimeType.JSON);
     }
-    // ====== UPLOAD DE COMPROVANTE (MINICURSOS) ======
+
+    // ====== 2. UPLOAD DE COMPROVANTE (MINICURSOS) ======
     else if (action === 'uploadMinicurso') {
-      const folder = DriveApp.getFolderById('1pjAg6wLFzTjPFgHRMWCZKZC8jsSRW4xC');
+      const folder = DriveApp.getFolderById(FOLDER_ID_MINICURSOS);
       const fileData = Utilities.base64Decode(e.parameter.fileData);
       const blob = Utilities.newBlob(fileData, e.parameter.mimeType, "MINICURSO - " + e.parameter.nome + " - " + e.parameter.filename);
       const file = folder.createFile(blob);
@@ -77,39 +79,36 @@ function doPost(e) {
       const data = sheet.getDataRange().getValues();
       const cpfBusca = (e.parameter.cpf || '').replace(/\D/g, '').padStart(11, '0');
       
-      // Procura a linha da pessoa pelo CPF para salvar o link do comprovante
       let rowToUpdate = -1;
       for (let i = data.length - 1; i > 0; i--) {
         var cpfSheet = (data[i][2] || '').toString().replace(/\D/g, '').padStart(11, '0');
-        if (cpfSheet === cpfBusca) {
-          rowToUpdate = i + 1;
-          break;
-        }
+        if (cpfSheet === cpfBusca) { rowToUpdate = i + 1; break; }
       }
       
       if (rowToUpdate !== -1) {
-          sheet.getRange(rowToUpdate, 8).setValue(file.getUrl()); // Coluna 8 é 'pagamento'
+          sheet.getRange(rowToUpdate, 8).setValue(file.getUrl()); 
       }
-      
-      return ContentService.createTextOutput(JSON.stringify({ 'result': 'success', 'fileUrl': file.getUrl() })).setMimeType(ContentService.MimeType.JSON);
+      return ContentService.createTextOutput(JSON.stringify({ result: 'success', fileUrl: file.getUrl() })).setMimeType(ContentService.MimeType.JSON);
     }
 
-    // ====== 2. UPLOAD DE COMPROVANTE (Inscrição Normal) ======
+    // ====== 3. UPLOAD DE COMPROVANTE (Inscrição Normal) ======
     else if (action === 'upload') {
       const folder = DriveApp.getFolderById(FOLDER_ID);
       const fileData = Utilities.base64Decode(e.parameter.fileData);
       const blob = Utilities.newBlob(fileData, e.parameter.mimeType, e.parameter.nome + " - " + e.parameter.filename);
       const file = folder.createFile(blob);
       const sheet = doc.getSheetByName(sheetName);
-      const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+      const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0].map(h => h.toString().toLowerCase().trim());
       const data = sheet.getDataRange().getValues();
       
       let nomeIndex = headers.indexOf('nome');
       let compIndex = headers.indexOf('comprovante');
       let tipoIndex = headers.indexOf('tipo_inscricao');
       
-      if (compIndex === -1) { compIndex = headers.length; sheet.getRange(1, compIndex + 1).setValue('comprovante'); }
-      if (tipoIndex === -1) { tipoIndex = headers.length; sheet.getRange(1, tipoIndex + 1).setValue('tipo_inscricao'); }
+      if (compIndex === -1) { 
+          compIndex = headers.length; 
+          sheet.getRange(1, compIndex + 1).setValue('comprovante');
+      }
       
       let rowToUpdate = -1;
       for (let i = data.length - 1; i > 0; i--) {
@@ -120,20 +119,21 @@ function doPost(e) {
       
       if (rowToUpdate !== -1) {
           sheet.getRange(rowToUpdate, compIndex + 1).setValue(file.getUrl());
-          sheet.getRange(rowToUpdate, tipoIndex + 1).setValue(e.parameter.tipo || 'Padrão');
       }
       return ContentService.createTextOutput(JSON.stringify({ 'result': 'success', 'fileUrl': file.getUrl() })).setMimeType(ContentService.MimeType.JSON);
     }
 
-    // ====== 3. VERIFICAÇÃO DE INSCRIÇÃO ======
+    // ====== 4. VERIFICAÇÃO DE INSCRIÇÃO (SITE) ======
     else if (action === 'verificarInscricao') {
       const nomeBusca = (e.parameter.nome || '').trim().toLowerCase();
       const cpfBusca = (e.parameter.cpf || '').replace(/\D/g, '').padStart(11, '0');
       const sheetVerif = doc.getSheetByName(sheetName);
       const data = sheetVerif.getDataRange().getValues();
-      const headers = data[0];
+      const headers = data[0].map(h => h.toString().toLowerCase().trim());
+      
       const nomeCol = headers.indexOf('nome');
-      const cpfCol = headers.indexOf('CPF');
+      const cpfCol = headers.indexOf('cpf');
+      
       let encontrado = false;
 
       if (nomeCol !== -1 && cpfCol !== -1) {
@@ -146,7 +146,21 @@ function doPost(e) {
       return ContentService.createTextOutput(JSON.stringify({ encontrado: encontrado })).setMimeType(ContentService.MimeType.JSON);
     }
 
-    // ====== 4. INSCRIÇÃO NORMAL (Dados do Formulário) ======
+    // ====== 5. UPLOAD DE COMPROVANTE (Festa de Encerramento) ======
+    else if (action === 'uploadFesta') {
+      const folder = DriveApp.getFolderById(FOLDER_ID);
+      const fileData = Utilities.base64Decode(e.parameter.fileData);
+      const blob = Utilities.newBlob(fileData, e.parameter.mimeType, "FESTA - " + e.parameter.nome + " - " + e.parameter.filename);
+      const file = folder.createFile(blob);
+      const sheetFesta = doc.getSheetByName('Festa');
+      var cpfFesta = "'" + (e.parameter.cpf || '').toString();
+      
+      sheetFesta.appendRow([new Date(), e.parameter.nome, cpfFesta, e.parameter.tipo, 'R$ ' + e.parameter.valor, file.getUrl()]);
+
+      return ContentService.createTextOutput(JSON.stringify({ 'result': 'success', 'fileUrl': file.getUrl() })).setMimeType(ContentService.MimeType.JSON);
+    }
+
+    // ====== 6. INSCRIÇÃO NORMAL (Dados do Formulário) ======
     else {
       const sheetBase = doc.getSheetByName(sheetName);
       const headersBase = sheetBase.getRange(1, 1, 1, sheetBase.getLastColumn()).getValues()[0];
