@@ -817,6 +817,48 @@ body {
     color: #000000 !important;
 }
 
+/* Elementos Decorativos Flutuantes atrás da Proteína (bitmap2.png) */
+@keyframes hover-float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-15px); }
+}
+
+.floating-icon {
+    position: absolute; /* Mudar para absolute para ficar relativo ao container da proteína */
+    width: 100px; /* Grande como solicitado */
+    height: 100px;
+    background-image: url('bitmap2.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    opacity: 0.6; /* Bem visível */
+    z-index: -1;
+    pointer-events: none;
+    animation: hover-float 4s ease-in-out infinite;
+}
+
+/* Posições ao redor da proteína */
+.float-1 { top: -40px; left: -30px; animation-delay: 0s; }
+.float-2 { top: 20px; left: -60px; animation-delay: -1.5s; width: 80px; height: 80px; }
+.float-3 { top: -20px; right: -20px; animation-delay: -3s; width: 90px; height: 90px; }
+
+/* Moléculas nos Botões */
+.btn-molecule {
+    position: absolute;
+    width: 25px;
+    height: 25px;
+    background-image: url('bitmap2.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    pointer-events: none;
+    z-index: 100;
+    opacity: 0;
+    transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease;
+}
+
+.action-btn, #open-aviso-btn {
+    position: relative; /* Necessário para posicionar as moléculas */
+}
+
 /* Correções específicas para Mobile que devem ficar no fim do arquivo */
 @media (max-width: 860px) {
     .speech-bubble {

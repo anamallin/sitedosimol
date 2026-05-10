@@ -21,6 +21,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const mascotImg = document.querySelector('.mascot-protein');
     
     if (mascotContainer && mascotImg) {
+        const floatingIcons = mascotContainer.querySelectorAll('.floating-icon');
+        
         document.addEventListener('mousemove', (e) => {
             // Calcular a posição do mouse em relação ao mascote
             const rect = mascotContainer.getBoundingClientRect();
@@ -30,8 +32,15 @@ document.addEventListener('DOMContentLoaded', () => {
             // Movimentação sutil da div inteira
             const xMove = (e.clientX - mascotCenterX) * 0.03;
             const yMove = (e.clientY - mascotCenterY) * 0.03;
-            
             mascotContainer.style.transform = `translate(${xMove}px, ${yMove}px)`;
+
+            // Movimentação independente dos ícones atrás (efeito parallax)
+            floatingIcons.forEach((icon, index) => {
+                const factor = (index + 1) * 0.05; // Fatores diferentes para cada ícone
+                const iconX = (e.clientX - mascotCenterX) * factor;
+                const iconY = (e.clientY - mascotCenterY) * factor;
+                icon.style.transform = `translate(${iconX}px, ${iconY}px)`;
+            });
         });
 
         // Efeito ao clicar para fazer algo divertido na imagem
@@ -575,6 +584,73 @@ document.addEventListener('DOMContentLoaded', () => {
         window.addEventListener('click', (e) => {
             if (e.target === successModal) {
                 successModal.style.display = 'none';
+            }
+        });
+    }
+
+    // Button Molecules Interaction (Hover & Click)
+    const interactiveButtons = document.querySelectorAll('.action-btn, #open-aviso-btn');
+    
+    interactiveButtons.forEach(btn => {
+        // Criar moléculas no hover
+        btn.addEventListener('mouseenter', () => {
+            for (let i = 0; i < 4; i++) {
+                createMolecule(btn, false);
+            }
+        });
+
+        // Remover moléculas ao sair
+        btn.addEventListener('mouseleave', () => {
+            const molecules = btn.querySelectorAll('.btn-molecule');
+            molecules.forEach(m => {
+                m.style.opacity = '0';
+                setTimeout(() => m.remove(), 300);
+            });
+        });
+
+        // Efeito de explosão no Click (funciona no celular também)
+        btn.addEventListener('click', () => {
+            for (let i = 0; i < 10; i++) {
+                createMolecule(btn, true);
+            }
+        });
+    });
+
+    function createMolecule(parent, isExplosion) {
+        const molecule = document.createElement('div');
+        molecule.className = 'btn-molecule';
+        
+        // Posição inicial aleatória ao redor do botão
+        const rect = parent.getBoundingClientRect();
+        const startX = Math.random() * rect.width;
+        const startY = Math.random() * rect.height;
+        
+        molecule.style.left = `${startX}px`;
+        molecule.style.top = `${startY}px`;
+        
+        parent.appendChild(molecule);
+
+        // Pequeno delay para a animação entrar
+        requestAnimationFrame(() => {
+            molecule.style.opacity = '1';
+            
+            if (isExplosion) {
+                // Voa para longe e some
+                const angle = Math.random() * Math.PI * 2;
+                const distance = 100 + Math.random() * 100;
+                const destX = Math.cos(angle) * distance;
+                const destY = Math.sin(angle) * distance;
+                
+                molecule.style.transform = `translate(${destX}px, ${destY}px) scale(0)`;
+                molecule.style.opacity = '0';
+                molecule.style.transition = 'all 0.8s ease-out';
+                
+                setTimeout(() => molecule.remove(), 800);
+            } else {
+                // Fica orbitando sutilmente
+                const orbitX = (Math.random() - 0.5) * 60;
+                const orbitY = (Math.random() - 0.5) * 60;
+                molecule.style.transform = `translate(${orbitX}px, ${orbitY}px)`;
             }
         });
     }
