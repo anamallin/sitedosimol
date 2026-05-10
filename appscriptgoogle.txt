@@ -53,15 +53,24 @@ function doPost(e) {
       const ssMinicursos = SpreadsheetApp.openById(ID_PLANILHA_MINICURSOS);
       const sheetMinicursos = ssMinicursos.getSheets()[0];
       
+      // Lógica de Pagamento Automático
+      const tipoInsc = e.parameter.tipo;
+      const nMinis = parseInt(e.parameter.n_minicursos || 0);
+      let statusPagamento = "Pendente";
+      
+      if (tipoInsc === 'Inscrito SIMOL' && nMinis <= 2) {
+        statusPagamento = "Não se aplica";
+      }
+
       sheetMinicursos.appendRow([
-        e.parameter.tipo, 
+        tipoInsc, 
         nomeReal, 
         "'" + cpfBusca, 
         e.parameter.minicursos, 
-        e.parameter.n_minicursos, 
+        nMinis, 
         email, 
         tel, 
-        "Pendente"
+        statusPagamento
       ]);
 
       return ContentService.createTextOutput(JSON.stringify({ result: 'success' })).setMimeType(ContentService.MimeType.JSON);
@@ -103,7 +112,6 @@ function doPost(e) {
       
       let nomeIndex = headers.indexOf('nome');
       let compIndex = headers.indexOf('comprovante');
-      let tipoIndex = headers.indexOf('tipo_inscricao');
       
       if (compIndex === -1) { 
           compIndex = headers.length; 
