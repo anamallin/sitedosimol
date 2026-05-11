@@ -80,27 +80,27 @@ function doPost(e) {
       return ContentService.createTextOutput(JSON.stringify({ result: 'success' })).setMimeType(ContentService.MimeType.JSON);
     }
 
-    // ====== 2. SUBMISSÃO DE RESUMO (NOVO!) ======
+    // ====== 2. SUBMISSÃO DE RESUMO ======
     else if (action === 'submeterResumo') {
-      let sheetSubmissoes = doc.getSheetByName('Submissões');
+      let sheetSubmissoes = doc.getSheetByName('submissoes');
       if (!sheetSubmissoes) {
-        sheetSubmissoes = doc.insertSheet('Submissões');
-        sheetSubmissoes.appendRow(['Data', 'Nome', 'CPF', 'Título', 'Resumo', 'Autores', 'Departamento', 'Filiação', 'Palavras-Chave', 'Publicar DOI']);
+        sheetSubmissoes = doc.insertSheet('submissoes');
+        sheetSubmissoes.appendRow(['nome', 'cpf', 'titulo', 'resumo', 'autores', 'afiliacao', 'palavras_chave', 'publicacao_doi', 'aceite_revisor1', 'aceite_revisor2']);
       }
       
       const cpfFormatado = "'" + (e.parameter.cpf || '').replace(/\D/g, '').padStart(11, '0');
       
       sheetSubmissoes.appendRow([
-        new Date(),
         e.parameter.nome,
         cpfFormatado,
         e.parameter.titulo,
         e.parameter.resumo,
         e.parameter.autores,
-        e.parameter.departamento,
         e.parameter.filiacao || 'Inscrito Interno',
         e.parameter.keywords,
-        e.parameter.doi ? 'Sim' : 'Não'
+        e.parameter.doi === 'true' || e.parameter.doi === true ? 'Sim' : 'Não',
+        '', // aceite_revisor1
+        ''  // aceite_revisor2
       ]);
 
       return ContentService.createTextOutput(JSON.stringify({ result: 'success' })).setMimeType(ContentService.MimeType.JSON);
