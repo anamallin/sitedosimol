@@ -83,6 +83,69 @@
             transform: translateY(-3px);
             box-shadow: 0 10px 20px rgba(103, 42, 147, 0.1);
         }
+
+        /* DASHBOARD STYLES */
+        .status-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        .status-card {
+            background: #fff;
+            padding: 18px;
+            border-radius: 16px;
+            border: 1px solid #eee;
+            text-align: left;
+            transition: 0.3s;
+        }
+        .status-card h4 {
+            font-size: 0.8rem;
+            color: #888;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+        }
+        .status-card .value {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--color-4);
+        }
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            margin-top: 8px;
+        }
+        .badge-pending { background: #fff3cd; color: #856404; }
+        .badge-success { background: #d4edda; color: #155724; }
+        .badge-neutral { background: #e9ecef; color: #495057; }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 8px 15px;
+            font-weight: 600;
+            color: #888;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: 0.3s;
+        }
+        .tab-btn.active {
+            background: var(--color-2);
+            color: var(--color-1);
+        }
+
+        #certificados-tab { display: none; }
     </style>
 </head>
 <body>
@@ -110,56 +173,87 @@
 
         <!-- CONTEÚDO DO PORTAL -->
         <div id="portal-content">
-            <div class="lock-icon">✨</div>
             <div class="welcome-badge">
                 <h2 style="color: var(--color-4); margin-bottom: 5px;">Olá, <span id="user-name">...</span>!</h2>
-                <p style="color: #666;">Bem-vindo à sua área exclusiva do I SIMOL.</p>
+                <p style="color: #666; font-size: 0.9rem;">CPF: <span id="user-cpf-display">...</span></p>
             </div>
 
-            <div class="menu-grid">
-                <a href="#" class="menu-item">
-                    <div style="font-size: 24px; margin-bottom: 10px;">🎓</div>
-                    Certificados
-                </a>
-                <a href="resumo.html" class="menu-item">
-                    <div style="font-size: 24px; margin-bottom: 10px;">📝</div>
-                    Minhas Submissões
-                </a>
-                <a href="#" class="menu-item">
-                    <div style="font-size: 24px; margin-bottom: 10px;">📅</div>
-                    Programação
-                </a>
-                <a href="#" class="menu-item" onclick="location.reload()">
-                    <div style="font-size: 24px; margin-bottom: 10px;">🚪</div>
-                    Sair
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchTab('dashboard')">Situação</button>
+                <button class="tab-btn" onclick="switchTab('certificados')">Certificados</button>
+            </div>
+
+            <!-- ABA SITUAÇÃO -->
+            <div id="dashboard-tab">
+                <div class="status-grid">
+                    <div class="status-card">
+                        <h4>Inscrição SIMOL</h4>
+                        <div class="value" id="status-simol">Carregando...</div>
+                        <div id="badge-simol"></div>
+                    </div>
+                    <div class="status-card">
+                        <h4>Festa de Encerramento</h4>
+                        <div class="value" id="status-festa">Verificando...</div>
+                        <div id="badge-festa"></div>
+                    </div>
+                </div>
+
+                <div class="status-card" style="margin-bottom: 15px;">
+                    <h4>Minicursos</h4>
+                    <div id="minicursos-list" style="font-size: 0.9rem; font-weight: 600; color: var(--color-4);">Nenhum minicurso encontrado.</div>
+                </div>
+
+                <div class="status-card" style="margin-bottom: 25px;">
+                    <h4>Submissões de Resumos</h4>
+                    <div id="submissoes-list" style="font-size: 0.9rem; color: #555;">Nenhuma submissão encontrada.</div>
+                </div>
+
+                <a href="#" class="menu-item" style="width: 100%;" onclick="location.reload()">
+                    <div style="font-size: 20px; margin-bottom: 5px;">🚪</div>
+                    Sair do Portal
                 </a>
             </div>
-            
-            <p style="margin-top: 30px; font-size: 0.85rem; color: #999;">Os certificados estarão disponíveis após o encerramento do evento.</p>
+
+            <!-- ABA CERTIFICADOS -->
+            <div id="certificados-tab">
+                <div style="padding: 40px 20px; background: #f8f9fa; border-radius: 15px; border: 2px dashed #eee;">
+                    <div style="font-size: 40px; margin-bottom: 15px;">⏳</div>
+                    <h3 style="color: var(--color-4);">Certificados em Breve</h3>
+                    <p style="color: #888; font-size: 0.9rem;">Os certificados de participação e submissão serão liberados automaticamente após o término do simpósio (24 de Julho).</p>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
         const scriptURL = 'https://script.google.com/macros/s/AKfycbyZj6r_cm9UoOtwzIP3RmyPFhF7-PbAxY9k6GEWWFnkPAVXIAJby85I3oLg9lgGkGb_iA/exec';
 
+        function switchTab(tab) {
+            document.getElementById('dashboard-tab').style.display = tab === 'dashboard' ? 'block' : 'none';
+            document.getElementById('certificados-tab').style.display = tab === 'certificados' ? 'block' : 'none';
+            
+            const btns = document.querySelectorAll('.tab-btn');
+            btns[0].classList.toggle('active', tab === 'dashboard');
+            btns[1].classList.toggle('active', tab === 'certificados');
+        }
+
         document.getElementById('verify-btn').addEventListener('click', () => {
             const nome = document.getElementById('verify-nome').value.trim();
             const rawCpf = document.getElementById('verify-cpf').value.trim();
-            const cpf = rawCpf.replace(/\D/g, '');
+            const cpf = rawCpf.replace(/\D/g, '').padStart(11, '0');
             
             if (!nome || !cpf) return alert('Preencha seu nome e CPF.');
 
             const btn = document.getElementById('verify-btn');
-            btn.innerText = 'Verificando...';
+            btn.innerText = 'Autenticando...';
             btn.disabled = true;
 
-            fetch(`${scriptURL}?action=verificarInscricao&nome=${encodeURIComponent(nome)}&cpf=${encodeURIComponent(cpf)}`)
+            // Busca dados completos
+            fetch(`${scriptURL}?action=getParticipantData&cpf=${cpf}`)
                 .then(r => r.json())
                 .then(data => {
-                    if (data.encontrado) {
-                        document.getElementById('verification-screen').style.display = 'none';
-                        document.getElementById('portal-content').style.display = 'block';
-                        document.getElementById('user-name').innerText = nome.split(' ')[0];
+                    if (data.inscricao.status !== 'Não encontrada') {
+                        renderDashboard(data, nome, cpf);
                     } else {
                         document.getElementById('error-msg').style.display = 'block';
                         btn.innerText = 'Entrar no Portal';
@@ -167,11 +261,61 @@
                     }
                 })
                 .catch(err => {
-                    alert('Erro de conexão.');
+                    alert('Erro de conexão com o servidor.');
                     btn.innerText = 'Entrar no Portal';
                     btn.disabled = false;
                 });
         });
+
+        function renderDashboard(data, nome, cpf) {
+            document.getElementById('verification-screen').style.display = 'none';
+            document.getElementById('portal-content').style.display = 'block';
+            document.getElementById('user-name').innerText = nome.split(' ')[0];
+            document.getElementById('user-cpf-display').innerText = cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
+
+            // 1. Inscrição SIMOL
+            const sSimol = data.inscricao.status;
+            document.getElementById('status-simol').innerText = sSimol;
+            const bSimol = document.getElementById('badge-simol');
+            if (sSimol === 'Pago' || sSimol === 'Confirmado' || sSimol === 'Confirmada') {
+                bSimol.innerHTML = '<span class="badge badge-success">Confirmada</span>';
+            } else {
+                bSimol.innerHTML = '<span class="badge badge-pending">Pendente</span>';
+            }
+
+            // 2. Festa
+            const sFesta = document.getElementById('status-festa');
+            const bFesta = document.getElementById('badge-festa');
+            if (data.festa.inscrito) {
+                sFesta.innerText = 'Inscrito';
+                bFesta.innerHTML = '<span class="badge badge-success">Confirmado</span>';
+            } else {
+                sFesta.innerText = 'Não inscrito';
+                bFesta.innerHTML = '<span class="badge badge-neutral">Nenhuma inscrição</span>';
+            }
+
+            // 3. Minicursos
+            const miniList = document.getElementById('minicursos-list');
+            if (data.minicursos.length > 0) {
+                miniList.innerHTML = data.minicursos.map(m => `
+                    <div style="margin-bottom: 10px; padding-bottom: 5px; border-bottom: 1px solid #eee;">
+                        <div>${m.lista}</div>
+                        <span class="badge ${m.status === 'Pago' || m.status === 'Não se aplica' ? 'badge-success' : 'badge-pending'}">${m.status}</span>
+                    </div>
+                `).join('');
+            }
+
+            // 4. Submissões
+            const subList = document.getElementById('submissoes-list');
+            if (data.submissoes.length > 0) {
+                subList.innerHTML = data.submissoes.map(s => `
+                    <div style="margin-bottom: 10px; padding: 10px; background: #fafafa; border-radius: 8px;">
+                        <div style="font-weight: 700; color: var(--color-1); margin-bottom: 5px;">${s.titulo}</div>
+                        <span class="badge ${s.status === 'Aprovado' ? 'badge-success' : (s.status === 'Não aprovado' ? 'badge-pending' : 'badge-neutral')}">${s.status}</span>
+                    </div>
+                `).join('');
+            }
+        }
     </script>
 </body>
 </html>

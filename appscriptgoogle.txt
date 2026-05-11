@@ -184,7 +184,88 @@ function doPost(e) {
       return ContentService.createTextOutput(JSON.stringify({ encontrado: encontrado })).setMimeType(ContentService.MimeType.JSON);
     }
 
-    // ====== 6. UPLOAD DE COMPROVANTE (Festa de Encerramento) ======
+    // ====== 6. BUSCAR DADOS COMPLETOS DO PARTICIPANTE (DASHBOARD) ======
+    else if (action === 'getParticipantData') {
+      const cpfBusca = (e.parameter.cpf || '').replace(/\D/g, '').padStart(11, '0');
+      const data = {
+        inscricao: { status: 'Não encontrada' },
+        minicursos: [],
+        festa: { inscrito: false },
+        submissoes: []
+      };
+
+      // 6.1 Dados da Inscrição Principal
+      const sheetVerif = doc.getSheetByName(sheetName);
+      const dataPrincipal = sheetVerif.getDataRange().getValues();
+      const headersPrincipal = dataPrincipal[0].map(h => h.toString().toLowerCase().trim());
+      const cpfColP = headersPrincipal.indexOf('cpf');
+      const statusColP = headersPrincipal.indexOf('status') !== -1 ? headersPrincipal.indexOf('status') : headersPrincipal.indexOf('pagamento');
+      
+      if (cpfColP !== -1) {
+        for (var i = 1; i < dataPrincipal.length; i++) {
+          var cpfSheet = (dataPrincipal[i][cpfColP] || '').toString().replace(/\D/g, '').padStart(11, '0');
+          if (cpfSheet === cpfBusca) {
+            data.inscricao.status = statusColP !== -1 ? dataPrincipal[i][statusColP] : 'Confirmada';
+            break;
+          }
+        }
+      }
+
+      // 6.2 Dados de Minicursos
+      try {
+        const ssMinicursos = SpreadsheetApp.openById(ID_PLANILHA_MINICURSOS);
+        const sheetMinis = ssMinicursos.getSheets()[0];
+        const dataMinis = sheetMinis.getDataRange().getValues();
+        for (var j = 1; j < dataMinis.length; j++) {
+          var cpfSheetM = (dataMinis[j][2] || '').toString().replace(/\D/g, '').padStart(11, '0');
+          if (cpfSheetM === cpfBusca) {
+            data.minicursos.push({
+              lista: dataMinis[j][3], // coluna D: minicursos
+              status: dataMinis[j][7]  // coluna H: statusPagamento
+            });
+          }
+        }
+      } catch(e) {}
+
+      // 6.3 Dados da Festa
+      const sheetFesta = doc.getSheetByName('Festa');
+      if (sheetFesta) {
+        const dataFesta = sheetFesta.getDataRange().getValues();
+        for (var k = 1; k < dataFesta.length; k++) {
+          var cpfSheetF = (dataFesta[k][2] || '').toString().replace(/\D/g, '').padStart(11, '0');
+          if (cpfSheetF === cpfBusca) {
+            data.festa.inscrito = true;
+            break;
+          }
+        }
+      }
+
+      // 6.4 Dados de Submissões
+      const sheetSub = doc.getSheetByName('submissoes');
+      if (sheetSub) {
+        const dataSub = sheetSub.getDataRange().getValues();
+        for (var l = 1; l < dataSub.length; l++) {
+          var cpfSheetS = (dataSub[l][1] || '').toString().replace(/\D/g, '').padStart(11, '0');
+          if (cpfSheetS === cpfBusca) {
+            const r1 = dataSub[l][8]; // aceite_revisor1
+            const r2 = dataSub[l][9]; // aceite_revisor2
+            let statusSub = "Em avaliação";
+            if (r1 === "Sim" && r2 === "Sim") statusSub = "Aprovado";
+            else if (r1 === "Não" || r2 === "Não") statusSub = "Não aprovado";
+            else if (!r1 && !r2) statusSub = "Enviado";
+
+            data.submissoes.push({
+              titulo: dataSub[l][2],
+              status: statusSub
+            });
+          }
+        }
+      }
+
+      return ContentService.createTextOutput(JSON.stringify(data)).setMimeType(ContentService.MimeType.JSON);
+    }
+
+    // ====== 7. UPLOAD DE COMPROVANTE (Festa de Encerramento) ======
     else if (action === 'uploadFesta') {
       const folder = DriveApp.getFolderById(FOLDER_ID);
       const fileData = Utilities.base64Decode(e.parameter.fileData);
