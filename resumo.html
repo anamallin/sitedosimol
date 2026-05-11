@@ -132,8 +132,36 @@
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
+        /* NOVO: ROLE SELECTION */
+        .role-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .role-card {
+            background: white;
+            padding: 30px 20px;
+            border-radius: 20px;
+            border: 2px solid #eee;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        .role-card:hover {
+            border-color: var(--color-1);
+            transform: translateY(-8px);
+            box-shadow: 0 15px 30px rgba(103, 42, 147, 0.1);
+        }
+        .role-icon { font-size: 40px; margin-bottom: 15px; }
+        .role-card h3 { color: var(--color-4); margin-bottom: 10px; font-size: 1.2rem; }
+        .role-card p { color: #777; font-size: 0.9rem; line-height: 1.4; }
+
         @media (max-width: 600px) {
-            .norms-grid { grid-template-columns: 1fr; }
+            .norms-grid, .role-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -154,6 +182,41 @@
             <p id="lock-error" style="color: #e74c3c; font-size: 0.9rem; margin-top: 15px; display: none;">Código incorreto.</p>
             
             <a href="index.html" style="display: block; margin-top: 25px; color: #888; text-decoration: none; font-size: 0.9rem;">← Voltar para Home</a>
+        </div>
+
+        <!-- TELA NOVA: SELEÇÃO DE PAPEL -->
+        <div id="role-selection-screen" style="display: none; text-align: center;">
+            <div class="lock-icon">🧬</div>
+            <h2 style="color: var(--color-4);">Bem-vindo ao Portal de Submissão</h2>
+            <p style="color: #666; margin-bottom: 40px;">Como você deseja prosseguir?</p>
+            
+            <div class="role-grid">
+                <div class="role-card" id="role-student">
+                    <div class="role-icon">🎓</div>
+                    <h3>Sou Aluno</h3>
+                    <p>Quero enviar meu resumo para avaliação e publicação nos anais.</p>
+                </div>
+                <div class="role-card" id="role-reviewer">
+                    <div class="role-icon">🔍</div>
+                    <h3>Sou Avaliador</h3>
+                    <p>Acesse o portal de revisão para avaliar os trabalhos submetidos.</p>
+                </div>
+            </div>
+            
+            <a href="index.html" style="display: block; margin-top: 40px; color: #888; text-decoration: none; font-size: 0.9rem;">← Voltar para Home</a>
+        </div>
+
+        <!-- TELA NOVA: AVALIADOR (AGUARDANDO) -->
+        <div id="reviewer-screen" style="display: none; text-align: center; padding: 40px 20px;">
+            <div style="font-size: 80px; margin-bottom: 20px;">🚧</div>
+            <h2 style="color: var(--color-4); font-size: 2rem; margin-bottom: 15px;">Portal do Avaliador</h2>
+            <p style="color: #555; margin-bottom: 30px; font-size: 1.1rem; line-height: 1.6;">
+                O sistema de avaliação para revisores está sendo preparado pela comissão organizadora.
+            </p>
+            <div style="background: rgba(103, 42, 147, 0.05); border: 2px dashed var(--color-1); padding: 30px; border-radius: 20px; color: var(--color-4); font-weight: 500;">
+                Aguarde mais instruções via e-mail ou acompanhe as atualizações oficiais do SIMOL.
+            </div>
+            <button class="btn-primary" style="margin-top: 40px; width: auto; padding: 15px 40px;" onclick="location.reload()">Voltar ao Início</button>
         </div>
 
         <!-- TELA 2: VERIFICAÇÃO (INSCRITO) -->
@@ -266,6 +329,8 @@
         const SECRET_CODE = 'SIMOL_ORG_2026_PREVIEW';
 
         const lockScreen = document.getElementById('lock-screen');
+        const roleSelectionScreen = document.getElementById('role-selection-screen');
+        const reviewerScreen = document.getElementById('reviewer-screen');
         const verifScreen = document.getElementById('verification-screen');
         const subForm = document.getElementById('submission-form');
         const successScreen = document.getElementById('success-screen');
@@ -277,11 +342,22 @@
             const code = document.getElementById('org-code').value.trim().toUpperCase();
             if (code === SECRET_CODE) {
                 lockScreen.style.display = 'none';
-                verifScreen.style.display = 'block';
+                roleSelectionScreen.style.display = 'block';
             } else {
                 document.getElementById('lock-error').style.display = 'block';
                 setTimeout(() => document.getElementById('lock-error').style.display = 'none', 3000);
             }
+        });
+
+        // 1.5 SELEÇÃO DE PAPEL
+        document.getElementById('role-student').addEventListener('click', () => {
+            roleSelectionScreen.style.display = 'none';
+            verifScreen.style.display = 'block';
+        });
+
+        document.getElementById('role-reviewer').addEventListener('click', () => {
+            roleSelectionScreen.style.display = 'none';
+            reviewerScreen.style.display = 'block';
         });
 
         // 2. VERIFICAÇÃO

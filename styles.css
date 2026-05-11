@@ -899,4 +899,9 @@ body {
     .welcome-section h2 {
         font-size: 1.8rem;
     }
+
+    /* Ocultar moléculas e formas animadas no celular */
+    .floating-icon, .shape, .btn-molecule, .background-elements {
+        display: none !important;
+    }
 }
