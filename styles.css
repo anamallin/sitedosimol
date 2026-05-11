@@ -131,11 +131,18 @@ body {
 .event-info {
     text-align: right;
     display: flex;
-    flex-direction: column;
-    justify-content: center;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 25px;
     animation: fadeInRight 1s ease forwards 0.5s;
     opacity: 0;
     margin-right: -80px; 
+}
+
+.header-details {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
 }
 
 @keyframes fadeInRight {
@@ -159,6 +166,68 @@ body {
     color: #672a93;
     opacity: 0.8;
     line-height: 1.4;
+}
+
+.event-date {
+    margin-bottom: 5px;
+}
+
+/* Botão Área do Inscrito no Header (Design Premium Glass) */
+.attendee-area-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    padding: 8px 18px 8px 8px; /* Mais espaço na direita para o texto */
+    border-radius: 50px;
+    text-decoration: none;
+    border: 1px solid rgba(103, 42, 147, 0.2);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    flex-shrink: 0;
+    box-shadow: 0 8px 20px rgba(103, 42, 147, 0.08);
+}
+
+.btn-icon-wrapper {
+    width: 44px;
+    height: 44px;
+    background: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+.attendee-area-btn img {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+}
+
+.attendee-area-btn span {
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: var(--color-4);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.attendee-area-btn:hover {
+    background: rgba(255, 255, 255, 0.8);
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 15px 30px rgba(103, 42, 147, 0.15);
+    border-color: var(--color-1);
+}
+
+.attendee-area-btn:hover .btn-icon-wrapper {
+    background: var(--color-1);
+}
+
+.attendee-area-btn:hover img {
+    filter: brightness(0) invert(1);
+    transform: rotate(15deg);
 }
 
 .logo-link {
@@ -468,6 +537,27 @@ body {
         text-align: center;
         margin-top: 10px;
         margin-right: 0;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .header-details {
+        align-items: center;
+    }
+
+    .attendee-area-btn {
+        width: auto;
+        height: auto;
+        padding: 6px 15px 6px 6px;
+    }
+
+    .btn-icon-wrapper {
+        width: 36px;
+        height: 36px;
+    }
+
+    .attendee-area-btn span {
+        font-size: 0.75rem;
     }
 
     .event-date {
