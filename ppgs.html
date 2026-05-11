@@ -505,6 +505,9 @@
             formData.append('action', 'inscreverMinicursos');
             formData.append('nome', currentUserData.nome);
             formData.append('cpf', currentUserData.cpf);
+            if (currentUserData.email) {
+                formData.append('email', currentUserData.email);
+            }
             formData.append('minicursos', coursesList);
             formData.append('n_minicursos', count);
             formData.append('tipo', tipo);
@@ -566,15 +569,16 @@
 
         function proceedExternal() {
             const nome = document.getElementById('ext-name').value.trim();
+            const email = document.getElementById('ext-email').value.trim();
             const cpf = document.getElementById('ext-cpf').value.trim();
 
-            if (!nome || cpf.length < 11) {
-                alert('Por favor, preencha Nome e CPF corretamente.');
+            if (!nome || !email || cpf.length < 11) {
+                alert('Por favor, preencha Nome, E-mail e CPF corretamente.');
                 return;
             }
 
             isExternalUser = true;
-            currentUserData = { nome, cpf };
+            currentUserData = { nome, cpf, email };
             verificationSection.style.display = 'none';
             plannerArea.style.display = 'block';
             greetingArea.style.display = 'block';

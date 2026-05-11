@@ -381,11 +381,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 nomeInput.placeholder = 'Nome completo conforme usado na inscrição';
                 verifyBtn.style.display = 'flex';
                 proceedFestaBtn.style.display = 'none';
+                document.getElementById('festa-external-fields').style.display = 'none';
             } else {
                 formTitle.textContent = 'Seus Dados';
                 nomeInput.placeholder = 'Seu nome completo';
                 verifyBtn.style.display = 'none';
                 proceedFestaBtn.style.display = 'flex';
+                document.getElementById('festa-external-fields').style.display = 'block';
             }
         }
 
@@ -396,14 +398,17 @@ document.addEventListener('DOMContentLoaded', () => {
         proceedFestaBtn.addEventListener('click', () => {
             const nome = nomeInput.value.trim();
             const cpf = cpfInput.value.trim();
-            if (!nome || cpf.length < 11) {
-                verifyStatus.textContent = 'Por favor, preencha o nome completo e o CPF corretamente.';
+            const email = document.getElementById('festa-email').value.trim();
+            const telefone = document.getElementById('festa-telefone').value.trim();
+
+            if (!nome || cpf.length < 11 || !email || !telefone) {
+                verifyStatus.textContent = 'Por favor, preencha todos os campos (Nome, CPF, E-mail e Telefone) corretamente.';
                 verifyStatus.className = 'verify-status error';
                 verifyStatus.style.display = 'block';
                 return;
             }
             verifyStatus.style.display = 'none';
-            showPayment('60,00', 'Externo', nome, cpf);
+            showPayment('60,00', 'Externo', nome, cpf, email, telefone);
         });
 
         // Botão verificar inscrição
@@ -461,12 +466,32 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
         });
 
-        function showPayment(valor, tipo, nome, cpf) {
+        function showPayment(valor, tipo, nome, cpf, email = '', telefone = '') {
             valorTag.textContent = 'R$ ' + valor;
             document.getElementById('festa-tipo').value = tipo;
             document.getElementById('festa-valor').value = valor;
             document.getElementById('festa-nome-hidden').value = nome;
             document.getElementById('festa-cpf-hidden').value = cpf;
+            
+            // Adicionando campos ocultos para email e telefone se não existirem
+            let emailHidden = document.getElementById('festa-email-hidden');
+            if (!emailHidden) {
+                emailHidden = document.createElement('input');
+                emailHidden.type = 'hidden';
+                emailHidden.id = 'festa-email-hidden';
+                festaUploadForm.appendChild(emailHidden);
+            }
+            emailHidden.value = email;
+
+            let telHidden = document.getElementById('festa-telefone-hidden');
+            if (!telHidden) {
+                telHidden = document.createElement('input');
+                telHidden.type = 'hidden';
+                telHidden.id = 'festa-telefone-hidden';
+                festaUploadForm.appendChild(telHidden);
+            }
+            telHidden.value = telefone;
+
             paymentSection.classList.add('visible');
             // Scroll suave até a seção de pagamento
             setTimeout(() => {
@@ -533,6 +558,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 const cpf = document.getElementById('festa-cpf-hidden').value;
                 const tipo = document.getElementById('festa-tipo').value;
                 const valor = document.getElementById('festa-valor').value;
+                const email = document.getElementById('festa-email-hidden') ? document.getElementById('festa-email-hidden').value : '';
+                const telefone = document.getElementById('festa-telefone-hidden') ? document.getElementById('festa-telefone-hidden').value : '';
 
                 const formData = new URLSearchParams();
                 formData.append('action', 'uploadFesta');
@@ -540,6 +567,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 formData.append('cpf', cpf);
                 formData.append('tipo', tipo);
                 formData.append('valor', valor);
+                formData.append('email', email);
+                formData.append('telefone', telefone);
                 formData.append('filename', festaSelectedFile.name);
                 formData.append('mimeType', festaSelectedFile.type);
                 formData.append('fileData', base64Data);

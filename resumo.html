@@ -7,149 +7,379 @@
     <link rel="icon" type="image/png" href="Icone_Proteina_Óculos.png">
     <link rel="stylesheet" href="styles.css">
     <style>
+        .success-overlay {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 60px 20px;
+            animation: fadeIn 0.5s ease-out;
+        }
+
         body {
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
         }
 
-        /* ==================================================
-           BLOQUEIO TEMPORÁRIO — REMOVER QUANDO ABRIR A SUBMISSÃO:
-           1. Apague a div #lock-screen abaixo.
-           2. Mude o estilo de #main-content para "display: block".
-           3. Remova o <script> de verificação no final do body.
-           ================================================== */
-
-        #lock-screen {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
+        #main-container {
+            width: 100%;
+            max-width: 800px;
+            margin: 40px 20px;
+            background: white;
             padding: 40px;
-            background: rgba(255, 255, 255, 0.92);
-            backdrop-filter: blur(10px);
             border-radius: 24px;
-            box-shadow: 0 20px 50px rgba(103, 42, 147, 0.15);
-            max-width: 500px;
-            width: 90%;
-            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.08);
             animation: fadeIn 0.8s ease forwards;
         }
 
+        /* TELA DE BLOQUEIO */
+        #lock-screen { text-align: center; }
+        
+        /* TELA DE VERIFICAÇÃO */
+        #verification-screen { display: none; text-align: center; }
+        
+        /* FORMULÁRIO */
+        #submission-form { display: none; }
+
         .lock-icon { font-size: 50px; margin-bottom: 20px; }
-
-        #lock-screen h2 { color: var(--color-4); margin-bottom: 15px; font-size: 1.5rem; }
-
-        #lock-screen p { color: #555; margin-bottom: 25px; line-height: 1.6; }
-
-        .code-input-container { display: flex; flex-direction: column; gap: 15px; width: 100%; }
-
-        #org-code {
-            padding: 15px;
-            border: 2px solid var(--color-2);
-            border-radius: 12px;
-            font-size: 1rem;
-            text-align: center;
-            transition: all 0.3s ease;
-            outline: none;
-            text-transform: uppercase;
-            font-family: inherit;
+        .input-group { text-align: left; margin-bottom: 15px; }
+        .input-group label { display: block; margin-bottom: 5px; font-weight: 600; color: var(--color-4); }
+        .input-group input { 
+            width: 100%; 
+            padding: 12px; 
+            border: 2px solid #eee; 
+            border-radius: 10px; 
+            transition: 0.3s;
         }
-
-        #org-code:focus { border-color: var(--color-1); box-shadow: 0 0 0 4px rgba(103, 42, 147, 0.1); }
-
-        #unlock-btn {
+        .input-group input:focus { border-color: var(--color-1); outline: none; }
+        
+        .btn-primary {
             background: linear-gradient(135deg, var(--color-3), var(--color-4));
             color: white;
             border: none;
-            padding: 15px;
+            padding: 15px 30px;
             border-radius: 12px;
             font-weight: bold;
             cursor: pointer;
-            transition: all 0.3s ease;
-            font-family: inherit;
+            width: 100%;
             font-size: 1rem;
+            transition: 0.3s;
         }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 15px rgba(103, 42, 147, 0.2); }
 
-        #unlock-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 15px rgba(103, 42, 147, 0.2); }
+        /* SEÇÃO DE NORMAS */
+        .norms-section {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px solid #f0f0f0;
+            text-align: left;
+        }
+        .norms-title {
+            font-size: 1.2rem;
+            color: var(--color-4);
+            font-weight: bold;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .norms-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        .norm-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid #eee;
+            transition: 0.3s;
+            text-decoration: none;
+            color: inherit;
+        }
+        .norm-card:hover { border-color: var(--color-1); background: #fff; transform: translateY(-3px); }
+        .norm-card h4 { color: var(--color-1); margin-bottom: 5px; font-size: 0.95rem; }
+        .norm-card p { font-size: 0.8rem; color: #777; margin: 0; }
 
-        .error-msg { color: #e74c3c; font-size: 0.9rem; margin-top: 5px; display: none; }
+        .form-section { margin-bottom: 25px; }
+        .form-section label { display: block; font-weight: bold; margin-bottom: 8px; color: var(--color-4); }
+        .form-section input, .form-section textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #eee;
+            border-radius: 10px;
+            font-family: inherit;
+        }
+        .form-section textarea { height: 200px; resize: vertical; }
+        .char-counter { text-align: right; font-size: 0.8rem; color: #888; margin-top: 5px; }
 
-        #main-content { display: none; width: 100%; max-width: 800px; margin: 0 auto; padding: 60px 20px; animation: slideUp 0.8s ease forwards; }
+        .doi-option {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: 0.3s;
+        }
+        .doi-option:hover { border-color: var(--color-1); }
 
-        @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        .back-link { display: inline-block; margin-top: 25px; color: var(--color-1); text-decoration: none; font-weight: 600; }
-        .back-link:hover { opacity: 0.7; }
+        @media (max-width: 600px) {
+            .norms-grid { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
 
-    <!-- 
-        INSTRUÇÃO PARA REMOVER O BLOQUEIO:
-        1. Apague a div #lock-screen abaixo.
-        2. Mude o estilo de #main-content para "display: block".
-        3. Remova o script de verificação no final do body.
-    -->
-
-    <div id="lock-screen">
-        <div class="lock-icon">📄</div>
-        <h2>Submissão não disponível ainda</h2>
-        <p>A submissão de resumos ainda não foi aberta. Quando estiver no período correto, você poderá enviar seu trabalho por aqui. Se você é um organizador e deseja ver o preview, digite o código abaixo 😊</p>
-
-        <div class="code-input-container">
-            <input type="text" id="org-code" placeholder="Código de organizador" autocomplete="off">
-            <button id="unlock-btn">Ver Preview</button>
-            <div id="error-msg" class="error-msg">Código incorreto. Tente novamente.</div>
+    <div id="main-container">
+        <!-- TELA 1: BLOQUEIO (SENHA) -->
+        <div id="lock-screen">
+            <div class="lock-icon">🔒</div>
+            <h2 style="color: var(--color-4);">Submissão não disponível</h2>
+            <p style="color: #666; margin-bottom: 30px;">A submissão de resumos ainda não foi aberta oficialmente. Se você é um organizador, insira o código de preview abaixo.</p>
+            
+            <div class="input-group">
+                <label>Código de Organizador</label>
+                <input type="text" id="org-code" placeholder="Digite o código aqui" style="text-transform: uppercase; text-align: center;">
+            </div>
+            <button id="unlock-btn" class="btn-primary">Ver Preview</button>
+            <p id="lock-error" style="color: #e74c3c; font-size: 0.9rem; margin-top: 15px; display: none;">Código incorreto.</p>
+            
+            <a href="index.html" style="display: block; margin-top: 25px; color: #888; text-decoration: none; font-size: 0.9rem;">← Voltar para Home</a>
         </div>
 
-        <a href="index.html" class="back-link" style="margin-top: 25px;">← Voltar para Home</a>
-    </div>
+        <!-- TELA 2: VERIFICAÇÃO (INSCRITO) -->
+        <div id="verification-screen">
+            <div class="lock-icon">📄</div>
+            <h2 style="color: var(--color-4);">Identifique sua Inscrição</h2>
+            <p style="color: #666; margin-bottom: 30px;">Identifique-se para acessar o formulário de submissão.</p>
+            
+            <div class="input-group">
+                <label>Nome Completo</label>
+                <input type="text" id="verify-nome" placeholder="Nome como na inscrição">
+            </div>
+            <div class="input-group">
+                <label>CPF</label>
+                <input type="text" id="verify-cpf" placeholder="Apenas números">
+            </div>
+            
+            <button id="verify-btn" class="btn-primary">Verificar e Continuar</button>
+            <p id="error-msg" style="color: #e74c3c; font-size: 0.9rem; margin-top: 15px; display: none;">Inscrição não encontrada. Caso seja aluno externo, <a href="#" id="external-access" style="color: var(--color-1); font-weight: bold;">clique aqui para prosseguir</a>.</p>
 
-    <div id="main-content">
-        <div style="text-align: center; margin-bottom: 40px;">
-            <div style="font-size: 3rem; margin-bottom: 10px;">📄</div>
-            <h1 style="color: var(--color-4); font-size: 2.2rem; margin-bottom: 15px;">Submissão de Resumos</h1>
-            <p style="color: #555; max-width: 600px; margin: 0 auto; line-height: 1.6;">
-                Página de submissão em construção. Em breve você poderá enviar seus trabalhos aqui.
+            <!-- SEÇÃO DE NORMAS E DOWNLOADS -->
+            <div class="norms-section">
+                <div class="norms-title">📋 Normas e Templates</div>
+                <div class="norms-grid">
+                    <a href="#" class="norm-card">
+                        <h4>📄 Template do Resumo</h4>
+                        <p>Baixe o modelo oficial em Word (.docx) para formatar seu trabalho.</p>
+                    </a>
+                    <a href="#" class="norm-card">
+                        <h4>⚖️ Regras de Submissão</h4>
+                        <p>Consulte as normas gerais, limites de autores e estrutura exigida.</p>
+                    </a>
+                    <a href="#" class="norm-card">
+                        <h4>🎨 Modelo de Pôster</h4>
+                        <p>Template sugerido para a apresentação no dia do evento.</p>
+                    </a>
+                    <a href="#" class="norm-card">
+                        <h4>📊 Cronograma</h4>
+                        <p>Datas importantes: submissão, avaliação e resultados.</p>
+                    </a>
+                </div>
+            </div>
+
+            <a href="index.html" style="display: block; margin-top: 30px; color: #888; text-decoration: none; font-size: 0.9rem;">← Voltar para Home</a>
+        </div>
+
+        <!-- TELA 3: FORMULÁRIO -->
+        <div id="submission-form">
+            <h2 style="color: var(--color-4); margin-bottom: 5px;">Dados do Resumo</h2>
+            <p style="color: #666; margin-bottom: 25px; font-size: 0.9rem;">Preencha todos os campos abaixo para submeter seu trabalho científico.</p>
+            
+            <div class="form-section">
+                <label>Título do Trabalho</label>
+                <input type="text" id="sub-titulo" placeholder="Título do resumo">
+            </div>
+
+            <div class="form-section">
+                <label>Texto do Resumo</label>
+                <textarea id="sub-texto" maxlength="3000" placeholder="Digite ou cole aqui o seu resumo..."></textarea>
+                <div class="char-counter"><span id="char-count">0</span> / 3000 caracteres</div>
+            </div>
+
+            <div class="form-section">
+                <label>Autores (Separados por vírgula)</label>
+                <input type="text" id="sub-autores" placeholder="Ex: Oliveira, M.; Santos, J.">
+            </div>
+
+            <div class="form-section">
+                <label>Departamento / Instituição</label>
+                <input type="text" id="sub-depto" placeholder="Ex: Departamento de Biofísica">
+            </div>
+
+            <div id="filiacao-container" class="form-section" style="display: none;">
+                <label>Filiação (Instituição Externa)</label>
+                <input type="text" id="sub-filiacao" placeholder="Ex: UFPR, USP, etc.">
+            </div>
+
+            <div class="form-section">
+                <label>Palavras-Chave</label>
+                <input type="text" id="sub-keywords" placeholder="Ex: Proteína, Simulação, ...">
+            </div>
+
+            <div class="form-section">
+                <label>Publicação nos Anais</label>
+                <label class="doi-option">
+                    <input type="checkbox" id="sub-doi" style="width: auto; margin-right: 10px;">
+                    <span>Gostaria que meu resumo fosse publicado com <strong>DOI</strong> nos anais do evento.</span>
+                </label>
+            </div>
+
+            <button id="submit-btn" class="btn-primary">Finalizar Submissão</button>
+            <button id="back-to-verify" style="background: none; border: none; color: #888; width: 100%; margin-top: 15px; cursor: pointer;">← Voltar para Normas / Identificação</button>
+        </div>
+
+        <!-- TELA 4: SUCESSO -->
+        <div id="success-screen" class="success-overlay">
+            <div style="font-size: 100px; margin-bottom: 20px;">✨</div>
+            <h2 style="color: var(--color-4); font-size: 2.5rem; margin-bottom: 10px;">Submissão Concluída!</h2>
+            <div style="width: 50px; height: 4px; background: var(--color-1); margin: 0 auto 25px; border-radius: 2px;"></div>
+            <p style="color: #555; margin-bottom: 40px; font-size: 1.2rem; line-height: 1.6; max-width: 500px;">
+                Seu resumo foi enviado com sucesso para a comissão científica do <strong>I SIMOL</strong>.<br><br>
+                Em breve, você receberá um retorno sobre a avaliação.
             </p>
-        </div>
-        <div style="text-align: center;">
-            <a href="index.html" class="back-link">← Voltar para a página inicial</a>
+            <a href="index.html" class="btn-primary" style="text-decoration: none; display: inline-block; width: auto; padding: 18px 60px; font-size: 1.1rem;">Voltar para o Início</a>
         </div>
     </div>
 
     <script>
-        const lockScreen = document.getElementById('lock-screen');
-        const mainContent = document.getElementById('main-content');
-        const unlockBtn = document.getElementById('unlock-btn');
-        const codeInput = document.getElementById('org-code');
-        const errorMsg = document.getElementById('error-msg');
-
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbw2lLEeZEJIAN1aTq8VL5m76Y-Bu2H6n7lsEsf9dDGUC5vH0_9GfRzlkIYksEur71Zm_g/exec';
         const SECRET_CODE = 'SIMOL_ORG_2026_PREVIEW';
 
-        function checkCode() {
-            if (codeInput.value.trim().toUpperCase() === SECRET_CODE) {
+        const lockScreen = document.getElementById('lock-screen');
+        const verifScreen = document.getElementById('verification-screen');
+        const subForm = document.getElementById('submission-form');
+        const successScreen = document.getElementById('success-screen');
+        
+        let currentUser = { nome: '', cpf: '', isExternal: false };
+
+        // 1. BLOQUEIO
+        document.getElementById('unlock-btn').addEventListener('click', () => {
+            const code = document.getElementById('org-code').value.trim().toUpperCase();
+            if (code === SECRET_CODE) {
                 lockScreen.style.display = 'none';
-                mainContent.style.display = 'block';
-                document.body.style.display = 'block';
-                document.body.style.alignItems = 'initial';
-                document.body.style.justifyContent = 'initial';
+                verifScreen.style.display = 'block';
             } else {
-                errorMsg.style.display = 'block';
-                codeInput.style.borderColor = '#e74c3c';
-                setTimeout(() => {
-                    errorMsg.style.display = 'none';
-                    codeInput.style.borderColor = 'var(--color-2)';
-                }, 3000);
+                document.getElementById('lock-error').style.display = 'block';
+                setTimeout(() => document.getElementById('lock-error').style.display = 'none', 3000);
             }
+        });
+
+        // 2. VERIFICAÇÃO
+        document.getElementById('verify-btn').addEventListener('click', () => {
+            const nome = document.getElementById('verify-nome').value.trim();
+            const rawCpf = document.getElementById('verify-cpf').value.trim();
+            const cpf = rawCpf.replace(/\D/g, '');
+            
+            if (!nome || !cpf) return alert('Preencha seu nome e CPF.');
+
+            const btn = document.getElementById('verify-btn');
+            btn.innerText = 'Verificando...';
+            btn.disabled = true;
+
+            fetch(`${scriptURL}?action=verificarInscricao&nome=${encodeURIComponent(nome)}&cpf=${encodeURIComponent(cpf)}`)
+                .then(r => r.json())
+                .then(data => {
+                    currentUser.nome = nome;
+                    currentUser.cpf = cpf;
+                    if (data.encontrado) {
+                        showForm(false);
+                    } else {
+                        document.getElementById('error-msg').style.display = 'block';
+                        btn.innerText = 'Verificar e Continuar';
+                        btn.disabled = false;
+                    }
+                })
+                .catch(err => {
+                    alert('Erro de conexão.');
+                    btn.innerText = 'Verificar e Continuar';
+                    btn.disabled = false;
+                });
+        });
+
+        document.getElementById('external-access').addEventListener('click', (e) => {
+            e.preventDefault();
+            showForm(true);
+        });
+
+        function showForm(isExternal) {
+            currentUser.isExternal = isExternal;
+            verifScreen.style.display = 'none';
+            subForm.style.display = 'block';
+            document.getElementById('filiacao-container').style.display = isExternal ? 'block' : 'none';
         }
 
-        unlockBtn.addEventListener('click', checkCode);
-        codeInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') checkCode(); });
+        // 3. FORMULÁRIO
+        const textarea = document.getElementById('sub-texto');
+        const charCount = document.getElementById('char-count');
+        textarea.addEventListener('input', () => charCount.innerText = textarea.value.length);
+
+        document.getElementById('submit-btn').addEventListener('click', () => {
+            const titulo = document.getElementById('sub-titulo').value.trim();
+            const texto = textarea.value.trim();
+            const autores = document.getElementById('sub-autores').value.trim();
+            const depto = document.getElementById('sub-depto').value.trim();
+            const filiacao = document.getElementById('sub-filiacao').value.trim();
+            const keywords = document.getElementById('sub-keywords').value.trim();
+            const doi = document.getElementById('sub-doi').checked;
+
+            if (!titulo || !texto || !autores || !depto || !keywords) return alert('Preencha todos os campos.');
+
+            const btn = document.getElementById('submit-btn');
+            btn.innerText = 'Enviando...';
+            btn.disabled = true;
+
+            const formData = new URLSearchParams();
+            formData.append('action', 'submeterResumo');
+            formData.append('nome', currentUser.nome);
+            formData.append('cpf', currentUser.cpf);
+            formData.append('titulo', titulo);
+            formData.append('resumo', texto);
+            formData.append('autores', autores);
+            formData.append('departamento', depto);
+            formData.append('filiacao', currentUser.isExternal ? filiacao : 'Inscrito SIMOL');
+            formData.append('keywords', keywords);
+            formData.append('doi', doi);
+
+            fetch(scriptURL, { method: 'POST', body: formData })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.result === 'success') {
+                        subForm.style.display = 'none';
+                        successScreen.style.display = 'flex';
+                    }
+                })
+                .catch(err => {
+                    alert('Erro ao enviar.');
+                    btn.innerText = 'Finalizar Submissão';
+                    btn.disabled = false;
+                });
+        });
+
+        document.getElementById('back-to-verify').addEventListener('click', () => {
+            subForm.style.display = 'none';
+            verifScreen.style.display = 'block';
+            document.getElementById('error-msg').style.display = 'none';
+        });
     </script>
 </body>
 </html>

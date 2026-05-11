@@ -36,17 +36,21 @@ function doPost(e) {
       const emailCol = headersPrincipal.indexOf('email');
       const telCol = headersPrincipal.indexOf('telefone');
 
-      let email = "Não cadastrado";
-      let tel = "Não cadastrado";
+      // Prioriza o que veio no parâmetro (para alunos externos)
+      let email = e.parameter.email || "Não cadastrado";
+      let tel = e.parameter.telefone || "Não cadastrado";
       let nomeReal = e.parameter.nome;
 
-      for (var i = 1; i < dataPrincipal.length; i++) {
-        var cpfSheet = (dataPrincipal[i][cpfCol] || '').toString().replace(/\D/g, '').padStart(11, '0');
-        if (cpfSheet === cpfBusca) {
-          nomeReal = dataPrincipal[i][nomeCol];
-          email = emailCol !== -1 ? dataPrincipal[i][emailCol] : "N/A";
-          tel = telCol !== -1 ? dataPrincipal[i][telCol] : "N/A";
-          break;
+      // Se for inscrito SIMOL, tenta buscar na planilha principal se não foi enviado
+      if (email === "Não cadastrado" || tel === "Não cadastrado") {
+        for (var i = 1; i < dataPrincipal.length; i++) {
+          var cpfSheet = (dataPrincipal[i][cpfCol] || '').toString().replace(/\D/g, '').padStart(11, '0');
+          if (cpfSheet === cpfBusca) {
+            nomeReal = dataPrincipal[i][nomeCol];
+            if (email === "Não cadastrado") email = emailCol !== -1 ? dataPrincipal[i][emailCol] : "N/A";
+            if (tel === "Não cadastrado") tel = telCol !== -1 ? dataPrincipal[i][telCol] : "N/A";
+            break;
+          }
         }
       }
 
@@ -76,7 +80,33 @@ function doPost(e) {
       return ContentService.createTextOutput(JSON.stringify({ result: 'success' })).setMimeType(ContentService.MimeType.JSON);
     }
 
-    // ====== 2. UPLOAD DE COMPROVANTE (MINICURSOS) ======
+    // ====== 2. SUBMISSÃO DE RESUMO (NOVO!) ======
+    else if (action === 'submeterResumo') {
+      let sheetSubmissoes = doc.getSheetByName('Submissões');
+      if (!sheetSubmissoes) {
+        sheetSubmissoes = doc.insertSheet('Submissões');
+        sheetSubmissoes.appendRow(['Data', 'Nome', 'CPF', 'Título', 'Resumo', 'Autores', 'Departamento', 'Filiação', 'Palavras-Chave', 'Publicar DOI']);
+      }
+      
+      const cpfFormatado = "'" + (e.parameter.cpf || '').replace(/\D/g, '').padStart(11, '0');
+      
+      sheetSubmissoes.appendRow([
+        new Date(),
+        e.parameter.nome,
+        cpfFormatado,
+        e.parameter.titulo,
+        e.parameter.resumo,
+        e.parameter.autores,
+        e.parameter.departamento,
+        e.parameter.filiacao || 'Inscrito Interno',
+        e.parameter.keywords,
+        e.parameter.doi ? 'Sim' : 'Não'
+      ]);
+
+      return ContentService.createTextOutput(JSON.stringify({ result: 'success' })).setMimeType(ContentService.MimeType.JSON);
+    }
+
+    // ====== 3. UPLOAD DE COMPROVANTE (MINICURSOS) ======
     else if (action === 'uploadMinicurso') {
       const folder = DriveApp.getFolderById(FOLDER_ID_MINICURSOS);
       const fileData = Utilities.base64Decode(e.parameter.fileData);
@@ -100,7 +130,7 @@ function doPost(e) {
       return ContentService.createTextOutput(JSON.stringify({ result: 'success', fileUrl: file.getUrl() })).setMimeType(ContentService.MimeType.JSON);
     }
 
-    // ====== 3. UPLOAD DE COMPROVANTE (Inscrição Normal) ======
+    // ====== 4. UPLOAD DE COMPROVANTE (Inscrição Normal) ======
     else if (action === 'upload') {
       const folder = DriveApp.getFolderById(FOLDER_ID);
       const fileData = Utilities.base64Decode(e.parameter.fileData);
@@ -131,7 +161,7 @@ function doPost(e) {
       return ContentService.createTextOutput(JSON.stringify({ 'result': 'success', 'fileUrl': file.getUrl() })).setMimeType(ContentService.MimeType.JSON);
     }
 
-    // ====== 4. VERIFICAÇÃO DE INSCRIÇÃO (SITE) ======
+    // ====== 5. VERIFICAÇÃO DE INSCRIÇÃO (SITE) ======
     else if (action === 'verificarInscricao') {
       const nomeBusca = (e.parameter.nome || '').trim().toLowerCase();
       const cpfBusca = (e.parameter.cpf || '').replace(/\D/g, '').padStart(11, '0');
@@ -154,7 +184,7 @@ function doPost(e) {
       return ContentService.createTextOutput(JSON.stringify({ encontrado: encontrado })).setMimeType(ContentService.MimeType.JSON);
     }
 
-    // ====== 5. UPLOAD DE COMPROVANTE (Festa de Encerramento) ======
+    // ====== 6. UPLOAD DE COMPROVANTE (Festa de Encerramento) ======
     else if (action === 'uploadFesta') {
       const folder = DriveApp.getFolderById(FOLDER_ID);
       const fileData = Utilities.base64Decode(e.parameter.fileData);
@@ -163,12 +193,22 @@ function doPost(e) {
       const sheetFesta = doc.getSheetByName('Festa');
       var cpfFesta = "'" + (e.parameter.cpf || '').toString();
       
-      sheetFesta.appendRow([new Date(), e.parameter.nome, cpfFesta, e.parameter.tipo, 'R$ ' + e.parameter.valor, file.getUrl()]);
+      // Adicionado email e telefone conforme solicitado
+      sheetFesta.appendRow([
+        new Date(), 
+        e.parameter.nome, 
+        cpfFesta, 
+        e.parameter.tipo, 
+        'R$ ' + e.parameter.valor, 
+        file.getUrl(),
+        e.parameter.email || '',
+        e.parameter.telefone || ''
+      ]);
 
       return ContentService.createTextOutput(JSON.stringify({ 'result': 'success', 'fileUrl': file.getUrl() })).setMimeType(ContentService.MimeType.JSON);
     }
 
-    // ====== 6. INSCRIÇÃO NORMAL (Dados do Formulário) ======
+    // ====== 7. INSCRIÇÃO NORMAL (Dados do Formulário) ======
     else {
       const sheetBase = doc.getSheetByName(sheetName);
       const headersBase = sheetBase.getRange(1, 1, 1, sheetBase.getLastColumn()).getValues()[0];
