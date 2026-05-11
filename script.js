@@ -62,7 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('registration-form');
     if (form) {
         // --- COLE SEU LINK DO GOOGLE APPS SCRIPT AQUI ---
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbyZj6r_cm9UoOtwzIP3RmyPFhF7-PbAxY9k6GEWWFnkPAVXIAJby85I3oLg9lgGkGb_iA/exec'; 
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbzagoK0cUCKzvdtg-Hu59yVw2p5ivpAb3R09eHgdDUTAywH_FJfnsPMExDxYGiBroZb/exec'; 
         
         const submitBtn = document.getElementById('submit-btn');
         const spinner = submitBtn.querySelector('.spinner');
@@ -356,7 +356,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const successModal = document.getElementById('festa-success-modal');
 
         // URL do Google Apps Script (mesmo já usado no projeto)
-        const festaScriptURL = 'https://script.google.com/macros/s/AKfycbyZj6r_cm9UoOtwzIP3RmyPFhF7-PbAxY9k6GEWWFnkPAVXIAJby85I3oLg9lgGkGb_iA/exec';
+        const festaScriptURL = 'https://script.google.com/macros/s/AKfycbzagoK0cUCKzvdtg-Hu59yVw2p5ivpAb3R09eHgdDUTAywH_FJfnsPMExDxYGiBroZb/exec';
 
         let selectedOption = null;
 
