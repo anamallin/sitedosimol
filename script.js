@@ -160,6 +160,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const uploadBtnText = uploadBtn.querySelector('span');
         const uploadMessage = document.getElementById('upload-message');
         
+        // Desabilitar botão por padrão
+        uploadBtn.disabled = true;
+        
         let selectedFile = null;
 
         // --- COLE SEU LINK DO GOOGLE APPS SCRIPT AQUI ---
@@ -200,6 +203,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (files.length > 0) {
                 selectedFile = files[0];
                 fileNameDisplay.textContent = 'Arquivo selecionado: ' + selectedFile.name;
+                uploadBtn.disabled = false; // Habilitar botão
             }
         }
 
@@ -508,6 +512,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const festaUploadSpinner = festaUploadBtn.querySelector('.spinner');
         const festaUploadBtnText = festaUploadBtn.querySelector('span');
         const festaUploadMessage = document.getElementById('festa-upload-message');
+        
+        // Desabilitar botão por padrão
+        festaUploadBtn.disabled = true;
+        
         let festaSelectedFile = null;
 
         festaDropArea.addEventListener('click', () => festaFileInput.click());
@@ -534,6 +542,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (files.length > 0) {
                 festaSelectedFile = files[0];
                 festaFileName.textContent = 'Arquivo selecionado: ' + festaSelectedFile.name;
+                festaUploadBtn.disabled = false; // Habilitar botão
             }
         }
 
