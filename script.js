@@ -123,9 +123,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 const formData = new FormData(form);
 
                 fetch(scriptURL, { method: 'POST', body: formData })
-                    .then(response => {
-                        // Após envio bem-sucedido, vai para a página de escolha de planos
-                        window.location.href = 'planos.html';
+                    .then(response => response.json())
+                    .then(result => {
+                        if (result.result === 'success') {
+                            // Após envio bem-sucedido, vai para a página de escolha de planos
+                            window.location.href = 'planos.html';
+                        } else {
+                            // Caso haja erro (ex: CPF duplicado)
+                            avisoPagamentoModal.style.display = 'none';
+                            showMessage(result.message || 'Erro ao processar sua inscrição.', 'error');
+                        }
                     })
                     .catch(error => {
                         console.error('Erro!', error.message);

@@ -292,7 +292,25 @@ function doPost(e) {
     // ====== 7. INSCRIÇÃO NORMAL (Dados do Formulário) ======
     else {
       const sheetBase = doc.getSheetByName(sheetName);
-      const headersBase = sheetBase.getRange(1, 1, 1, sheetBase.getLastColumn()).getValues()[0];
+      const dataBase = sheetBase.getDataRange().getValues();
+      const headersBase = dataBase[0];
+      
+      // Busca o índice da coluna CPF para verificar duplicatas
+      const cpfColIndex = headersBase.findIndex(h => h.toString().toUpperCase() === 'CPF');
+      const newCpf = (e.parameter['CPF'] || '').replace(/\D/g, '').padStart(11, '0');
+
+      if (cpfColIndex !== -1) {
+        for (let i = 1; i < dataBase.length; i++) {
+          let sheetCpf = (dataBase[i][cpfColIndex] || '').toString().replace(/\D/g, '').padStart(11, '0');
+          if (sheetCpf === newCpf) {
+            return ContentService.createTextOutput(JSON.stringify({ 
+              'result': 'error', 
+              'message': 'Este CPF já possui uma inscrição cadastrada.' 
+            })).setMimeType(ContentService.MimeType.JSON);
+          }
+        }
+      }
+
       const nextRow = sheetBase.getLastRow() + 1;
       const newRowData = headersBase.map(function(header) {
         if (header === 'Data') return new Date();
