@@ -57,6 +57,39 @@ function doPost(e) {
       const ssMinicursos = SpreadsheetApp.openById(ID_PLANILHA_MINICURSOS);
       const sheetMinicursos = ssMinicursos.getSheets()[0];
       
+      // ===== Verificação de vagas (10 por minicurso) =====
+      const VAGAS_POR_MINICURSO = 10;
+      const minicursosSolicitados = (e.parameter.minicursos || '').split(',').map(m => m.trim()).filter(m => m);
+      const dataMinicursos = sheetMinicursos.getDataRange().getValues();
+      
+      // Contar inscrições existentes por minicurso
+      const contagem = {};
+      for (var j = 1; j < dataMinicursos.length; j++) {
+        var cursosNaLinha = (dataMinicursos[j][3] || '').toString().split(',');
+        cursosNaLinha.forEach(function(curso) {
+          var nomeCurso = curso.trim();
+          if (nomeCurso) {
+            contagem[nomeCurso] = (contagem[nomeCurso] || 0) + 1;
+          }
+        });
+      }
+      
+      // Verificar se há vagas para todos os minicursos solicitados
+      var minicursosSemVaga = [];
+      minicursosSolicitados.forEach(function(curso) {
+        var inscritos = contagem[curso] || 0;
+        if (inscritos >= VAGAS_POR_MINICURSO) {
+          minicursosSemVaga.push(curso);
+        }
+      });
+      
+      if (minicursosSemVaga.length > 0) {
+        return ContentService.createTextOutput(JSON.stringify({ 
+          result: 'error', 
+          message: 'Vagas esgotadas para: ' + minicursosSemVaga.join(', ') + '. Remova-os da sua seleção e tente novamente.' 
+        })).setMimeType(ContentService.MimeType.JSON);
+      }
+
       // Lógica de Pagamento Automático
       const tipoInsc = e.parameter.tipo;
       const nMinis = parseInt(e.parameter.n_minicursos || 0);
@@ -78,6 +111,31 @@ function doPost(e) {
       ]);
 
       return ContentService.createTextOutput(JSON.stringify({ result: 'success' })).setMimeType(ContentService.MimeType.JSON);
+    }
+
+    // ====== 1.5. CONSULTAR VAGAS DOS MINICURSOS ======
+    else if (action === 'getVagasMinicursos') {
+      const VAGAS_POR_MINICURSO = 10;
+      const ssMinicursos = SpreadsheetApp.openById(ID_PLANILHA_MINICURSOS);
+      const sheetMinicursos = ssMinicursos.getSheets()[0];
+      const dataMinicursos = sheetMinicursos.getDataRange().getValues();
+      
+      var contagem = {};
+      for (var j = 1; j < dataMinicursos.length; j++) {
+        var cursosNaLinha = (dataMinicursos[j][3] || '').toString().split(',');
+        cursosNaLinha.forEach(function(curso) {
+          var nomeCurso = curso.trim();
+          if (nomeCurso) {
+            contagem[nomeCurso] = (contagem[nomeCurso] || 0) + 1;
+          }
+        });
+      }
+      
+      return ContentService.createTextOutput(JSON.stringify({ 
+        result: 'success', 
+        vagas: contagem, 
+        limite: VAGAS_POR_MINICURSO 
+      })).setMimeType(ContentService.MimeType.JSON);
     }
 
     // ====== 2. SUBMISSÃO DE RESUMO ======
