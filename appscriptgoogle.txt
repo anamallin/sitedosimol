@@ -62,6 +62,17 @@ function doPost(e) {
       const minicursosSolicitados = (e.parameter.minicursos || '').split(',').map(m => m.trim()).filter(m => m);
       const dataMinicursos = sheetMinicursos.getDataRange().getValues();
       
+      // ===== Verificação de inscrição duplicada por CPF =====
+      for (var k = 1; k < dataMinicursos.length; k++) {
+        var cpfExistente = (dataMinicursos[k][2] || '').toString().replace(/\D/g, '').padStart(11, '0');
+        if (cpfExistente === cpfBusca) {
+          return ContentService.createTextOutput(JSON.stringify({ 
+            result: 'error', 
+            message: 'Este CPF já possui inscrição em minicursos. Cada participante pode realizar apenas uma inscrição.' 
+          })).setMimeType(ContentService.MimeType.JSON);
+        }
+      }
+
       // Contar inscrições existentes por minicurso
       const contagem = {};
       for (var j = 1; j < dataMinicursos.length; j++) {

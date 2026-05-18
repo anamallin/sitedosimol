@@ -62,7 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('registration-form');
     if (form) {
         // --- COLE SEU LINK DO GOOGLE APPS SCRIPT AQUI ---
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbyAX_YiZ4C9K6-hldwfrIEEMU-a8TluH87NKEZkt-tpgxg7bN6dR1v-kjGnJ1YwbYLArQ/exec'; 
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbzqicrD8U6W1CeA6NQSGeEvMYqG0ggliT5qgi7wRV3NHW6QqVnN0S0KdPUgqIIZgkhtZg/exec'; 
         
         const submitBtn = document.getElementById('submit-btn');
         const spinner = submitBtn.querySelector('.spinner');
@@ -173,7 +173,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let selectedFile = null;
 
         // --- COLE SEU LINK DO GOOGLE APPS SCRIPT AQUI ---
-        const uploadScriptURL = 'https://script.google.com/macros/s/AKfycbyAX_YiZ4C9K6-hldwfrIEEMU-a8TluH87NKEZkt-tpgxg7bN6dR1v-kjGnJ1YwbYLArQ/exec'; 
+        const uploadScriptURL = 'https://script.google.com/macros/s/AKfycbzqicrD8U6W1CeA6NQSGeEvMYqG0ggliT5qgi7wRV3NHW6QqVnN0S0KdPUgqIIZgkhtZg/exec'; 
 
         // Abrir seletor ao clicar
         dropArea.addEventListener('click', () => fileInput.click());
@@ -367,7 +367,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const successModal = document.getElementById('festa-success-modal');
 
         // URL do Google Apps Script (mesmo já usado no projeto)
-        const festaScriptURL = 'https://script.google.com/macros/s/AKfycbyAX_YiZ4C9K6-hldwfrIEEMU-a8TluH87NKEZkt-tpgxg7bN6dR1v-kjGnJ1YwbYLArQ/exec';
+        const festaScriptURL = 'https://script.google.com/macros/s/AKfycbzqicrD8U6W1CeA6NQSGeEvMYqG0ggliT5qgi7wRV3NHW6QqVnN0S0KdPUgqIIZgkhtZg/exec';
 
         let selectedOption = null;
 
