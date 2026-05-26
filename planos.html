@@ -215,11 +215,36 @@
 
                 <label class="produto-item" style="display: flex; align-items: center; justify-content: space-between; padding: 15px 20px; border: 1px solid #ddd; border-radius: 10px; cursor: pointer; transition: all 0.3s ease;">
                     <div style="display: flex; align-items: center; gap: 15px;">
-                        <input type="checkbox" class="produto-checkbox" data-nome="Camiseta" data-preco="50.00" style="width: 20px; height: 20px;">
+                        <input type="checkbox" class="produto-checkbox" id="checkbox-camiseta" data-nome="Camiseta" data-preco="50.00" style="width: 20px; height: 20px;">
                         <span style="font-size: 1rem; font-weight: bold; color: var(--color-4);">👕 Camiseta</span>
                     </div>
                     <div class="produto-preco" style="font-size: 1.1rem; color: var(--color-1); font-weight: bold;">R$ 50,00</div>
                 </label>
+
+                <!-- Seletor de tamanho de camiseta -->
+                <div id="tamanho-camiseta-container" style="display: none; margin-top: -5px; margin-bottom: 5px; padding: 12px 20px; border: 1px solid var(--color-2); border-radius: 10px; background: rgba(255,255,255,0.9); animation: slideDown 0.3s ease;">
+                    <label for="tamanho-camiseta" style="font-size: 0.9rem; font-weight: bold; color: var(--color-4); margin-bottom: 8px; display: block;">👕 Escolha o tamanho da camiseta:</label>
+                    <select id="tamanho-camiseta" style="width: 100%; padding: 10px 15px; border: 2px solid var(--color-2); border-radius: 8px; font-size: 1rem; color: var(--color-4); background: white; cursor: pointer; outline: none; transition: border-color 0.3s ease;">
+                        <option value="" disabled selected>Selecione o tamanho</option>
+                        <option value="PP">PP</option>
+                        <option value="P">P</option>
+                        <option value="M">M</option>
+                        <option value="G">G</option>
+                        <option value="GG">GG</option>
+                        <option value="XG">XG</option>
+                    </select>
+                </div>
+
+                <style>
+                    @keyframes slideDown {
+                        from { opacity: 0; transform: translateY(-10px); max-height: 0; }
+                        to { opacity: 1; transform: translateY(0); max-height: 200px; }
+                    }
+                    #tamanho-camiseta:focus {
+                        border-color: var(--color-3);
+                        box-shadow: 0 0 0 3px rgba(var(--color-3-rgb, 0,0,0), 0.15);
+                    }
+                </style>
 
             </div>
 
@@ -286,12 +311,37 @@
                 valorTotalDisplay.textContent = formatCurrency(valorBase + valorAdicionais);
             }
 
+            const checkboxCamiseta = document.getElementById('checkbox-camiseta');
+            const tamanhoContainer = document.getElementById('tamanho-camiseta-container');
+            const tamanhoSelect = document.getElementById('tamanho-camiseta');
+
             checkboxes.forEach(cb => {
-                cb.addEventListener('change', atualizarValores);
+                cb.addEventListener('change', () => {
+                    atualizarValores();
+                    // Mostrar/ocultar seletor de tamanho
+                    if (cb.id === 'checkbox-camiseta') {
+                        if (cb.checked) {
+                            tamanhoContainer.style.display = 'block';
+                        } else {
+                            tamanhoContainer.style.display = 'none';
+                            tamanhoSelect.selectedIndex = 0; // Resetar seleção
+                        }
+                    }
+                });
             });
 
             if (finalizarPlusBtn) {
                 finalizarPlusBtn.addEventListener('click', () => {
+                    // Validar tamanho da camiseta se selecionada
+                    if (checkboxCamiseta && checkboxCamiseta.checked) {
+                        if (!tamanhoSelect.value) {
+                            tamanhoSelect.style.borderColor = '#e74c3c';
+                            tamanhoSelect.focus();
+                            alert('Por favor, selecione o tamanho da camiseta!');
+                            return;
+                        }
+                    }
+
                     const produtosEscolhidos = [];
                     checkboxes.forEach(cb => {
                         if (cb.checked) {
@@ -303,6 +353,13 @@
                     localStorage.setItem('simol_plus_produtos', JSON.stringify(produtosEscolhidos));
                     localStorage.setItem('simol_plus_total', (valorBase + valorAdicionais).toFixed(2));
                     localStorage.setItem('simol_is_plus', 'true'); // Flag para saber que foi via Plus
+
+                    // Salvar tamanho da camiseta (se selecionada)
+                    if (checkboxCamiseta && checkboxCamiseta.checked && tamanhoSelect.value) {
+                        localStorage.setItem('simol_tamanho_camiseta', tamanhoSelect.value);
+                    } else {
+                        localStorage.removeItem('simol_tamanho_camiseta');
+                    }
 
                     window.location.href = 'pagamento-plus.html';
                 });

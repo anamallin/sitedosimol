@@ -230,11 +230,21 @@ function doPost(e) {
           sheet.getRange(1, prodIndex + 1).setValue('produtos');
           headers.push('produtos'); // Atualiza a lista em memória
       }
+
+      let tamIndex = headers.indexOf('tamanho_camiseta');
+      if (tamIndex === -1) { 
+          tamIndex = headers.length; 
+          sheet.getRange(1, tamIndex + 1).setValue('tamanho_camiseta');
+          headers.push('tamanho_camiseta');
+      }
       
       if (rowToUpdate !== -1) {
           sheet.getRange(rowToUpdate, compIndex + 1).setValue(file.getUrl());
           if (e.parameter.PRODUTOS) {
               sheet.getRange(rowToUpdate, prodIndex + 1).setValue(e.parameter.PRODUTOS);
+          }
+          if (e.parameter.TAMANHO_CAMISETA) {
+              sheet.getRange(rowToUpdate, tamIndex + 1).setValue(e.parameter.TAMANHO_CAMISETA);
           }
       }
       return ContentService.createTextOutput(JSON.stringify({ 'result': 'success', 'fileUrl': file.getUrl() })).setMimeType(ContentService.MimeType.JSON);

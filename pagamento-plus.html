@@ -64,6 +64,7 @@
             <form id="upload-form" class="simol-form">
                 <input type="hidden" id="tipo-inscricao" value="Plus">
                 <input type="hidden" id="produtos-selecionados" name="PRODUTOS" value="">
+                <input type="hidden" id="tamanho-camiseta-hidden" name="TAMANHO_CAMISETA" value="">
                 <div class="form-group">
                     <label for="upload-nome">Nome Completo *</label>
                     <input type="text" id="upload-nome" name="nome" required placeholder="Nome usado na inscrição">
@@ -108,13 +109,19 @@
                 const resumoBox = document.getElementById('resumo-produtos');
                 const lista = document.getElementById('lista-produtos-escolhidos');
                 const hiddenProdutos = document.getElementById('produtos-selecionados');
+                const hiddenTamanho = document.getElementById('tamanho-camiseta-hidden');
+                const tamanhoCamiseta = localStorage.getItem('simol_tamanho_camiseta');
                 
                 let htmlLista = `<li>${tipoTexto}</li>`;
                 let textoParaPlanilha = ``;
 
                 if (produtos.length > 0) {
                     produtos.forEach(p => {
-                        htmlLista += `<li>Produto: ${p}</li>`;
+                        if (p === 'Camiseta' && tamanhoCamiseta) {
+                            htmlLista += `<li>Produto: ${p} (Tamanho: ${tamanhoCamiseta})</li>`;
+                        } else {
+                            htmlLista += `<li>Produto: ${p}</li>`;
+                        }
                     });
                     textoParaPlanilha = produtos.join(', ');
                 } else {
@@ -125,6 +132,7 @@
                 lista.innerHTML = htmlLista;
                 resumoBox.style.display = 'block';
                 if (hiddenProdutos) hiddenProdutos.value = textoParaPlanilha;
+                if (hiddenTamanho && tamanhoCamiseta) hiddenTamanho.value = tamanhoCamiseta;
             }
         });
     </script>

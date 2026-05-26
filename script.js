@@ -254,6 +254,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     formData.append('PRODUTOS', produtosInput.value);
                 }
 
+                const tamanhoInput = document.getElementById('tamanho-camiseta-hidden');
+                if (tamanhoInput && tamanhoInput.value) {
+                    formData.append('TAMANHO_CAMISETA', tamanhoInput.value);
+                }
+
                 formData.append('filename', selectedFile.name);
                 formData.append('mimeType', selectedFile.type);
                 formData.append('fileData', base64Data);
