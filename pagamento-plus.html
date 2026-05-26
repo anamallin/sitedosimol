@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pagamento Plus - I SIMOL</title>
+    <title>Pagamento Premium - I SIMOL</title>
     <link rel="icon" type="image/png" href="Icone_Proteina_Óculos.png">
     <link rel="stylesheet" href="styles.css">
 </head>
@@ -32,9 +32,17 @@
         </div>
 
         <div class="payment-box" style="background: linear-gradient(to bottom right, #fdfbf7, #f3ebf8); border: 2px solid var(--color-1); border-radius: 12px; padding: 30px; margin-bottom: 30px; position: relative;">
-            <div style="position: absolute; top: -15px; left: 50%; transform: translateX(-50%); background: var(--color-1); color: white; padding: 5px 15px; border-radius: 20px; font-weight: bold; font-size: 0.8rem;">INSCRIÇÃO PLUS</div>
+            <div style="position: absolute; top: -15px; left: 50%; transform: translateX(-50%); background: var(--color-1); color: white; padding: 5px 15px; border-radius: 20px; font-weight: bold; font-size: 0.8rem;">INSCRIÇÃO PREMIUM</div>
             <h2 style="color: var(--color-3); font-size: 1.5rem; margin-bottom: 15px;">Pagamento via PIX</h2>
-            <p style="font-size: 1.1rem; font-weight: 600; margin-bottom: 5px;">Valor: R$ 85,00</p>
+            
+            <div id="resumo-produtos" style="background: rgba(255,255,255,0.8); padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: left; border: 1px dashed var(--color-2); display: none;">
+                <p style="font-weight: bold; color: var(--color-4); margin-bottom: 10px;">Resumo do seu pacote:</p>
+                <ul id="lista-produtos-escolhidos" style="list-style-type: disc; padding-left: 20px; color: #555; font-size: 0.95rem; margin-bottom: 10px;">
+                    <!-- Itens inseridos via JS -->
+                </ul>
+            </div>
+
+            <p style="font-size: 1.3rem; font-weight: bold; color: var(--color-1); margin-bottom: 5px;" id="pagamento-valor">Valor Total: R$ 0,00</p>
             <p style="color: #777; font-size: 0.9rem; margin-bottom: 20px;">I SIMOL - UFPR</p>
 
             <!-- Placeholder do QR Code ou Chave PIX -->
@@ -55,6 +63,7 @@
             
             <form id="upload-form" class="simol-form">
                 <input type="hidden" id="tipo-inscricao" value="Plus">
+                <input type="hidden" id="produtos-selecionados" name="PRODUTOS" value="">
                 <div class="form-group">
                     <label for="upload-nome">Nome Completo *</label>
                     <input type="text" id="upload-nome" name="nome" required placeholder="Nome usado na inscrição">
@@ -82,5 +91,42 @@
     </div>
 
     <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const totalStr = localStorage.getItem('simol_plus_total');
+            const produtosStr = localStorage.getItem('simol_plus_produtos');
+            const tipo = localStorage.getItem('simol_tipo_inscricao');
+
+            if (totalStr) {
+                document.getElementById('pagamento-valor').textContent = `Valor Total: R$ ${parseFloat(totalStr).toFixed(2).replace('.', ',')}`;
+            }
+
+            let tipoTexto = tipo === 'Pós-Graduação Participante' ? 'Inscrição Pós-Graduação' : 'Inscrição Padrão';
+            
+            if (produtosStr) {
+                const produtos = JSON.parse(produtosStr);
+                const resumoBox = document.getElementById('resumo-produtos');
+                const lista = document.getElementById('lista-produtos-escolhidos');
+                const hiddenProdutos = document.getElementById('produtos-selecionados');
+                
+                let htmlLista = `<li>${tipoTexto}</li>`;
+                let textoParaPlanilha = ``;
+
+                if (produtos.length > 0) {
+                    produtos.forEach(p => {
+                        htmlLista += `<li>Produto: ${p}</li>`;
+                    });
+                    textoParaPlanilha = produtos.join(', ');
+                } else {
+                    htmlLista += `<li>Nenhum produto adicional</li>`;
+                    textoParaPlanilha = 'Nenhum';
+                }
+
+                lista.innerHTML = htmlLista;
+                resumoBox.style.display = 'block';
+                if (hiddenProdutos) hiddenProdutos.value = textoParaPlanilha;
+            }
+        });
+    </script>
 </body>
 </html>

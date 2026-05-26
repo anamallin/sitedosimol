@@ -62,7 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('registration-form');
     if (form) {
         // --- COLE SEU LINK DO GOOGLE APPS SCRIPT AQUI ---
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbzqicrD8U6W1CeA6NQSGeEvMYqG0ggliT5qgi7wRV3NHW6QqVnN0S0KdPUgqIIZgkhtZg/exec'; 
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbzdMtWw_AeJREDLqc8-CnoSf2MGnV3DzkKLBoCQGB-Rx5qFOEh9rpn0SPX47ColcvgKiw/exec'; 
         
         const submitBtn = document.getElementById('submit-btn');
         const spinner = submitBtn.querySelector('.spinner');
@@ -121,6 +121,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // Coletar dados via FormData
                 const formData = new FormData(form);
+                
+                // Salvar o tipo de inscrição para ajustar o preço nas próximas páginas
+                localStorage.setItem('simol_tipo_inscricao', formData.get('TIPO_INSCRICAO'));
 
                 fetch(scriptURL, { method: 'POST', body: formData })
                     .then(response => response.json())
@@ -173,7 +176,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let selectedFile = null;
 
         // --- COLE SEU LINK DO GOOGLE APPS SCRIPT AQUI ---
-        const uploadScriptURL = 'https://script.google.com/macros/s/AKfycbzqicrD8U6W1CeA6NQSGeEvMYqG0ggliT5qgi7wRV3NHW6QqVnN0S0KdPUgqIIZgkhtZg/exec'; 
+        const uploadScriptURL = 'https://script.google.com/macros/s/AKfycbzdMtWw_AeJREDLqc8-CnoSf2MGnV3DzkKLBoCQGB-Rx5qFOEh9rpn0SPX47ColcvgKiw/exec'; 
 
         // Abrir seletor ao clicar
         dropArea.addEventListener('click', () => fileInput.click());
@@ -245,6 +248,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 const formData = new URLSearchParams();
                 formData.append('nome', nome);
                 formData.append('tipo', tipoInscricao);
+                
+                const produtosInput = document.getElementById('produtos-selecionados');
+                if (produtosInput && produtosInput.value) {
+                    formData.append('PRODUTOS', produtosInput.value);
+                }
+
                 formData.append('filename', selectedFile.name);
                 formData.append('mimeType', selectedFile.type);
                 formData.append('fileData', base64Data);
@@ -302,28 +311,28 @@ document.addEventListener('DOMContentLoaded', () => {
         const agreeCheckbox = document.getElementById('agree-checkbox');
         const proceedBtn = document.getElementById('proceed-btn');
 
-        // Abre o modal
+        function closeAvisoModal() {
+            avisoModal.style.display = 'none';
+            agreeCheckbox.checked = false;
+            proceedBtn.disabled = true;
+            proceedBtn.style.opacity = '0.5';
+            proceedBtn.style.cursor = 'not-allowed';
+        }
+
+        // Abre o modal de aviso
         openAvisoBtn.addEventListener('click', () => {
             avisoModal.style.display = 'flex';
         });
 
         // Fecha o modal pelo botão Cancelar
         closeModalBtn.addEventListener('click', () => {
-            avisoModal.style.display = 'none';
-            agreeCheckbox.checked = false;
-            proceedBtn.disabled = true;
-            proceedBtn.style.opacity = '0.5';
-            proceedBtn.style.cursor = 'not-allowed';
+            closeAvisoModal();
         });
 
         // Fecha o modal se clicar fora dele (no fundo escuro)
         window.addEventListener('click', (e) => {
             if (e.target === avisoModal) {
-                avisoModal.style.display = 'none';
-                agreeCheckbox.checked = false;
-                proceedBtn.disabled = true;
-                proceedBtn.style.opacity = '0.5';
-                proceedBtn.style.cursor = 'not-allowed';
+                closeAvisoModal();
             }
         });
 
@@ -367,7 +376,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const successModal = document.getElementById('festa-success-modal');
 
         // URL do Google Apps Script (mesmo já usado no projeto)
-        const festaScriptURL = 'https://script.google.com/macros/s/AKfycbzqicrD8U6W1CeA6NQSGeEvMYqG0ggliT5qgi7wRV3NHW6QqVnN0S0KdPUgqIIZgkhtZg/exec';
+        const festaScriptURL = 'https://script.google.com/macros/s/AKfycbzdMtWw_AeJREDLqc8-CnoSf2MGnV3DzkKLBoCQGB-Rx5qFOEh9rpn0SPX47ColcvgKiw/exec';
 
         let selectedOption = null;
 

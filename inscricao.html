@@ -46,6 +46,10 @@
             font-weight: bold; cursor: pointer; transition: all 0.3s ease;
         }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .tab-btn { flex: 1; padding: 15px; border: 2px solid var(--color-2); background: transparent; border-radius: 12px; color: var(--color-4); font-weight: bold; cursor: pointer; transition: all 0.3s ease; }
+        .tab-btn.active { background: var(--color-2); color: white; }
+        .tab-btn:hover:not(.active) { background: rgba(138, 87, 181, 0.1); }
+        .tab-content { animation: fadeIn 0.5s ease; }
     </style>
 </head>
 <body>
@@ -67,6 +71,15 @@
         <p style="color: #666; margin-bottom: 30px;">Preencha os dados abaixo para se inscrever no I SIMOL.</p>
 
         <form id="registration-form" class="simol-form">
+            <div class="form-group" style="margin-bottom: 30px;">
+                <label style="font-size: 1.1rem; color: var(--color-4); text-align: left; display: block; margin-bottom: 10px;">Tipo de Inscrição *</label>
+                <div class="tabs-container" style="display: flex; gap: 15px; flex-wrap: wrap;">
+                    <button type="button" id="btn-tab-padrao" class="tab-btn active">Inscrição Padrão</button>
+                    <button type="button" id="btn-tab-pos" class="tab-btn">Aluno de Pós-Graduação (Participante)</button>
+                </div>
+                <input type="hidden" id="tipo_inscricao" name="TIPO_INSCRICAO" value="Inscrição Padrão">
+            </div>
+
             <div class="form-row">
                 <div class="form-group">
                     <label for="nome">Nome Completo *</label>
@@ -90,88 +103,124 @@
             </div>
 
             <div class="form-row">
-                <div class="form-group">
-                    <label for="instituicao">Instituição de Ensino *</label>
-                    <input type="text" id="instituicao" name="instituicao" required placeholder="Ex: UFPR, UTFPR, PUC...">
-                </div>
-                <div class="form-group">
-                    <label for="curso">Curso *</label>
-                    <input type="text" id="curso" name="curso" required placeholder="Ex: Ciências Biológicas, Farmácia...">
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label for="vinculo">Vínculo *</label>
-                <select id="vinculo" name="vinculo" required>
-                    <option value="" disabled selected>Selecione seu vínculo</option>
-                    <option value="Graduação">Estudante de Graduação</option>
-                    <option value="Pós-Graduação">Estudante de Pós-Graduação</option>
-                    <option value="Docente">Docente / Pesquisador</option>
-                    <option value="Profissional">Profissional da área</option>
-                    <option value="Outro">Outro</option>
-                </select>
-            </div>
-
-            <div class="form-row">
-                <div class="form-group">
+                <div class="form-group" style="flex: 1;">
                     <label for="cpf">CPF *</label>
                     <input type="text" id="cpf" name="CPF" required placeholder="Somente números" maxlength="11" inputmode="numeric">
                     <small style="color: #888; display: block; margin-top: 5px;">Digite apenas os números, sem pontos ou hífen.</small>
                 </div>
-                <div class="form-group">
-                    <label for="periodo">Período Atual *</label>
-                    <input type="text" id="periodo" name="PERIODO" required placeholder='Se não cursa graduação, escreva: NÃO SE APLICA'>
-                </div>
+                <div class="form-group" style="flex: 1;"></div>
             </div>
 
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="cidade">Cidade *</label>
-                    <input type="text" id="cidade" name="CIDADE" required placeholder="Ex: Curitiba">
+            <!-- TAB: INSCRIÇÃO PADRÃO -->
+            <div id="tab-padrao" class="tab-content">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="instituicao">Instituição de Ensino *</label>
+                        <input type="text" id="instituicao" name="instituicao" required placeholder="Ex: UFPR, UTFPR, PUC...">
+                    </div>
+                    <div class="form-group">
+                        <label for="curso">Curso *</label>
+                        <input type="text" id="curso" name="curso" required placeholder="Ex: Ciências Biológicas, Farmácia...">
+                    </div>
                 </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="vinculo">Vínculo *</label>
+                        <select id="vinculo" name="vinculo" required>
+                            <option value="" disabled selected>Selecione seu vínculo</option>
+                            <option value="Graduação">Estudante de Graduação</option>
+                            <option value="Pós-Graduação">Estudante de Pós-Graduação</option>
+                            <option value="Docente">Docente / Pesquisador</option>
+                            <option value="Profissional">Profissional da área</option>
+                            <option value="Outro">Outro</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="periodo">Período Atual *</label>
+                        <input type="text" id="periodo" name="PERIODO" required placeholder='Se não cursa graduação, escreva: NÃO SE APLICA'>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="cidade">Cidade *</label>
+                        <input type="text" id="cidade" name="CIDADE" required placeholder="Ex: Curitiba">
+                    </div>
+                    <div class="form-group">
+                        <label for="estado">Estado *</label>
+                        <select id="estado" name="ESTADO" required>
+                            <option value="" disabled selected>Selecione</option>
+                            <option value="AC">AC</option>
+                            <option value="AL">AL</option>
+                            <option value="AP">AP</option>
+                            <option value="AM">AM</option>
+                            <option value="BA">BA</option>
+                            <option value="CE">CE</option>
+                            <option value="DF">DF</option>
+                            <option value="ES">ES</option>
+                            <option value="GO">GO</option>
+                            <option value="MA">MA</option>
+                            <option value="MT">MT</option>
+                            <option value="MS">MS</option>
+                            <option value="MG">MG</option>
+                            <option value="PA">PA</option>
+                            <option value="PB">PB</option>
+                            <option value="PR">PR</option>
+                            <option value="PE">PE</option>
+                            <option value="PI">PI</option>
+                            <option value="RJ">RJ</option>
+                            <option value="RN">RN</option>
+                            <option value="RS">RS</option>
+                            <option value="RO">RO</option>
+                            <option value="RR">RR</option>
+                            <option value="SC">SC</option>
+                            <option value="SP">SP</option>
+                            <option value="SE">SE</option>
+                            <option value="TO">TO</option>
+                        </select>
+                    </div>
+                </div>
+
                 <div class="form-group">
-                    <label for="estado">Estado *</label>
-                    <select id="estado" name="ESTADO" required>
+                    <label for="ru">Você é de fora da UFPR e gostaria de utilizar o Restaurante Universitário (RU) durante os dias do evento? *</label>
+                    <select id="ru" name="RU" required>
                         <option value="" disabled selected>Selecione</option>
-                        <option value="AC">AC</option>
-                        <option value="AL">AL</option>
-                        <option value="AP">AP</option>
-                        <option value="AM">AM</option>
-                        <option value="BA">BA</option>
-                        <option value="CE">CE</option>
-                        <option value="DF">DF</option>
-                        <option value="ES">ES</option>
-                        <option value="GO">GO</option>
-                        <option value="MA">MA</option>
-                        <option value="MT">MT</option>
-                        <option value="MS">MS</option>
-                        <option value="MG">MG</option>
-                        <option value="PA">PA</option>
-                        <option value="PB">PB</option>
-                        <option value="PR">PR</option>
-                        <option value="PE">PE</option>
-                        <option value="PI">PI</option>
-                        <option value="RJ">RJ</option>
-                        <option value="RN">RN</option>
-                        <option value="RS">RS</option>
-                        <option value="RO">RO</option>
-                        <option value="RR">RR</option>
-                        <option value="SC">SC</option>
-                        <option value="SP">SP</option>
-                        <option value="SE">SE</option>
-                        <option value="TO">TO</option>
+                        <option value="Sim">Sim</option>
+                        <option value="Não">Não</option>
                     </select>
+                    <small style="color: #888; display: block; margin-top: 5px;">Caso já seja da UFPR, preencha NÃO.</small>
                 </div>
             </div>
 
-            <div class="form-group">
-                <label for="ru">Você é de fora da UFPR e gostaria de utilizar o Restaurante Universitário (RU) durante os dias do evento? *</label>
-                <select id="ru" name="RU" required>
-                    <option value="" disabled selected>Selecione</option>
-                    <option value="Sim">Sim</option>
-                    <option value="Não">Não</option>
-                </select>
-                <small style="color: #888; display: block; margin-top: 5px;">Caso já seja da UFPR, preencha NÃO.</small>
+            <!-- TAB: PÓS GRADUAÇÃO PARTICIPANTE -->
+            <div id="tab-pos" class="tab-content" style="display: none;">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="programa_pos">Sou da Pós Graduação em... *</label>
+                        <select id="programa_pos" name="PROGRAMA_POS">
+                            <option value="" disabled selected>Selecione</option>
+                            <option value="Genética">Genética</option>
+                            <option value="Biologia Celular e Molecular">Biologia Celular e Molecular</option>
+                            <option value="Ciências (Bioquímica)">Ciências (Bioquímica)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="nivel_pos">Sou aluno de... *</label>
+                        <select id="nivel_pos" name="NIVEL_POS">
+                            <option value="" disabled selected>Selecione</option>
+                            <option value="Mestrado">Mestrado</option>
+                            <option value="Doutorado">Doutorado</option>
+                            <option value="Pós-Doutorado">Pós-Doutorado</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="minicurso_pos">Vai ministrar algum minicurso? Se sim, qual?</label>
+                    <input type="text" id="minicurso_pos" name="MINICURSO_POS" placeholder="Deixe em branco caso não vá ministrar">
+                    <small style="color: #888; display: block; margin-top: 5px;">(É preciso ter submetido seu minicurso dentro do prazo)</small>
+                </div>
             </div>
 
             <div class="form-group">
@@ -291,6 +340,47 @@
             cpfField.addEventListener('input', function() {
                 this.value = this.value.replace(/\D/g, '').slice(0, 11);
             });
+        }
+
+        // Tab switching logic
+        const btnTabPadrao = document.getElementById('btn-tab-padrao');
+        const btnTabPos = document.getElementById('btn-tab-pos');
+        const tabPadrao = document.getElementById('tab-padrao');
+        const tabPos = document.getElementById('tab-pos');
+        const tipoInscricaoHidden = document.getElementById('tipo_inscricao');
+
+        function updateTabs(isPos) {
+            if (isPos) {
+                btnTabPos.classList.add('active');
+                btnTabPadrao.classList.remove('active');
+                tabPos.style.display = 'block';
+                tabPadrao.style.display = 'none';
+                tipoInscricaoHidden.value = 'Pós-Graduação Participante';
+                
+                tabPos.querySelectorAll('input, select').forEach(el => el.disabled = false);
+                tabPadrao.querySelectorAll('input, select').forEach(el => el.disabled = true);
+                
+                document.getElementById('programa_pos').required = true;
+                document.getElementById('nivel_pos').required = true;
+            } else {
+                btnTabPadrao.classList.add('active');
+                btnTabPos.classList.remove('active');
+                tabPadrao.style.display = 'block';
+                tabPos.style.display = 'none';
+                tipoInscricaoHidden.value = 'Inscrição Padrão';
+                
+                tabPadrao.querySelectorAll('input, select').forEach(el => el.disabled = false);
+                tabPos.querySelectorAll('input, select').forEach(el => el.disabled = true);
+                
+                document.getElementById('programa_pos').required = false;
+                document.getElementById('nivel_pos').required = false;
+            }
+        }
+
+        if (btnTabPadrao && btnTabPos) {
+            btnTabPadrao.addEventListener('click', () => updateTabs(false));
+            btnTabPos.addEventListener('click', () => updateTabs(true));
+            updateTabs(false); // Init
         }
     </script>
 </body>

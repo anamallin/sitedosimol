@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="styles.css">
     <style>
         .page-content { text-align: center; margin-top: 50px; }
+        .produto-item:hover { border-color: var(--color-1) !important; background: rgba(138, 87, 181, 0.05); }
         .back-btn { display: inline-block; margin-top: 30px; color: var(--color-4); font-weight: 600; text-decoration: none; }
         .back-btn:hover { text-decoration: underline; }
         
@@ -149,8 +150,8 @@
         <div class="planos-container">
             <!-- Plano Padrão -->
             <div class="plano-card">
-                <h2 class="plano-title">Inscrição Padrão</h2>
-                <div class="plano-price">R$ 35<span>,00</span></div>
+                <h2 class="plano-title" id="plano-basico-title">Inscrição Padrão</h2>
+                <div class="plano-price" id="plano-basico-price">R$ 40<span>,00</span></div>
                 
                 <ul class="plano-features">
                     <li>Acesso a todas as palestras</li>
@@ -164,21 +165,149 @@
 
             <!-- Plano Plus -->
             <div class="plano-card plus">
-                <h2 class="plano-title">Inscrição Plus</h2>
-                <div class="plano-price">R$ 85<span>,00</span></div>
+                <h2 class="plano-title">Inscrição Premium</h2>
+                <div class="plano-price" style="font-size: 1.5rem; margin-bottom: 25px;">Monte seu kit<br>de produtos</div>
                 
                 <ul class="plano-features">
-                    <li><strong>Tudo do plano Padrão</strong></li>
-                    <li><span style="color: var(--color-1); font-weight: bold;">Camiseta Exclusiva do Evento</span></li>
-                    <li><span style="color: var(--color-1); font-weight: bold;">Xícara Personalizada do SIMOL</span></li>
+                    <li><strong>Tudo da inscrição comum</strong></li>
+                    <li><span style="color: var(--color-1); font-weight: bold;">Adicione produtos</span></li>
                 </ul>
 
-                <a href="pagamento-plus.html" class="btn-escolher">Quero o Plano Plus!</a>
+                <button id="btn-ver-produtos" class="btn-escolher" style="border: none; cursor: pointer; font-size: 1.1rem;">Ver Produtos</button>
+            </div>
+        </div>
+
+        <!-- Seção de Produtos -->
+        <div id="produtos-section" style="display: none; margin-top: 50px; text-align: left; background: #fff; padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); border: 2px solid var(--color-1); animation: fadeIn 0.8s ease;">
+            <h2 style="color: var(--color-4); margin-bottom: 20px; text-align: center; font-size: 2rem;">Produtos</h2>
+            
+            <div style="text-align: center; margin-bottom: 30px;">
+                <img src="produtos.png" alt="Produtos I SIMOL" style="max-width: 100%; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
+            </div>
+
+            <p style="text-align: center; color: #555; margin-bottom: 30px; font-size: 1.1rem;">Selecione os itens que deseja incluir no seu kit:</p>
+
+            <div class="produtos-list" style="display: flex; flex-direction: column; gap: 15px; max-width: 500px; margin: 0 auto;">
+                
+                <label class="produto-item" style="display: flex; align-items: center; justify-content: space-between; padding: 15px 20px; border: 1px solid #ddd; border-radius: 10px; cursor: pointer; transition: all 0.3s ease;">
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <input type="checkbox" class="produto-checkbox" data-nome="Copo" data-preco="10.00" style="width: 20px; height: 20px;">
+                        <span style="font-size: 1rem; font-weight: bold; color: var(--color-4);">🥤 Copo</span>
+                    </div>
+                    <div class="produto-preco" style="font-size: 1.1rem; color: var(--color-1); font-weight: bold;">R$ 10,00</div>
+                </label>
+
+                <label class="produto-item" style="display: flex; align-items: center; justify-content: space-between; padding: 15px 20px; border: 1px solid #ddd; border-radius: 10px; cursor: pointer; transition: all 0.3s ease;">
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <input type="checkbox" class="produto-checkbox" data-nome="Caneca" data-preco="30.00" style="width: 20px; height: 20px;">
+                        <span style="font-size: 1rem; font-weight: bold; color: var(--color-4);">☕ Caneca</span>
+                    </div>
+                    <div class="produto-preco" style="font-size: 1.1rem; color: var(--color-1); font-weight: bold;">R$ 30,00</div>
+                </label>
+
+                <label class="produto-item" style="display: flex; align-items: center; justify-content: space-between; padding: 15px 20px; border: 1px solid #ddd; border-radius: 10px; cursor: pointer; transition: all 0.3s ease;">
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <input type="checkbox" class="produto-checkbox" data-nome="Ecobag" data-preco="34.50" style="width: 20px; height: 20px;">
+                        <span style="font-size: 1rem; font-weight: bold; color: var(--color-4);">🛍️ Ecobag</span>
+                    </div>
+                    <div class="produto-preco" style="font-size: 1.1rem; color: var(--color-1); font-weight: bold;">R$ 34,50</div>
+                </label>
+
+                <label class="produto-item" style="display: flex; align-items: center; justify-content: space-between; padding: 15px 20px; border: 1px solid #ddd; border-radius: 10px; cursor: pointer; transition: all 0.3s ease;">
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <input type="checkbox" class="produto-checkbox" data-nome="Camiseta" data-preco="50.00" style="width: 20px; height: 20px;">
+                        <span style="font-size: 1rem; font-weight: bold; color: var(--color-4);">👕 Camiseta</span>
+                    </div>
+                    <div class="produto-preco" style="font-size: 1.1rem; color: var(--color-1); font-weight: bold;">R$ 50,00</div>
+                </label>
+
+            </div>
+
+            <div style="margin-top: 40px; text-align: center; border-top: 2px dashed #eee; padding-top: 30px;">
+                <p style="font-size: 1.2rem; color: #666; margin-bottom: 10px;">Valor Base Inscrição: <strong id="valor-base-display">R$ 0,00</strong></p>
+                <p style="font-size: 1.2rem; color: #666; margin-bottom: 15px;">Adicionais: <strong id="valor-adicionais-display">R$ 0,00</strong></p>
+                <h3 style="font-size: 2rem; color: var(--color-3); margin-bottom: 30px;">Total a Pagar: <span id="valor-total-display">R$ 0,00</span></h3>
+                
+                <button id="finalizar-plus-btn" class="btn-escolher" style="max-width: 300px; margin: 0 auto; border: none; cursor: pointer; font-size: 1.1rem;">Prosseguir com Premium</button>
             </div>
         </div>
 
     </div>
 
     <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const tipo = localStorage.getItem('simol_tipo_inscricao');
+            let valorBase = 40.00;
+
+            if (tipo === 'Pós-Graduação Participante') {
+                document.getElementById('plano-basico-title').textContent = 'Inscrição Pós-Graduação';
+                document.getElementById('plano-basico-price').innerHTML = 'R$ 31<span>,00</span>';
+                valorBase = 31.00;
+            } else {
+                document.getElementById('plano-basico-title').textContent = 'Inscrição Padrão';
+                document.getElementById('plano-basico-price').innerHTML = 'R$ 40<span>,00</span>';
+                valorBase = 40.00;
+            }
+
+            // Lógica dos Produtos Plus
+            const btnVerProdutos = document.getElementById('btn-ver-produtos');
+            const produtosSection = document.getElementById('produtos-section');
+            const checkboxes = document.querySelectorAll('.produto-checkbox');
+            const valorBaseDisplay = document.getElementById('valor-base-display');
+            const valorAdicionaisDisplay = document.getElementById('valor-adicionais-display');
+            const valorTotalDisplay = document.getElementById('valor-total-display');
+            const finalizarPlusBtn = document.getElementById('finalizar-plus-btn');
+
+            let valorAdicionais = 0.00;
+
+            if (btnVerProdutos) {
+                btnVerProdutos.addEventListener('click', () => {
+                    produtosSection.style.display = 'block';
+                    produtosSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    atualizarValores();
+                });
+            }
+
+            function formatCurrency(val) {
+                return 'R$ ' + val.toFixed(2).replace('.', ',');
+            }
+
+            function atualizarValores() {
+                valorAdicionais = 0;
+                checkboxes.forEach(cb => {
+                    if (cb.checked) {
+                        valorAdicionais += parseFloat(cb.getAttribute('data-preco'));
+                    }
+                });
+
+                valorBaseDisplay.textContent = formatCurrency(valorBase);
+                valorAdicionaisDisplay.textContent = formatCurrency(valorAdicionais);
+                valorTotalDisplay.textContent = formatCurrency(valorBase + valorAdicionais);
+            }
+
+            checkboxes.forEach(cb => {
+                cb.addEventListener('change', atualizarValores);
+            });
+
+            if (finalizarPlusBtn) {
+                finalizarPlusBtn.addEventListener('click', () => {
+                    const produtosEscolhidos = [];
+                    checkboxes.forEach(cb => {
+                        if (cb.checked) {
+                            produtosEscolhidos.push(cb.getAttribute('data-nome'));
+                        }
+                    });
+
+                    // Salva no localStorage para a página de pagamento
+                    localStorage.setItem('simol_plus_produtos', JSON.stringify(produtosEscolhidos));
+                    localStorage.setItem('simol_plus_total', (valorBase + valorAdicionais).toFixed(2));
+                    localStorage.setItem('simol_is_plus', 'true'); // Flag para saber que foi via Plus
+
+                    window.location.href = 'pagamento-plus.html';
+                });
+            }
+        });
+    </script>
 </body>
 </html>
