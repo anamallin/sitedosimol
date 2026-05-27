@@ -210,6 +210,7 @@ function doPost(e) {
       const data = sheet.getDataRange().getValues();
       
       let nomeIndex = headers.indexOf('nome');
+      let cpfIndex = headers.indexOf('cpf');
       let compIndex = headers.indexOf('comprovante');
       
       if (compIndex === -1) { 
@@ -218,9 +219,21 @@ function doPost(e) {
       }
       
       let rowToUpdate = -1;
-      for (let i = data.length - 1; i > 0; i--) {
-        if (data[i][nomeIndex] && data[i][nomeIndex].toString().trim().toLowerCase() === e.parameter.nome.toString().trim().toLowerCase()) {
-          rowToUpdate = i + 1; break;
+      const cpfBusca = (e.parameter.cpf || '').replace(/\D/g, '').padStart(11, '0');
+      if (cpfIndex !== -1 && cpfBusca) {
+        for (let i = data.length - 1; i > 0; i--) {
+          let cpfSheet = (data[i][cpfIndex] || '').toString().replace(/\D/g, '').padStart(11, '0');
+          if (cpfSheet === cpfBusca) {
+            rowToUpdate = i + 1;
+            break;
+          }
+        }
+      }
+      if (rowToUpdate === -1 && nomeIndex !== -1 && e.parameter.nome) {
+        for (let i = data.length - 1; i > 0; i--) {
+          if (data[i][nomeIndex] && data[i][nomeIndex].toString().trim().toLowerCase() === e.parameter.nome.toString().trim().toLowerCase()) {
+            rowToUpdate = i + 1; break;
+          }
         }
       }
 

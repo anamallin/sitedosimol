@@ -248,6 +248,20 @@
 
             </div>
 
+            <div style="text-align: center; margin-top: 20px;">
+                <a href="produtos.pdf" download class="btn-ver-produtos" style="display: inline-flex; align-items: center; gap: 8px; padding: 12px 25px; background: linear-gradient(135deg, var(--color-2), var(--color-3)); color: white; text-decoration: none; border-radius: 10px; font-size: 0.95rem; font-weight: bold; transition: all 0.3s ease; box-shadow: 0 3px 10px rgba(0,0,0,0.15);">
+                    🔍 Ver produtos de perto
+                </a>
+            </div>
+
+            <style>
+                .btn-ver-produtos:hover {
+                    transform: translateY(-2px);
+                    box-shadow: 0 6px 18px rgba(0,0,0,0.2);
+                    filter: brightness(1.08);
+                }
+            </style>
+
             <div style="margin-top: 40px; text-align: center; border-top: 2px dashed #eee; padding-top: 30px;">
                 <p style="font-size: 1.2rem; color: #666; margin-bottom: 10px;">Valor Base Inscrição: <strong id="valor-base-display">R$ 0,00</strong></p>
                 <p style="font-size: 1.2rem; color: #666; margin-bottom: 15px;">Adicionais: <strong id="valor-adicionais-display">R$ 0,00</strong></p>
@@ -263,9 +277,25 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const tipo = localStorage.getItem('simol_tipo_inscricao');
+            const programa = localStorage.getItem('simol_programa_pos');
+            const specialProgram = tipo === 'Pós-Graduação Participante' && programa === 'Biologia Celular e Molecular';
             let valorBase = 40.00;
 
-            if (tipo === 'Pós-Graduação Participante') {
+            if (specialProgram) {
+                document.getElementById('plano-basico-title').textContent = 'Isento';
+                document.getElementById('plano-basico-price').innerHTML = 'Isento';
+                valorBase = 0.00;
+                document.querySelector('.page-content p').textContent = 'Seus dados já foram salvos. Você pode confirmar sua isenção ou escolher produtos opcionais para compra.';
+                const plusCard = document.querySelector('.plano-card.plus');
+                if (plusCard) {
+                    plusCard.querySelector('.plano-title').textContent = 'Isenção + Produtos';
+                    plusCard.querySelector('.plano-price').innerHTML = 'Produtos adicionais';
+                }
+                const basicButton = document.querySelector('.plano-card .btn-escolher');
+                if (basicButton) basicButton.textContent = 'Confirmar Isenção';
+                const btnVerProdutos = document.getElementById('btn-ver-produtos');
+                if (btnVerProdutos) btnVerProdutos.textContent = 'Adicionar Produtos';
+            } else if (tipo === 'Pós-Graduação Participante') {
                 document.getElementById('plano-basico-title').textContent = 'Inscrição Pós-Graduação';
                 document.getElementById('plano-basico-price').innerHTML = 'R$ 31<span>,00</span>';
                 valorBase = 31.00;
@@ -353,6 +383,7 @@
                     localStorage.setItem('simol_plus_produtos', JSON.stringify(produtosEscolhidos));
                     localStorage.setItem('simol_plus_total', (valorBase + valorAdicionais).toFixed(2));
                     localStorage.setItem('simol_is_plus', 'true'); // Flag para saber que foi via Plus
+                    localStorage.setItem('simol_isento', specialProgram ? 'true' : 'false');
 
                     // Salvar tamanho da camiseta (se selecionada)
                     if (checkboxCamiseta && checkboxCamiseta.checked && tamanhoSelect.value) {

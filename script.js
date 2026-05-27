@@ -122,8 +122,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Coletar dados via FormData
                 const formData = new FormData(form);
                 
-                // Salvar o tipo de inscrição para ajustar o preço nas próximas páginas
+                // Salvar o tipo, o programa e o CPF da inscrição para ajustar as próximas páginas
                 localStorage.setItem('simol_tipo_inscricao', formData.get('TIPO_INSCRICAO'));
+                const programaPos = formData.get('PROGRAMA_POS');
+                if (programaPos) {
+                    localStorage.setItem('simol_programa_pos', programaPos);
+                } else {
+                    localStorage.removeItem('simol_programa_pos');
+                }
+                const cpfValue = formData.get('CPF');
+                if (cpfValue) {
+                    localStorage.setItem('simol_cpf', cpfValue.replace(/\D/g, '').padStart(11, '0'));
+                }
 
                 fetch(scriptURL, { method: 'POST', body: formData })
                     .then(response => response.json())
@@ -257,6 +267,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 const tamanhoInput = document.getElementById('tamanho-camiseta-hidden');
                 if (tamanhoInput && tamanhoInput.value) {
                     formData.append('TAMANHO_CAMISETA', tamanhoInput.value);
+                }
+                const cpfInput = document.getElementById('cpf-hidden');
+                if (cpfInput && cpfInput.value) {
+                    formData.append('cpf', cpfInput.value);
                 }
 
                 formData.append('filename', selectedFile.name);

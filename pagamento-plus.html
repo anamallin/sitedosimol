@@ -63,6 +63,8 @@
             
             <form id="upload-form" class="simol-form">
                 <input type="hidden" id="tipo-inscricao" value="Plus">
+                <input type="hidden" id="cpf-hidden" name="cpf" value="">
+                <input type="hidden" id="programa-pos" name="PROGRAMA_POS" value="">
                 <input type="hidden" id="produtos-selecionados" name="PRODUTOS" value="">
                 <input type="hidden" id="tamanho-camiseta-hidden" name="TAMANHO_CAMISETA" value="">
                 <div class="form-group">
@@ -97,6 +99,21 @@
             const totalStr = localStorage.getItem('simol_plus_total');
             const produtosStr = localStorage.getItem('simol_plus_produtos');
             const tipo = localStorage.getItem('simol_tipo_inscricao');
+            const programa = localStorage.getItem('simol_programa_pos');
+            const specialProgram = tipo === 'Pós-Graduação Participante' && programa === 'Biologia Celular e Molecular';
+
+            if (specialProgram) {
+                document.querySelector('.page-content p').textContent = 'Sua inscrição é isenta da taxa base. Selecione produtos opcionais e envie o comprovante de pagamento dos mesmos.';
+                document.querySelector('.page-content h1').textContent = 'Isenção + Produtos';
+                document.getElementById('tipo-inscricao').value = 'Pós-Graduação Biologia Celular e Molecular';
+                const programHidden = document.getElementById('programa-pos');
+                if (programHidden) programHidden.value = programa;
+                const badge = document.querySelector('.payment-box > div');
+                if (badge) badge.textContent = 'ISENTO + PRODUTOS';
+            }
+            const cpfHidden = document.getElementById('cpf-hidden');
+            const savedCpf = localStorage.getItem('simol_cpf');
+            if (cpfHidden && savedCpf) cpfHidden.value = savedCpf;
 
             if (totalStr) {
                 document.getElementById('pagamento-valor').textContent = `Valor Total: R$ ${parseFloat(totalStr).toFixed(2).replace('.', ',')}`;
