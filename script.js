@@ -61,8 +61,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }    // Form Submission Logic
     const form = document.getElementById('registration-form');
     if (form) {
-        // --- COLE SEU LINK DO GOOGLE APPS SCRIPT AQUI ---
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbwScIfKvhxPCYb6igHwIxci2TLygbiIlGwnk-rLoR_SdTbbbbLwGAcc6vrC3204lEoUUw/exec'; 
+        // URL do Web App Apps Script (deploy fornecido)
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbwXUz5FmocM-wQR2vsKz6Xoy5K68OLPd0W0PcbjIbwXa6-URwP3QpactIcnI1z8Mz1s3A/exec'; 
         
         const submitBtn = document.getElementById('submit-btn');
         const spinner = submitBtn.querySelector('.spinner');
@@ -185,8 +185,8 @@ document.addEventListener('DOMContentLoaded', () => {
         
         let selectedFile = null;
 
-        // --- COLE SEU LINK DO GOOGLE APPS SCRIPT AQUI ---
-        const uploadScriptURL = 'https://script.google.com/macros/s/AKfycbwScIfKvhxPCYb6igHwIxci2TLygbiIlGwnk-rLoR_SdTbbbbLwGAcc6vrC3204lEoUUw/exec'; 
+        // URL do Web App Apps Script (deploy fornecido) - usado para uploads
+        const uploadScriptURL = 'https://script.google.com/macros/s/AKfycbwXUz5FmocM-wQR2vsKz6Xoy5K68OLPd0W0PcbjIbwXa6-URwP3QpactIcnI1z8Mz1s3A/exec'; 
 
         // Abrir seletor ao clicar
         dropArea.addEventListener('click', () => fileInput.click());
