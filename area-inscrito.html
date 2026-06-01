@@ -222,7 +222,16 @@
                 <div id="upload-comprovante-section" style="display: none; margin-bottom: 25px;">
                     <div class="status-card" style="border: 2px dashed var(--color-1); background: rgba(103, 42, 147, 0.02);">
                         <h4 style="color: var(--color-1); font-weight: bold; margin-bottom: 8px;">Submeter seu Comprovante</h4>
-                        <p style="font-size: 0.85rem; color: #555; margin-bottom: 15px; line-height: 1.4;">Sua inscrição está pendente de pagamento. Por favor, envie seu comprovante PIX abaixo para validação e liberação do seu acesso.</p>
+                        <p style="font-size: 0.85rem; color: #555; margin-bottom: 15px; line-height: 1.4;">Sua inscrição está pendente de pagamento. Caso já tenha realizado a transferência PIX, envie seu comprovante abaixo. Se ainda não pagou, use a chave PIX abaixo:</p>
+                        
+                        <!-- Informações de Pagamento PIX -->
+                        <div style="background: white; border: 1px solid rgba(103, 42, 147, 0.15); padding: 12px 15px; border-radius: 10px; margin-bottom: 15px; text-align: left; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+                            <div>
+                                <span style="font-size: 0.7rem; font-weight: bold; color: #888; text-transform: uppercase; display: block; letter-spacing: 0.5px; margin-bottom: 2px;">Chave PIX (E-mail)</span>
+                                <code id="pix-key-val" style="font-size: 0.85rem; font-weight: 700; color: var(--color-4); word-break: break-all;">simol.simposiointegrado@gmail.com</code>
+                            </div>
+                            <button id="copy-pix-dash" style="background: var(--color-2); color: var(--color-1); border: none; padding: 6px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; cursor: pointer; transition: 0.2s; white-space: nowrap;">Copiar Chave</button>
+                        </div>
                         
                         <div id="comp-drop-area">
                             <span id="comp-file-label">Clique ou arraste o comprovante aqui (.pdf, .jpg, .png)</span>
@@ -467,6 +476,38 @@
             };
             reader.readAsDataURL(compSelectedFile);
         });
+
+        // Copiar chave PIX na Área do Inscrito
+        const copyPixBtn = document.getElementById('copy-pix-dash');
+        if (copyPixBtn) {
+            copyPixBtn.addEventListener('click', async () => {
+                const text = 'simol.simposiointegrado@gmail.com';
+                try {
+                    if (navigator.clipboard && navigator.clipboard.writeText) {
+                        await navigator.clipboard.writeText(text);
+                    } else {
+                        const ta = document.createElement('textarea');
+                        ta.value = text;
+                        ta.style.position = 'fixed';
+                        ta.style.left = '-9999px';
+                        document.body.appendChild(ta);
+                        ta.select();
+                        document.execCommand('copy');
+                        ta.remove();
+                    }
+                    copyPixBtn.textContent = 'Copiado!';
+                    copyPixBtn.style.background = '#d4edda';
+                    copyPixBtn.style.color = '#155724';
+                    setTimeout(() => {
+                        copyPixBtn.textContent = 'Copiar Chave';
+                        copyPixBtn.style.background = 'var(--color-2)';
+                        copyPixBtn.style.color = 'var(--color-1)';
+                    }, 2000);
+                } catch (err) {
+                    console.error('Erro ao copiar PIX:', err);
+                }
+            });
+        }
     </script>
 </body>
 </html>
