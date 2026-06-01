@@ -322,22 +322,22 @@ document.addEventListener('DOMContentLoaded', () => {
             uploadMessage.style.display = 'block';
         }
 
-        // Impedir navegação sem enviar o comprovante
+        // Impedir navegação sem enviar o comprovante (OBRIGATÓRIO)
         window.addEventListener('beforeunload', (e) => {
-            if (!uploadCompleted && selectedFile) {
-                // Se há arquivo selecionado mas não foi enviado
+            if (!uploadCompleted) {
+                // Uma vez na página de pagamento, DEVE enviar o comprovante
                 e.preventDefault();
                 e.returnValue = '';
             }
         });
 
-        // Bloquear também links de navegação
+        // Bloquear links de navegação
         document.addEventListener('click', (e) => {
             const link = e.target.closest('a');
-            if (link && !uploadCompleted && selectedFile) {
+            if (link && !uploadCompleted) {
                 // Se há arquivo selecionado mas não foi enviado
                 e.preventDefault();
-                showUploadMessage('Por favor, envie o comprovante antes de sair desta página.', 'error');
+                showUploadMessage('⚠️ COMPROVANTE OBRIGATÓRIO: Por favor, anexe e envie seu comprovante antes de sair desta página.', 'error');
                 return false;
             }
         });
