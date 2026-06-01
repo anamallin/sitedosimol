@@ -184,6 +184,7 @@ document.addEventListener('DOMContentLoaded', () => {
         uploadBtn.disabled = true;
         
         let selectedFile = null;
+        let uploadCompleted = false; // Rastrear se o upload foi concluído com sucesso
 
         // URL do Web App Apps Script (deploy fornecido) - usado para uploads
         const uploadScriptURL = 'https://script.google.com/macros/s/AKfycbwXUz5FmocM-wQR2vsKz6Xoy5K68OLPd0W0PcbjIbwXa6-URwP3QpactIcnI1z8Mz1s3A/exec'; 
@@ -287,6 +288,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 })
                 .then(response => {
+                    uploadCompleted = true; // Marcar como concluído
                     showUploadMessage('Comprovante enviado com sucesso! Sua inscrição será confirmada em breve.', 'success');
                     uploadForm.reset();
                     selectedFile = null;
@@ -319,6 +321,26 @@ document.addEventListener('DOMContentLoaded', () => {
             uploadMessage.className = 'form-message ' + type;
             uploadMessage.style.display = 'block';
         }
+
+        // Impedir navegação sem enviar o comprovante
+        window.addEventListener('beforeunload', (e) => {
+            if (!uploadCompleted && selectedFile) {
+                // Se há arquivo selecionado mas não foi enviado
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        });
+
+        // Bloquear também links de navegação
+        document.addEventListener('click', (e) => {
+            const link = e.target.closest('a');
+            if (link && !uploadCompleted && selectedFile) {
+                // Se há arquivo selecionado mas não foi enviado
+                e.preventDefault();
+                showUploadMessage('Por favor, envie o comprovante antes de sair desta página.', 'error');
+                return false;
+            }
+        });
     }
 
     // Lógica do Modal de Aviso na Página Inicial
