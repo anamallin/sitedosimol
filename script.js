@@ -750,4 +750,47 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Copiar chave PIX (botão de copiar em pagamento.html)
+    (function setupCopyPix() {
+        const copyBtn = document.getElementById('copy-pix-btn');
+        const pixEl = document.getElementById('pix-key');
+        if (!copyBtn || !pixEl) return;
+
+        const originalContent = copyBtn.innerHTML;
+
+        copyBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            const text = pixEl.textContent.trim();
+            if (!text) return;
+
+            // Tentar Clipboard API
+            try {
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    await navigator.clipboard.writeText(text);
+                } else {
+                    // Fallback
+                    const ta = document.createElement('textarea');
+                    ta.value = text;
+                    ta.style.position = 'fixed';
+                    ta.style.left = '-9999px';
+                    document.body.appendChild(ta);
+                    ta.select();
+                    document.execCommand('copy');
+                    ta.remove();
+                }
+
+                copyBtn.textContent = 'Copiado!';
+                copyBtn.disabled = true;
+                setTimeout(() => {
+                    copyBtn.disabled = false;
+                    copyBtn.innerHTML = originalContent;
+                }, 2000);
+            } catch (err) {
+                console.error('Erro ao copiar PIX:', err);
+                copyBtn.textContent = 'Erro';
+                setTimeout(() => { copyBtn.innerHTML = originalContent; }, 2000);
+            }
+        });
+    })();
+
 });
