@@ -146,6 +146,26 @@
         }
 
         #certificados-tab { display: none; }
+        
+        #comp-drop-area {
+            border: 2px dashed #ccc;
+            border-radius: 12px;
+            padding: 25px 15px;
+            text-align: center;
+            cursor: pointer;
+            background: #fafafa;
+            transition: all 0.3s;
+        }
+        #comp-drop-area:hover, #comp-drop-area.highlight {
+            border-color: var(--color-1);
+            background: #fff;
+        }
+        #comp-file-label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #666;
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -195,6 +215,22 @@
                         <h4>Festa de Encerramento</h4>
                         <div class="value" id="status-festa">Verificando...</div>
                         <div id="badge-festa"></div>
+                    </div>
+                </div>
+
+                <!-- SEÇÃO DE UPLOAD DE COMPROVANTE PENDENTE -->
+                <div id="upload-comprovante-section" style="display: none; margin-bottom: 25px;">
+                    <div class="status-card" style="border: 2px dashed var(--color-1); background: rgba(103, 42, 147, 0.02);">
+                        <h4 style="color: var(--color-1); font-weight: bold; margin-bottom: 8px;">Submeter seu Comprovante</h4>
+                        <p style="font-size: 0.85rem; color: #555; margin-bottom: 15px; line-height: 1.4;">Sua inscrição está pendente de pagamento. Por favor, envie seu comprovante PIX abaixo para validação e liberação do seu acesso.</p>
+                        
+                        <div id="comp-drop-area">
+                            <span id="comp-file-label">Clique ou arraste o comprovante aqui (.pdf, .jpg, .png)</span>
+                            <input type="file" id="comp-file-input" accept="image/*,.pdf" style="display: none;">
+                        </div>
+                        
+                        <button id="comp-upload-btn" class="btn-primary" style="margin-top: 15px; padding: 12px; font-size: 0.95rem;" disabled>Enviar Comprovante</button>
+                        <div id="comp-upload-msg" style="margin-top: 12px; font-size: 0.9rem; display: none; font-weight: 600; text-align: center;"></div>
                     </div>
                 </div>
 
@@ -270,7 +306,12 @@
                 });
         });
 
+        let loggedUser = { nome: '', cpf: '' };
+
         function renderDashboard(data, nome, cpf) {
+            loggedUser.nome = nome;
+            loggedUser.cpf = cpf;
+            
             document.getElementById('verification-screen').style.display = 'none';
             document.getElementById('portal-content').style.display = 'block';
             document.getElementById('user-name').innerText = nome.split(' ')[0];
@@ -282,8 +323,10 @@
             const bSimol = document.getElementById('badge-simol');
             if (sSimol === 'Pago' || sSimol === 'Confirmado' || sSimol === 'Confirmada') {
                 bSimol.innerHTML = '<span class="badge badge-success">Confirmada</span>';
+                document.getElementById('upload-comprovante-section').style.display = 'none';
             } else {
                 bSimol.innerHTML = '<span class="badge badge-pending">Pendente</span>';
+                document.getElementById('upload-comprovante-section').style.display = 'block';
             }
 
             // 2. Festa
@@ -319,6 +362,111 @@
                 `).join('');
             }
         }
+
+        // Lógica de Upload de Comprovante na Área do Inscrito
+        const compFileInput = document.getElementById('comp-file-input');
+        const compDropArea = document.getElementById('comp-drop-area');
+        const compFileLabel = document.getElementById('comp-file-label');
+        const compUploadBtn = document.getElementById('comp-upload-btn');
+        const compUploadMsg = document.getElementById('comp-upload-msg');
+        
+        let compSelectedFile = null;
+
+        // Abrir seletor de arquivos ao clicar na área
+        compDropArea.addEventListener('click', () => compFileInput.click());
+
+        // Eventos de Drag & Drop
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            compDropArea.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+            }, false);
+        });
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            compDropArea.addEventListener(eventName, () => compDropArea.classList.add('highlight'), false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            compDropArea.addEventListener(eventName, () => compDropArea.classList.remove('highlight'), false);
+        });
+
+        compDropArea.addEventListener('drop', (e) => {
+            handleCompFiles(e.dataTransfer.files);
+        });
+
+        compFileInput.addEventListener('change', function() {
+            handleCompFiles(this.files);
+        });
+
+        function handleCompFiles(files) {
+            if (files.length > 0) {
+                compSelectedFile = files[0];
+                compFileLabel.textContent = 'Arquivo selecionado: ' + compSelectedFile.name;
+                compUploadBtn.disabled = false;
+            }
+        }
+
+        compUploadBtn.addEventListener('click', () => {
+            if (!compSelectedFile) return;
+
+            compUploadBtn.disabled = true;
+            compUploadBtn.innerText = 'Enviando...';
+            compUploadMsg.style.display = 'none';
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const base64Data = e.target.result.split(',')[1];
+                
+                const formData = new URLSearchParams();
+                formData.append('action', 'upload');
+                formData.append('nome', loggedUser.nome);
+                formData.append('cpf', loggedUser.cpf);
+                formData.append('filename', compSelectedFile.name);
+                formData.append('mimeType', compSelectedFile.type);
+                formData.append('fileData', base64Data);
+
+                fetch(scriptURL, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    }
+                })
+                .then(r => r.json())
+                .then(result => {
+                    if (result.result === 'success') {
+                        compUploadMsg.textContent = '✅ Comprovante enviado com sucesso! Sua inscrição será confirmada em breve.';
+                        compUploadMsg.style.color = '#155724';
+                        compUploadMsg.style.display = 'block';
+                        
+                        // Atualiza a tela para Confirmada
+                        document.getElementById('status-simol').innerText = 'Pago';
+                        document.getElementById('badge-simol').innerHTML = '<span class="badge badge-success">Confirmada</span>';
+                        
+                        // Esconde a área de upload após alguns segundos
+                        setTimeout(() => {
+                            document.getElementById('upload-comprovante-section').style.display = 'none';
+                        }, 4000);
+                    } else {
+                        compUploadMsg.textContent = '❌ Erro ao enviar comprovante: ' + (result.message || 'Tente novamente.');
+                        compUploadMsg.style.color = '#721c24';
+                        compUploadMsg.style.display = 'block';
+                        compUploadBtn.disabled = false;
+                        compUploadBtn.innerText = 'Enviar Comprovante';
+                    }
+                })
+                .catch(err => {
+                    console.error('Erro no upload:', err);
+                    compUploadMsg.textContent = '❌ Erro de conexão com o servidor. Tente novamente.';
+                    compUploadMsg.style.color = '#721c24';
+                    compUploadMsg.style.display = 'block';
+                    compUploadBtn.disabled = false;
+                    compUploadBtn.innerText = 'Enviar Comprovante';
+                });
+            };
+            reader.readAsDataURL(compSelectedFile);
+        });
     </script>
 </body>
 </html>
