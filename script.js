@@ -781,6 +781,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 copyBtn.textContent = 'Copiado!';
                 copyBtn.disabled = true;
+                showToast('Chave PIX copiada');
                 setTimeout(() => {
                     copyBtn.disabled = false;
                     copyBtn.innerHTML = originalContent;
@@ -788,9 +789,27 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (err) {
                 console.error('Erro ao copiar PIX:', err);
                 copyBtn.textContent = 'Erro';
+                showToast('Erro ao copiar');
                 setTimeout(() => { copyBtn.innerHTML = originalContent; }, 2000);
             }
         });
     })();
+
+    // Função utilitária para mostrar um toast simples
+    function showToast(message) {
+        const toast = document.getElementById('copy-toast');
+        if (!toast) return;
+        toast.textContent = message;
+        toast.style.transition = '';
+        toast.style.opacity = '1';
+        toast.style.display = 'block';
+        // Forçar reflow para garantir transição
+        void toast.offsetWidth;
+        toast.style.transition = 'opacity 300ms ease';
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            setTimeout(() => { toast.style.display = 'none'; }, 300);
+        }, 1700);
+    }
 
 });
