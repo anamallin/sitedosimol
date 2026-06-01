@@ -301,13 +301,15 @@ function doPost(e) {
       const dataPrincipal = sheetVerif.getDataRange().getValues();
       const headersPrincipal = dataPrincipal[0].map(h => h.toString().toLowerCase().trim());
       const cpfColP = headersPrincipal.indexOf('cpf');
-      const statusColP = headersPrincipal.indexOf('status') !== -1 ? headersPrincipal.indexOf('status') : headersPrincipal.indexOf('pagamento');
+      const compColP = headersPrincipal.indexOf('comprovante');
       
       if (cpfColP !== -1) {
         for (var i = 1; i < dataPrincipal.length; i++) {
           var cpfSheet = (dataPrincipal[i][cpfColP] || '').toString().replace(/\D/g, '').padStart(11, '0');
           if (cpfSheet === cpfBusca) {
-            data.inscricao.status = statusColP !== -1 ? dataPrincipal[i][statusColP] : 'Confirmada';
+            // Verifica se a célula de comprovante está preenchida
+            const temComprovante = compColP !== -1 && dataPrincipal[i][compColP] && dataPrincipal[i][compColP].toString().trim() !== '';
+            data.inscricao.status = temComprovante ? 'Pago' : 'Pendente';
             break;
           }
         }
