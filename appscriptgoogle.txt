@@ -5,6 +5,22 @@ const ID_PLANILHA_MINICURSOS = '1-278Vp_ofZRnqhlVD5F08qe4SbLBPP8cE716ApxWFQY';
 const FOLDER_ID_MINICURSOS = '1pjAg6wLFzTjPFgHRMWCZKZC8jsSRW4xC'; // Pasta de comprovantes minicursos
 
 const scriptProp = PropertiesService.getScriptProperties();
+const INSCRICOES_ESGOTADAS_MESSAGE = 'inscrições esgotadas';
+const PROGRAMA_POS_LIBERADO = 'Biologia Celular e Molecular';
+
+function isInscricaoLiberada_(params) {
+  return (
+    params.TIPO_INSCRICAO === 'Pós-Graduação Participante' &&
+    params.PROGRAMA_POS === PROGRAMA_POS_LIBERADO
+  ) || params.tipo === 'Pós-Graduação Biologia Celular e Molecular';
+}
+
+function inscricoesEsgotadasResponse_() {
+  return ContentService.createTextOutput(JSON.stringify({
+    result: 'error',
+    message: INSCRICOES_ESGOTADAS_MESSAGE
+  })).setMimeType(ContentService.MimeType.JSON);
+}
 
 function initialSetup () {
   const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
@@ -201,10 +217,6 @@ function doPost(e) {
 
     // ====== 4. UPLOAD DE COMPROVANTE (Inscrição Normal) ======
     else if (action === 'upload') {
-      const folder = DriveApp.getFolderById(FOLDER_ID);
-      const fileData = Utilities.base64Decode(e.parameter.fileData);
-      const blob = Utilities.newBlob(fileData, e.parameter.mimeType, e.parameter.nome + " - " + e.parameter.filename);
-      const file = folder.createFile(blob);
       const sheet = doc.getSheetByName(sheetName);
       const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0].map(h => h.toString().toLowerCase().trim());
       const data = sheet.getDataRange().getValues();
@@ -250,6 +262,15 @@ function doPost(e) {
           sheet.getRange(1, tamIndex + 1).setValue('tamanho_camiseta');
           headers.push('tamanho_camiseta');
       }
+
+      if (rowToUpdate === -1 && !isInscricaoLiberada_(e.parameter)) {
+        return inscricoesEsgotadasResponse_();
+      }
+
+      const folder = DriveApp.getFolderById(FOLDER_ID);
+      const fileData = Utilities.base64Decode(e.parameter.fileData);
+      const blob = Utilities.newBlob(fileData, e.parameter.mimeType, e.parameter.nome + " - " + e.parameter.filename);
+      const file = folder.createFile(blob);
       
       if (rowToUpdate !== -1) {
           sheet.getRange(rowToUpdate, compIndex + 1).setValue(file.getUrl());
@@ -259,6 +280,22 @@ function doPost(e) {
           if (e.parameter.TAMANHO_CAMISETA) {
               sheet.getRange(rowToUpdate, tamIndex + 1).setValue(e.parameter.TAMANHO_CAMISETA);
           }
+      } else {
+          // Cria uma nova linha na planilha pois o inscrito ainda não existe
+          const originalHeaders = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+          const nextRow = sheet.getLastRow() + 1;
+          const newRowData = originalHeaders.map(function(header) {
+            const hOrig = header.toString();
+            const hLower = hOrig.toLowerCase().trim();
+            if (hLower === 'data') return new Date();
+            if (hLower === 'cpf') return "'" + cpfBusca;
+            if (hLower === 'comprovante') return file.getUrl();
+            if (hLower === 'produtos') return e.parameter.PRODUTOS || '';
+            if (hLower === 'tamanho_camiseta') return e.parameter.TAMANHO_CAMISETA || '';
+            // Tenta buscar no e.parameter com o nome original do cabeçalho, com o nome minúsculo ou com letras maiúsculas
+            return e.parameter[hOrig] || e.parameter[hLower] || e.parameter[hOrig.toUpperCase()] || '';
+          });
+          sheet.getRange(nextRow, 1, 1, newRowData.length).setValues([newRowData]);
       }
       return ContentService.createTextOutput(JSON.stringify({ 'result': 'success', 'fileUrl': file.getUrl() })).setMimeType(ContentService.MimeType.JSON);
     }
@@ -281,6 +318,24 @@ function doPost(e) {
           var nomeSheet = (data[i][nomeCol] || '').toString().trim().toLowerCase();
           var cpfSheet = (data[i][cpfCol] || '').toString().replace(/\D/g, '').padStart(11, '0');
           if (nomeSheet === nomeBusca && cpfSheet === cpfBusca) { encontrado = true; break; }
+        }
+      }
+      return ContentService.createTextOutput(JSON.stringify({ encontrado: encontrado })).setMimeType(ContentService.MimeType.JSON);
+    }
+
+    // ====== 5.5. CHECAR SE CPF EXISTE ======
+    else if (action === 'checarCpf') {
+      const cpfBusca = (e.parameter.cpf || '').replace(/\D/g, '').padStart(11, '0');
+      const sheetVerif = doc.getSheetByName(sheetName);
+      const data = sheetVerif.getDataRange().getValues();
+      const headers = data[0].map(h => h.toString().toLowerCase().trim());
+      const cpfCol = headers.indexOf('cpf');
+      
+      let encontrado = false;
+      if (cpfCol !== -1) {
+        for (var i = 1; i < data.length; i++) {
+          var cpfSheet = (data[i][cpfCol] || '').toString().replace(/\D/g, '').padStart(11, '0');
+          if (cpfSheet === cpfBusca) { encontrado = true; break; }
         }
       }
       return ContentService.createTextOutput(JSON.stringify({ encontrado: encontrado })).setMimeType(ContentService.MimeType.JSON);
@@ -395,6 +450,10 @@ function doPost(e) {
 
     // ====== 7. INSCRIÇÃO NORMAL (Dados do Formulário) ======
     else {
+      if (!isInscricaoLiberada_(e.parameter)) {
+        return inscricoesEsgotadasResponse_();
+      }
+
       const sheetBase = doc.getSheetByName(sheetName);
       const dataBase = sheetBase.getDataRange().getValues();
       const headersBase = dataBase[0];

@@ -62,12 +62,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('registration-form');
     if (form) {
         // URL do Web App Apps Script (deploy fornecido)
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbwhUu-fQWw0bhpp0AEPVVXrcBwcJJBcU1IX2C9A-S-9Ry5m8_34bMrEJX7RmK-O8c6VtQ/exec'; 
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbxCP7SJQnSc8CKFYg2bizcsDyw9bK6r9LtL_XkldS_PLRosEoEN4_iztW3aqlwuQxGLrA/exec'; 
         
         const submitBtn = document.getElementById('submit-btn');
         const spinner = submitBtn.querySelector('.spinner');
         const btnText = submitBtn.querySelector('span');
         const formMessage = document.getElementById('form-message');
+        const SOLD_OUT_MESSAGE = 'inscrições esgotadas';
+        const OPEN_POS_PROGRAM = 'Biologia Celular e Molecular';
+
+        function isRegistrationAllowed(formData) {
+            return formData.get('TIPO_INSCRICAO') === 'Pós-Graduação Participante' &&
+                formData.get('PROGRAMA_POS') === OPEN_POS_PROGRAM;
+        }
 
         // Modal de aviso pré-pagamento
         const avisoPagamentoModal = document.getElementById('aviso-pagamento-modal');
@@ -88,6 +95,12 @@ document.addEventListener('DOMContentLoaded', () => {
             // Valida o formulário nativamente antes de abrir o modal
             if (!form.checkValidity()) {
                 form.reportValidity();
+                return;
+            }
+
+            const formData = new FormData(form);
+            if (!isRegistrationAllowed(formData)) {
+                showMessage(SOLD_OUT_MESSAGE, 'error');
                 return;
             }
 
@@ -121,39 +134,67 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // Coletar dados via FormData
                 const formData = new FormData(form);
-                
-                // Salvar o tipo, o programa e o CPF da inscrição para ajustar as próximas páginas
-                localStorage.setItem('simol_tipo_inscricao', formData.get('TIPO_INSCRICAO'));
-                const programaPos = formData.get('PROGRAMA_POS');
-                if (programaPos) {
-                    localStorage.setItem('simol_programa_pos', programaPos);
-                } else {
-                    localStorage.removeItem('simol_programa_pos');
-                }
-                const cpfValue = formData.get('CPF');
-                if (cpfValue) {
-                    localStorage.setItem('simol_cpf', cpfValue.replace(/\D/g, '').padStart(11, '0'));
+                if (!isRegistrationAllowed(formData)) {
+                    avisoPagamentoModal.style.display = 'none';
+                    showMessage(SOLD_OUT_MESSAGE, 'error');
+                    confirmPagamentoBtn.disabled = false;
+                    confirmSpinner.style.display = 'none';
+                    confirmBtnText.textContent = 'Entendi, prosseguir para pagamento';
+                    return;
                 }
 
-                fetch(scriptURL, { method: 'POST', body: formData })
+                const cpfValue = formData.get('CPF') ? formData.get('CPF').replace(/\D/g, '').padStart(11, '0') : '';
+
+                if (!cpfValue) {
+                    avisoPagamentoModal.style.display = 'none';
+                    showMessage('CPF inválido ou não informado.', 'error');
+                    confirmPagamentoBtn.disabled = false;
+                    confirmSpinner.style.display = 'none';
+                    confirmBtnText.textContent = 'Entendi, prosseguir para pagamento';
+                    return;
+                }
+
+                // Verifica se o CPF já está cadastrado antes de prosseguir
+                fetch(`${scriptURL}?action=checarCpf&cpf=${cpfValue}`)
                     .then(response => response.json())
                     .then(result => {
-                        if (result.result === 'success') {
-                            // Após envio bem-sucedido, vai para a página de escolha de planos
-                            window.location.href = 'planos.html';
-                        } else {
-                            // Caso haja erro (ex: CPF duplicado)
+                        if (result.encontrado) {
                             avisoPagamentoModal.style.display = 'none';
-                            showMessage(result.message || 'Erro ao processar sua inscrição.', 'error');
+                            showMessage('Este CPF já possui uma inscrição cadastrada.', 'error');
+                            confirmPagamentoBtn.disabled = false;
+                            confirmSpinner.style.display = 'none';
+                            confirmBtnText.textContent = 'Entendi, prosseguir para pagamento';
+                        } else {
+                            // Salvar os dados do formulário localmente para enviar junto com o comprovante de pagamento
+                            const regData = {};
+                            for (let [key, val] of formData.entries()) {
+                                if (key === 'RESTRICAO_ALIMENTAR') {
+                                    if (!regData[key]) regData[key] = [];
+                                    regData[key].push(val);
+                                } else {
+                                    regData[key] = val;
+                                }
+                            }
+                            localStorage.setItem('simol_registration_data', JSON.stringify(regData));
+
+                            // Salvar o tipo, o programa e o CPF da inscrição para ajustar as próximas páginas
+                            localStorage.setItem('simol_tipo_inscricao', formData.get('TIPO_INSCRICAO'));
+                            const programaPos = formData.get('PROGRAMA_POS');
+                            if (programaPos) {
+                                localStorage.setItem('simol_programa_pos', programaPos);
+                            } else {
+                                localStorage.removeItem('simol_programa_pos');
+                            }
+                            localStorage.setItem('simol_cpf', cpfValue);
+
+                            // Redireciona para planos.html sem mandar pro Sheets ainda
+                            window.location.href = 'planos.html';
                         }
                     })
                     .catch(error => {
-                        console.error('Erro!', error.message);
+                        console.error('Erro na verificação de CPF!', error.message);
                         avisoPagamentoModal.style.display = 'none';
-                        showMessage('Ocorreu um erro ao enviar sua inscrição. Tente novamente mais tarde.', 'error');
-                    })
-                    .finally(() => {
-                        // Restaurar UI
+                        showMessage('Ocorreu um erro ao verificar sua inscrição. Tente novamente mais tarde.', 'error');
                         confirmPagamentoBtn.disabled = false;
                         confirmSpinner.style.display = 'none';
                         confirmBtnText.textContent = 'Entendi, prosseguir para pagamento';
@@ -187,7 +228,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let uploadCompleted = false; // Rastrear se o upload foi concluído com sucesso
 
         // URL do Web App Apps Script (deploy fornecido) - usado para uploads
-        const uploadScriptURL = 'https://script.google.com/macros/s/AKfycbwhUu-fQWw0bhpp0AEPVVXrcBwcJJBcU1IX2C9A-S-9Ry5m8_34bMrEJX7RmK-O8c6VtQ/exec'; 
+        const uploadScriptURL = 'https://script.google.com/macros/s/AKfycbxCP7SJQnSc8CKFYg2bizcsDyw9bK6r9LtL_XkldS_PLRosEoEN4_iztW3aqlwuQxGLrA/exec'; 
 
         // Abrir seletor ao clicar
         dropArea.addEventListener('click', () => fileInput.click());
@@ -259,6 +300,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 const formData = new URLSearchParams();
                 formData.append('nome', nome);
                 formData.append('tipo', tipoInscricao);
+                const programaPosInput = document.getElementById('programa-pos');
+                if (programaPosInput && programaPosInput.value) {
+                    formData.append('PROGRAMA_POS', programaPosInput.value);
+                }
                 
                 const produtosInput = document.getElementById('produtos-selecionados');
                 if (produtosInput && produtosInput.value) {
@@ -287,7 +332,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         'Content-Type': 'application/x-www-form-urlencoded'
                     }
                 })
-                .then(response => {
+                .then(response => response.json())
+                .then(data => {
+                    if (data.result === 'error') {
+                        throw new Error(data.message || data.error || 'Ocorreu um erro ao enviar o comprovante.');
+                    }
                     uploadCompleted = true; // Marcar como concluído
                     showUploadMessage('Comprovante enviado com sucesso! Sua inscrição será confirmada em breve.', 'success');
                     uploadForm.reset();
@@ -296,7 +345,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 })
                 .catch(error => {
                     console.error('Erro!', error.message);
-                    showUploadMessage('Ocorreu um erro ao enviar o comprovante. Tente novamente mais tarde.', 'error');
+                    showUploadMessage(error.message || 'Ocorreu um erro ao enviar o comprovante. Tente novamente mais tarde.', 'error');
                 })
                 .finally(() => {
                     // Restaurar UI
@@ -417,7 +466,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const successModal = document.getElementById('festa-success-modal');
 
         // URL do Google Apps Script (mesmo já usado no projeto)
-        const festaScriptURL = 'https://script.google.com/macros/s/AKfycbwhUu-fQWw0bhpp0AEPVVXrcBwcJJBcU1IX2C9A-S-9Ry5m8_34bMrEJX7RmK-O8c6VtQ/exec';
+        const festaScriptURL = 'https://script.google.com/macros/s/AKfycbxCP7SJQnSc8CKFYg2bizcsDyw9bK6r9LtL_XkldS_PLRosEoEN4_iztW3aqlwuQxGLrA/exec';
 
         let selectedOption = null;
 
