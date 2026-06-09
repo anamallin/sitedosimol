@@ -3,6 +3,7 @@ const sheetName = 'Página1';
 const FOLDER_ID = '1aftFKtaxgsKLQNC2zxw-PP_xTBjbJ0_x'; // Pasta de inscrições normais
 const ID_PLANILHA_MINICURSOS = '1-278Vp_ofZRnqhlVD5F08qe4SbLBPP8cE716ApxWFQY';
 const FOLDER_ID_MINICURSOS = '1pjAg6wLFzTjPFgHRMWCZKZC8jsSRW4xC'; // Pasta de comprovantes minicursos
+const FOLDER_ID_SUBMISSOES = '17eSmJzlW9EFekcDinmRwM8LRgk3Xagd4'; // Pasta de arquivos de submissão
 
 const scriptProp = PropertiesService.getScriptProperties();
 const INSCRICOES_ESGOTADAS_MESSAGE = 'inscrições esgotadas';
@@ -167,28 +168,65 @@ function doPost(e) {
 
     // ====== 2. SUBMISSÃO DE RESUMO ======
     else if (action === 'submeterResumo') {
+      const SUBMISSOES_HEADERS = ['data_envio', 'nome', 'cpf', 'titulo', 'tipo_arquivo', 'arquivo_nome', 'arquivo_url', 'observacao', 'origem', 'aceite_revisor1', 'aceite_revisor2', 'status'];
+      const nomeSubmissao = (e.parameter.nome || '').trim();
+      const cpfFormatado = "'" + (e.parameter.cpf || '').replace(/\D/g, '').padStart(11, '0');
+      const cpfLimpo = (e.parameter.cpf || '').replace(/\D/g, '');
+      const tituloSubmissao = (e.parameter.titulo || '').trim();
+      const tipoArquivo = (e.parameter.tipo_arquivo || '').trim();
+      const filename = (e.parameter.filename || '').trim();
+      const fileDataBase64 = (e.parameter.fileData || '').trim();
+
+      if (!nomeSubmissao || !cpfLimpo || !tituloSubmissao || !tipoArquivo) {
+        throw new Error('Dados obrigatórios da submissão não enviados.');
+      }
+      if (!fileDataBase64 || !filename) {
+        throw new Error('Arquivo da submissão não enviado.');
+      }
+
+      const folderSubmissoes = DriveApp.getFolderById(FOLDER_ID_SUBMISSOES);
+      const fileData = Utilities.base64Decode(fileDataBase64);
+      if (!fileData || fileData.length === 0) {
+        throw new Error('Arquivo da submissão está vazio.');
+      }
+
+      const safeTitulo = tituloSubmissao.replace(/[\\/:*?"<>|]/g, '-');
+      const blob = Utilities.newBlob(
+        fileData,
+        e.parameter.mimeType || 'application/octet-stream',
+        'SUBMISSAO - ' + nomeSubmissao + ' - ' + safeTitulo + ' - ' + filename
+      );
+      const arquivo = folderSubmissoes.createFile(blob);
+      const arquivoUrl = arquivo.getUrl();
+
       let sheetSubmissoes = doc.getSheetByName('submissoes');
       if (!sheetSubmissoes) {
         sheetSubmissoes = doc.insertSheet('submissoes');
-        sheetSubmissoes.appendRow(['nome', 'cpf', 'titulo', 'resumo', 'autores', 'afiliacao', 'palavras_chave', 'publicacao_doi', 'aceite_revisor1', 'aceite_revisor2']);
+        sheetSubmissoes.appendRow(SUBMISSOES_HEADERS);
+      } else {
+        const headersAtuais = sheetSubmissoes.getRange(1, 1, 1, Math.max(sheetSubmissoes.getLastColumn(), SUBMISSOES_HEADERS.length)).getValues()[0];
+        const precisaAtualizarCabecalho = SUBMISSOES_HEADERS.some((header, index) => headersAtuais[index] !== header);
+        if (precisaAtualizarCabecalho) {
+          sheetSubmissoes.getRange(1, 1, 1, SUBMISSOES_HEADERS.length).setValues([SUBMISSOES_HEADERS]);
+        }
       }
       
-      const cpfFormatado = "'" + (e.parameter.cpf || '').replace(/\D/g, '').padStart(11, '0');
-      
       sheetSubmissoes.appendRow([
-        e.parameter.nome,
+        new Date(),
+        nomeSubmissao,
         cpfFormatado,
-        e.parameter.titulo,
-        e.parameter.resumo,
-        e.parameter.autores,
-        e.parameter.filiacao || 'Inscrito Interno',
-        e.parameter.keywords,
-        e.parameter.doi === 'true' || e.parameter.doi === true ? 'Sim' : 'Não',
+        tituloSubmissao,
+        tipoArquivo,
+        arquivo.getName(),
+        arquivoUrl,
+        e.parameter.observacao || '',
+        e.parameter.origem || 'Inscrito SIMOL',
         '', // aceite_revisor1
-        ''  // aceite_revisor2
+        '', // aceite_revisor2
+        'Enviado'
       ]);
 
-      return ContentService.createTextOutput(JSON.stringify({ result: 'success' })).setMimeType(ContentService.MimeType.JSON);
+      return ContentService.createTextOutput(JSON.stringify({ result: 'success', fileUrl: arquivoUrl })).setMimeType(ContentService.MimeType.JSON);
     }
 
     // ====== 3. UPLOAD DE COMPROVANTE (MINICURSOS) ======
@@ -403,18 +441,37 @@ function doPost(e) {
       const sheetSub = doc.getSheetByName('submissoes');
       if (sheetSub) {
         const dataSub = sheetSub.getDataRange().getValues();
+        const headersSub = dataSub[0].map(h => h.toString().toLowerCase().trim());
+        const dataEnvioColS = headersSub.indexOf('data_envio');
+        const cpfColS = headersSub.indexOf('cpf');
+        const tituloColS = headersSub.indexOf('titulo');
+        const tipoArquivoColS = headersSub.indexOf('tipo_arquivo');
+        const arquivoNomeColS = headersSub.indexOf('arquivo_nome');
+        const arquivoUrlColS = headersSub.indexOf('arquivo_url');
+        const observacaoColS = headersSub.indexOf('observacao');
+        const origemColS = headersSub.indexOf('origem');
+        const revisor1ColS = headersSub.indexOf('aceite_revisor1');
+        const revisor2ColS = headersSub.indexOf('aceite_revisor2');
+        const statusColS = headersSub.indexOf('status');
         for (var l = 1; l < dataSub.length; l++) {
-          var cpfSheetS = (dataSub[l][1] || '').toString().replace(/\D/g, '').padStart(11, '0');
+          var cpfSheetS = (cpfColS !== -1 ? dataSub[l][cpfColS] : '').toString().replace(/\D/g, '').padStart(11, '0');
           if (cpfSheetS === cpfBusca) {
-            const r1 = dataSub[l][8]; // aceite_revisor1
-            const r2 = dataSub[l][9]; // aceite_revisor2
-            let statusSub = "Em avaliação";
+            const r1 = revisor1ColS !== -1 ? dataSub[l][revisor1ColS] : '';
+            const r2 = revisor2ColS !== -1 ? dataSub[l][revisor2ColS] : '';
+            const statusPlanilha = statusColS !== -1 && dataSub[l][statusColS] ? dataSub[l][statusColS] : '';
+            let statusSub = statusPlanilha || "Enviado";
             if (r1 === "Sim" && r2 === "Sim") statusSub = "Aprovado";
             else if (r1 === "Não" || r2 === "Não") statusSub = "Não aprovado";
-            else if (!r1 && !r2) statusSub = "Enviado";
+            else if (!statusPlanilha && (r1 || r2)) statusSub = "Em avaliação";
 
             data.submissoes.push({
-              titulo: dataSub[l][2],
+              data_envio: dataEnvioColS !== -1 ? dataSub[l][dataEnvioColS] : '',
+              titulo: tituloColS !== -1 ? dataSub[l][tituloColS] : '',
+              tipo_arquivo: tipoArquivoColS !== -1 ? dataSub[l][tipoArquivoColS] : '',
+              arquivo_nome: arquivoNomeColS !== -1 ? dataSub[l][arquivoNomeColS] : '',
+              arquivo_url: arquivoUrlColS !== -1 ? dataSub[l][arquivoUrlColS] : '',
+              observacao: observacaoColS !== -1 ? dataSub[l][observacaoColS] : '',
+              origem: origemColS !== -1 ? dataSub[l][origemColS] : '',
               status: statusSub
             });
           }

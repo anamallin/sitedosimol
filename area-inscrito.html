@@ -274,7 +274,7 @@
     </div>
 
     <script>
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbxCP7SJQnSc8CKFYg2bizcsDyw9bK6r9LtL_XkldS_PLRosEoEN4_iztW3aqlwuQxGLrA/exec';
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbxi2LDROtDT3zQp3uS2w7ALXpTwDTZD-Gvg9vZx4NVVqLYhYIM9vC070EpHrzmVH1wjeA/exec';
 
         function switchTab(tab) {
             document.getElementById('dashboard-tab').style.display = tab === 'dashboard' ? 'block' : 'none';
@@ -316,6 +316,29 @@
         });
 
         let loggedUser = { nome: '', cpf: '' };
+
+        function escapeHTML(value) {
+            return String(value || '').replace(/[&<>"']/g, char => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            }[char]));
+        }
+
+        function formatSubmissionDate(value) {
+            if (!value) return '';
+            const date = new Date(value);
+            if (Number.isNaN(date.getTime())) return escapeHTML(value);
+            return date.toLocaleDateString('pt-BR', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
 
         function renderDashboard(data, nome, cpf) {
             loggedUser.nome = nome;
@@ -365,8 +388,15 @@
             if (data.submissoes.length > 0) {
                 subList.innerHTML = data.submissoes.map(s => `
                     <div style="margin-bottom: 10px; padding: 10px; background: #fafafa; border-radius: 8px;">
-                        <div style="font-weight: 700; color: var(--color-1); margin-bottom: 5px;">${s.titulo}</div>
-                        <span class="badge ${s.status === 'Aprovado' ? 'badge-success' : (s.status === 'Não aprovado' ? 'badge-pending' : 'badge-neutral')}">${s.status}</span>
+                        <div style="font-weight: 700; color: var(--color-1); margin-bottom: 5px;">${escapeHTML(s.titulo || 'Sem título')}</div>
+                        <div style="font-size: 0.8rem; color: #666; line-height: 1.5; margin-bottom: 8px;">
+                            ${s.data_envio ? `<div><strong>Enviado em:</strong> ${formatSubmissionDate(s.data_envio)}</div>` : ''}
+                            ${s.tipo_arquivo ? `<div><strong>Tipo:</strong> ${escapeHTML(s.tipo_arquivo)}</div>` : ''}
+                            ${s.origem ? `<div><strong>Origem:</strong> ${escapeHTML(s.origem)}</div>` : ''}
+                            ${s.arquivo_url ? `<div><strong>Arquivo:</strong> <a href="${escapeHTML(s.arquivo_url)}" target="_blank" rel="noopener">${escapeHTML(s.arquivo_nome || 'Abrir arquivo')}</a></div>` : ''}
+                            ${s.observacao ? `<div><strong>Observação:</strong> ${escapeHTML(s.observacao)}</div>` : ''}
+                        </div>
+                        <span class="badge ${s.status === 'Aprovado' ? 'badge-success' : (s.status === 'Não aprovado' ? 'badge-pending' : 'badge-neutral')}">${escapeHTML(s.status)}</span>
                     </div>
                 `).join('');
             }

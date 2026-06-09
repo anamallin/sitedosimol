@@ -36,8 +36,6 @@
             animation: fadeIn 0.8s ease forwards;
         }
 
-        /* TELA DE BLOQUEIO */
-        #lock-screen { text-align: center; }
         
         /* TELA DE VERIFICAÇÃO */
         #verification-screen { display: none; text-align: center; }
@@ -104,10 +102,11 @@
         .norm-card:hover { border-color: var(--color-1); background: #fff; transform: translateY(-3px); }
         .norm-card h4 { color: var(--color-1); margin-bottom: 5px; font-size: 0.95rem; }
         .norm-card p { font-size: 0.8rem; color: #777; margin: 0; }
+        .norm-card .file-type { display: block; margin-top: 8px; font-size: 0.72rem; font-weight: 700; color: var(--color-4); text-transform: uppercase; }
 
         .form-section { margin-bottom: 25px; }
         .form-section label { display: block; font-weight: bold; margin-bottom: 8px; color: var(--color-4); }
-        .form-section input, .form-section textarea {
+        .form-section input, .form-section textarea, .form-section select {
             width: 100%;
             padding: 12px;
             border: 2px solid #eee;
@@ -116,6 +115,22 @@
         }
         .form-section textarea { height: 200px; resize: vertical; }
         .char-counter { text-align: right; font-size: 0.8rem; color: #888; margin-top: 5px; }
+        .file-upload-box {
+            border: 2px dashed #ddd;
+            border-radius: 14px;
+            background: #f8f9fa;
+            padding: 24px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .file-upload-box:hover, .file-upload-box.has-file {
+            border-color: var(--color-1);
+            background: rgba(103, 42, 147, 0.04);
+        }
+        .file-upload-box strong { display: block; color: var(--color-4); margin-bottom: 6px; }
+        .file-upload-box span { color: #777; font-size: 0.9rem; }
+        .file-upload-box input { display: none; }
 
         .doi-option {
             background: #f8f9fa;
@@ -168,24 +183,8 @@
 <body>
 
     <div id="main-container">
-        <!-- TELA 1: BLOQUEIO (SENHA) -->
-        <div id="lock-screen">
-            <div class="lock-icon">🔒</div>
-            <h2 style="color: var(--color-4);">Submissão não disponível</h2>
-            <p style="color: #666; margin-bottom: 30px;">A submissão de resumos ainda não foi aberta oficialmente. Se você é um organizador, insira o código de preview abaixo.</p>
-            
-            <div class="input-group">
-                <label>Código de Organizador</label>
-                <input type="text" id="org-code" placeholder="Digite o código aqui" style="text-transform: uppercase; text-align: center;">
-            </div>
-            <button id="unlock-btn" class="btn-primary">Ver Preview</button>
-            <p id="lock-error" style="color: #e74c3c; font-size: 0.9rem; margin-top: 15px; display: none;">Código incorreto.</p>
-            
-            <a href="index.html" style="display: block; margin-top: 25px; color: #888; text-decoration: none; font-size: 0.9rem;">← Voltar para Home</a>
-        </div>
-
-        <!-- TELA NOVA: SELEÇÃO DE PAPEL -->
-        <div id="role-selection-screen" style="display: none; text-align: center;">
+        <!-- TELA 1: SELEÇÃO DE PAPEL -->
+        <div id="role-selection-screen" style="text-align: center;">
             <div class="lock-icon">🧬</div>
             <h2 style="color: var(--color-4);">Bem-vindo ao Portal de Submissão</h2>
             <p style="color: #666; margin-bottom: 40px;">Como você deseja prosseguir?</p>
@@ -241,21 +240,30 @@
             <div class="norms-section">
                 <div class="norms-title">📋 Normas e Templates</div>
                 <div class="norms-grid">
-                    <a href="#" class="norm-card">
+                    <a href="Template%20do%20Resumo%20I%20SIMOL.docx" class="norm-card" download>
                         <h4>📄 Template do Resumo</h4>
                         <p>Baixe o modelo oficial em Word (.docx) para formatar seu trabalho.</p>
+                        <span class="file-type">DOCX</span>
                     </a>
-                    <a href="#" class="norm-card">
+                    <a href="Template%20do%20Resumo%20I%20SIMOL%20-%20Sem%20identifica%C3%A7%C3%A3o.docx" class="norm-card" download>
+                        <h4>Template sem identificação</h4>
+                        <p>Modelo em Word para envio sem identificação dos autores, quando solicitado.</p>
+                        <span class="file-type">DOCX</span>
+                    </a>
+                    <a href="Regras%20de%20Submiss%C3%A3o%20%20I%20SIMOL.docx" class="norm-card" download>
                         <h4>⚖️ Regras de Submissão</h4>
                         <p>Consulte as normas gerais, limites de autores e estrutura exigida.</p>
+                        <span class="file-type">DOCX</span>
                     </a>
-                    <a href="#" class="norm-card">
+                    <a href="Modelo%20Banner%20I%20SIMOL%20(2).pptx" class="norm-card" download>
                         <h4>🎨 Modelo de Pôster</h4>
                         <p>Template sugerido para a apresentação no dia do evento.</p>
+                        <span class="file-type">PPTX</span>
                     </a>
-                    <a href="#" class="norm-card">
+                    <a href="Cronograma%20Submiss%C3%A3o%20%20I%20SIMOL.docx" class="norm-card" download>
                         <h4>📊 Cronograma</h4>
                         <p>Datas importantes: submissão, avaliação e resultados.</p>
+                        <span class="file-type">DOCX</span>
                     </a>
                 </div>
             </div>
@@ -265,8 +273,13 @@
 
         <!-- TELA 3: FORMULÁRIO -->
         <div id="submission-form">
-            <h2 style="color: var(--color-4); margin-bottom: 5px;">Dados do Resumo</h2>
-            <p style="color: #666; margin-bottom: 25px; font-size: 0.9rem;">Preencha todos os campos abaixo para submeter seu trabalho científico.</p>
+            <h2 style="color: var(--color-4); margin-bottom: 5px;">Enviar Arquivo de Submissão</h2>
+            <p style="color: #666; margin-bottom: 25px; font-size: 0.9rem;">Preencha apenas a identificação básica e anexe o arquivo do trabalho conforme o template oficial.</p>
+
+            <div class="form-section">
+                <label>Nome do(a) apresentador(a)</label>
+                <input type="text" id="sub-nome" placeholder="Nome completo">
+            </div>
             
             <div class="form-section">
                 <label>Título do Trabalho</label>
@@ -274,37 +287,27 @@
             </div>
 
             <div class="form-section">
-                <label>Texto do Resumo</label>
-                <textarea id="sub-texto" maxlength="3000" placeholder="Digite ou cole aqui o seu resumo..."></textarea>
-                <div class="char-counter"><span id="char-count">0</span> / 3000 caracteres</div>
+                <label>Tipo de arquivo enviado</label>
+                <select id="sub-tipo-arquivo">
+                    <option value="Resumo">Resumo</option>
+                    <option value="Resumo sem identificação">Resumo sem identificação</option>
+                    <option value="Banner">Banner / Pôster</option>
+                </select>
             </div>
 
             <div class="form-section">
-                <label>Autores (Separados por vírgula)</label>
-                <input type="text" id="sub-autores" placeholder="Ex: Oliveira, M.; Santos, J.">
-            </div>
-
-            <div class="form-section">
-                <label>Departamento / Instituição</label>
-                <input type="text" id="sub-depto" placeholder="Ex: Departamento de Biofísica">
-            </div>
-
-            <div id="filiacao-container" class="form-section" style="display: none;">
-                <label>Filiação (Instituição Externa)</label>
-                <input type="text" id="sub-filiacao" placeholder="Ex: UFPR, USP, etc.">
-            </div>
-
-            <div class="form-section">
-                <label>Palavras-Chave</label>
-                <input type="text" id="sub-keywords" placeholder="Ex: Proteína, Simulação, ...">
-            </div>
-
-            <div class="form-section">
-                <label>Publicação nos Anais</label>
-                <label class="doi-option">
-                    <input type="checkbox" id="sub-doi" style="width: auto; margin-right: 10px;">
-                    <span>Gostaria que meu resumo fosse publicado com <strong>DOI</strong> nos anais do evento.</span>
+                <label>Arquivo da submissão</label>
+                <label class="file-upload-box" id="sub-file-box">
+                    <input type="file" id="sub-arquivo" required accept=".doc,.docx,.pdf,.ppt,.pptx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation">
+                    <strong>Clique para selecionar o arquivo</strong>
+                    <span id="sub-file-name">Formatos aceitos: DOC, DOCX, PDF, PPT ou PPTX.</span>
                 </label>
+            </div>
+
+            <div class="form-section">
+                <label>Observação para a comissão (opcional)</label>
+                <textarea id="sub-observacao" maxlength="500" placeholder="Use este campo apenas se precisar deixar alguma informação adicional."></textarea>
+                <div class="char-counter"><span id="char-count">0</span> / 500 caracteres</div>
             </div>
 
             <button id="submit-btn" class="btn-primary">Finalizar Submissão</button>
@@ -325,10 +328,7 @@
     </div>
 
     <script>
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbxCP7SJQnSc8CKFYg2bizcsDyw9bK6r9LtL_XkldS_PLRosEoEN4_iztW3aqlwuQxGLrA/exec';
-        const SECRET_CODE = 'SIMOL_ORG_2026_PREVIEW';
-
-        const lockScreen = document.getElementById('lock-screen');
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbxi2LDROtDT3zQp3uS2w7ALXpTwDTZD-Gvg9vZx4NVVqLYhYIM9vC070EpHrzmVH1wjeA/exec';
         const roleSelectionScreen = document.getElementById('role-selection-screen');
         const reviewerScreen = document.getElementById('reviewer-screen');
         const verifScreen = document.getElementById('verification-screen');
@@ -337,19 +337,7 @@
         
         let currentUser = { nome: '', cpf: '', isExternal: false };
 
-        // 1. BLOQUEIO
-        document.getElementById('unlock-btn').addEventListener('click', () => {
-            const code = document.getElementById('org-code').value.trim().toUpperCase();
-            if (code === SECRET_CODE) {
-                lockScreen.style.display = 'none';
-                roleSelectionScreen.style.display = 'block';
-            } else {
-                document.getElementById('lock-error').style.display = 'block';
-                setTimeout(() => document.getElementById('lock-error').style.display = 'none', 3000);
-            }
-        });
-
-        // 1.5 SELEÇÃO DE PAPEL
+        // 1. SELEÇÃO DE PAPEL
         document.getElementById('role-student').addEventListener('click', () => {
             roleSelectionScreen.style.display = 'none';
             verifScreen.style.display = 'block';
@@ -401,54 +389,82 @@
             currentUser.isExternal = isExternal;
             verifScreen.style.display = 'none';
             subForm.style.display = 'block';
-            document.getElementById('filiacao-container').style.display = isExternal ? 'block' : 'none';
+            document.getElementById('sub-nome').value = currentUser.nome;
         }
 
         // 3. FORMULÁRIO
-        const textarea = document.getElementById('sub-texto');
+        const textarea = document.getElementById('sub-observacao');
         const charCount = document.getElementById('char-count');
         textarea.addEventListener('input', () => charCount.innerText = textarea.value.length);
+        const arquivoInput = document.getElementById('sub-arquivo');
+        const fileBox = document.getElementById('sub-file-box');
+        const fileName = document.getElementById('sub-file-name');
+        let selectedSubmissionFile = null;
+
+        arquivoInput.addEventListener('change', () => {
+            selectedSubmissionFile = arquivoInput.files[0] || null;
+            fileBox.classList.toggle('has-file', !!selectedSubmissionFile);
+            fileName.textContent = selectedSubmissionFile
+                ? `Arquivo selecionado: ${selectedSubmissionFile.name}`
+                : 'Formatos aceitos: DOC, DOCX, PDF, PPT ou PPTX.';
+        });
 
         document.getElementById('submit-btn').addEventListener('click', () => {
+            const nomeSubmissao = document.getElementById('sub-nome').value.trim();
             const titulo = document.getElementById('sub-titulo').value.trim();
-            const texto = textarea.value.trim();
-            const autores = document.getElementById('sub-autores').value.trim();
-            const depto = document.getElementById('sub-depto').value.trim();
-            const filiacao = document.getElementById('sub-filiacao').value.trim();
-            const keywords = document.getElementById('sub-keywords').value.trim();
-            const doi = document.getElementById('sub-doi').checked;
+            const tipoArquivo = document.getElementById('sub-tipo-arquivo').value;
+            const observacao = textarea.value.trim();
 
-            if (!titulo || !texto || !autores || !depto || !keywords) return alert('Preencha todos os campos.');
+            if (!nomeSubmissao || !titulo || !selectedSubmissionFile) return alert('Preencha o nome, o título e anexe o arquivo da submissão.');
+            if (selectedSubmissionFile.size === 0) return alert('O arquivo selecionado está vazio. Anexe um arquivo válido.');
 
             const btn = document.getElementById('submit-btn');
             btn.innerText = 'Enviando...';
             btn.disabled = true;
 
-            const formData = new URLSearchParams();
-            formData.append('action', 'submeterResumo');
-            formData.append('nome', currentUser.nome);
-            formData.append('cpf', currentUser.cpf);
-            formData.append('titulo', titulo);
-            formData.append('resumo', texto);
-            formData.append('autores', autores);
-            formData.append('departamento', depto);
-            formData.append('filiacao', currentUser.isExternal ? filiacao : 'Inscrito SIMOL');
-            formData.append('keywords', keywords);
-            formData.append('doi', doi);
-
-            fetch(scriptURL, { method: 'POST', body: formData })
-                .then(r => r.json())
-                .then(data => {
-                    if (data.result === 'success') {
-                        subForm.style.display = 'none';
-                        successScreen.style.display = 'flex';
-                    }
-                })
-                .catch(err => {
-                    alert('Erro ao enviar.');
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const base64Data = event.target.result.split(',')[1];
+                if (!base64Data) {
+                    alert('Não foi possível ler o arquivo anexado.');
                     btn.innerText = 'Finalizar Submissão';
                     btn.disabled = false;
-                });
+                    return;
+                }
+                const formData = new URLSearchParams();
+                formData.append('action', 'submeterResumo');
+                formData.append('nome', nomeSubmissao);
+                formData.append('cpf', currentUser.cpf);
+                formData.append('titulo', titulo);
+                formData.append('tipo_arquivo', tipoArquivo);
+                formData.append('observacao', observacao);
+                formData.append('origem', currentUser.isExternal ? 'Aluno externo' : 'Inscrito SIMOL');
+                formData.append('filename', selectedSubmissionFile.name);
+                formData.append('mimeType', selectedSubmissionFile.type);
+                formData.append('fileData', base64Data);
+
+                fetch(scriptURL, { method: 'POST', body: formData })
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.result === 'success') {
+                            subForm.style.display = 'none';
+                            successScreen.style.display = 'flex';
+                        } else {
+                            throw new Error(data.message || 'Erro ao enviar.');
+                        }
+                    })
+                    .catch(err => {
+                        alert('Erro ao enviar.');
+                        btn.innerText = 'Finalizar Submissão';
+                        btn.disabled = false;
+                    });
+            };
+            reader.onerror = function() {
+                alert('Erro ao ler o arquivo.');
+                btn.innerText = 'Finalizar Submissão';
+                btn.disabled = false;
+            };
+            reader.readAsDataURL(selectedSubmissionFile);
         });
 
         document.getElementById('back-to-verify').addEventListener('click', () => {
