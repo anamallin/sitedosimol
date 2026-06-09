@@ -25,6 +25,7 @@
             text-align: center;
             animation: fadeIn 0.8s ease forwards;
         }
+        * { box-sizing: border-box; }
         .lock-icon { font-size: 50px; margin-bottom: 20px; }
         .input-group { text-align: left; margin-bottom: 15px; }
         .input-group label { display: block; margin-bottom: 5px; font-weight: 600; color: var(--color-4); }
@@ -165,6 +166,86 @@
             font-weight: 600;
             color: #666;
             display: block;
+        }
+        @media (max-width: 600px) {
+            body {
+                display: block;
+                min-height: 100vh;
+                padding: 12px;
+                background: #f7f7fb;
+            }
+
+            #main-container {
+                margin: 0;
+                padding: 22px 16px;
+                border-radius: 16px;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            }
+
+            h2 {
+                font-size: 1.45rem !important;
+                line-height: 1.2;
+            }
+
+            .lock-icon {
+                font-size: 42px;
+                margin-bottom: 14px;
+            }
+
+            .status-grid,
+            .menu-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .menu-item,
+            .status-card {
+                padding: 16px;
+                border-radius: 12px;
+            }
+
+            .menu-item:hover,
+            .btn-primary:hover {
+                transform: none;
+            }
+
+            .input-group input {
+                min-height: 46px;
+                font-size: 16px;
+            }
+
+            .tabs {
+                gap: 6px;
+            }
+
+            .tab-btn {
+                padding: 9px 10px;
+                font-size: 0.85rem;
+            }
+
+            #dashboard-tab .status-card div[style*="justify-content: space-between"] {
+                flex-direction: column;
+                align-items: stretch !important;
+            }
+
+            #copy-pix-dash {
+                width: 100%;
+                min-height: 38px;
+            }
+
+            #comp-drop-area {
+                padding: 22px 12px;
+            }
+        }
+
+        @media (max-width: 380px) {
+            #main-container {
+                padding: 18px 12px;
+            }
+
+            .btn-primary {
+                padding: 13px 16px;
+            }
         }
     </style>
 </head>
