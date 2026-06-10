@@ -355,7 +355,7 @@
     </div>
 
     <script>
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbxi2LDROtDT3zQp3uS2w7ALXpTwDTZD-Gvg9vZx4NVVqLYhYIM9vC070EpHrzmVH1wjeA/exec';
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbzL6PaflzxXnYmp2Fb28OEX_6ylKJ3HG1MGYLEpRVCrAnBhB7_VYirq3TjxuyZ9ReJktg/exec';
 
         function switchTab(tab) {
             document.getElementById('dashboard-tab').style.display = tab === 'dashboard' ? 'block' : 'none';
@@ -472,10 +472,14 @@
                         <div style="font-weight: 700; color: var(--color-1); margin-bottom: 5px;">${escapeHTML(s.titulo || 'Sem título')}</div>
                         <div style="font-size: 0.8rem; color: #666; line-height: 1.5; margin-bottom: 8px;">
                             ${s.data_envio ? `<div><strong>Enviado em:</strong> ${formatSubmissionDate(s.data_envio)}</div>` : ''}
-                            ${s.tipo_arquivo ? `<div><strong>Tipo:</strong> ${escapeHTML(s.tipo_arquivo)}</div>` : ''}
+                            ${s.area_tematica ? `<div><strong>Área temática:</strong> ${escapeHTML(s.area_tematica)}</div>` : ''}
+                            ${s.categoria_autor ? `<div><strong>Categoria:</strong> ${escapeHTML(s.categoria_autor)}</div>` : ''}
+                            ${s.tipo_estudo ? `<div><strong>Tipo de estudo:</strong> ${escapeHTML(s.tipo_estudo === 'Outro' && s.tipo_estudo_outro ? s.tipo_estudo_outro : s.tipo_estudo)}</div>` : ''}
+                            ${s.aprovacao_etica ? `<div><strong>Aprovação ética:</strong> ${escapeHTML(s.aprovacao_etica)}</div>` : ''}
+                            ${s.protocolo_etica ? `<div><strong>Protocolo:</strong> ${escapeHTML(s.protocolo_etica)}</div>` : ''}
+                            ${s.autor_correspondente ? `<div><strong>Autor correspondente:</strong> ${escapeHTML(s.autor_correspondente)}</div>` : ''}
                             ${s.origem ? `<div><strong>Origem:</strong> ${escapeHTML(s.origem)}</div>` : ''}
                             ${s.arquivo_url ? `<div><strong>Arquivo:</strong> <a href="${escapeHTML(s.arquivo_url)}" target="_blank" rel="noopener">${escapeHTML(s.arquivo_nome || 'Abrir arquivo')}</a></div>` : ''}
-                            ${s.observacao ? `<div><strong>Observação:</strong> ${escapeHTML(s.observacao)}</div>` : ''}
                         </div>
                         <span class="badge ${s.status === 'Aprovado' ? 'badge-success' : (s.status === 'Não aprovado' ? 'badge-pending' : 'badge-neutral')}">${escapeHTML(s.status)}</span>
                     </div>

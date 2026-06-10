@@ -168,20 +168,59 @@ function doPost(e) {
 
     // ====== 2. SUBMISSÃO DE RESUMO ======
     else if (action === 'submeterResumo') {
-      const SUBMISSOES_HEADERS = ['data_envio', 'nome', 'cpf', 'titulo', 'tipo_arquivo', 'arquivo_nome', 'arquivo_url', 'observacao', 'origem', 'aceite_revisor1', 'aceite_revisor2', 'status'];
+      const SUBMISSOES_HEADERS = [
+        'data_envio',
+        'nome',
+        'cpf',
+        'titulo',
+        'area_tematica',
+        'autores_afiliacoes',
+        'autor_correspondente',
+        'categoria_autor',
+        'tipo_estudo',
+        'tipo_estudo_outro',
+        'aprovacao_etica',
+        'protocolo_etica',
+        'declara_modelo_oficial',
+        'declara_regulamento_dados',
+        'arquivo_nome',
+        'arquivo_url',
+        'origem',
+        'aceite_revisor1',
+        'aceite_revisor2',
+        'status'
+      ];
       const nomeSubmissao = (e.parameter.nome || '').trim();
       const cpfFormatado = "'" + (e.parameter.cpf || '').replace(/\D/g, '').padStart(11, '0');
       const cpfLimpo = (e.parameter.cpf || '').replace(/\D/g, '');
       const tituloSubmissao = (e.parameter.titulo || '').trim();
-      const tipoArquivo = (e.parameter.tipo_arquivo || '').trim();
+      const areaTematica = (e.parameter.area_tematica || '').trim();
+      const autoresAfiliacoes = (e.parameter.autores_afiliacoes || '').trim();
+      const autorCorrespondente = (e.parameter.autor_correspondente || '').trim();
+      const categoriaAutor = (e.parameter.categoria_autor || '').trim();
+      const tipoEstudo = (e.parameter.tipo_estudo || '').trim();
+      const tipoEstudoOutro = (e.parameter.tipo_estudo_outro || '').trim();
+      const aprovacaoEtica = (e.parameter.aprovacao_etica || '').trim();
+      const protocoloEtica = (e.parameter.protocolo_etica || '').trim();
+      const declaraModeloOficial = e.parameter.declara_modelo_oficial === 'Sim' ? 'Sim' : '';
+      const declaraRegulamentoDados = e.parameter.declara_regulamento_dados === 'Sim' ? 'Sim' : '';
       const filename = (e.parameter.filename || '').trim();
       const fileDataBase64 = (e.parameter.fileData || '').trim();
 
-      if (!nomeSubmissao || !cpfLimpo || !tituloSubmissao || !tipoArquivo) {
+      if (!nomeSubmissao || !cpfLimpo || !tituloSubmissao || !areaTematica || !autoresAfiliacoes || !autorCorrespondente || !categoriaAutor || !tipoEstudo || !aprovacaoEtica || !declaraModeloOficial || !declaraRegulamentoDados) {
         throw new Error('Dados obrigatórios da submissão não enviados.');
+      }
+      if (tipoEstudo === 'Outro' && !tipoEstudoOutro) {
+        throw new Error('Informe a classificação científica do tipo de estudo.');
+      }
+      if (aprovacaoEtica !== 'Não aplicável' && !protocoloEtica) {
+        throw new Error('Informe o número do protocolo de aprovação ética.');
       }
       if (!fileDataBase64 || !filename) {
         throw new Error('Arquivo da submissão não enviado.');
+      }
+      if (!/\.pdf$/i.test(filename)) {
+        throw new Error('A submissão deve ser enviada em PDF.');
       }
 
       const folderSubmissoes = DriveApp.getFolderById(FOLDER_ID_SUBMISSOES);
@@ -216,10 +255,18 @@ function doPost(e) {
         nomeSubmissao,
         cpfFormatado,
         tituloSubmissao,
-        tipoArquivo,
+        areaTematica,
+        autoresAfiliacoes,
+        autorCorrespondente,
+        categoriaAutor,
+        tipoEstudo,
+        tipoEstudoOutro,
+        aprovacaoEtica,
+        protocoloEtica,
+        declaraModeloOficial,
+        declaraRegulamentoDados,
         arquivo.getName(),
         arquivoUrl,
-        e.parameter.observacao || '',
         e.parameter.origem || 'Inscrito SIMOL',
         '', // aceite_revisor1
         '', // aceite_revisor2
@@ -445,10 +492,16 @@ function doPost(e) {
         const dataEnvioColS = headersSub.indexOf('data_envio');
         const cpfColS = headersSub.indexOf('cpf');
         const tituloColS = headersSub.indexOf('titulo');
-        const tipoArquivoColS = headersSub.indexOf('tipo_arquivo');
+        const areaTematicaColS = headersSub.indexOf('area_tematica');
+        const autoresAfiliacoesColS = headersSub.indexOf('autores_afiliacoes');
+        const autorCorrespondenteColS = headersSub.indexOf('autor_correspondente');
+        const categoriaAutorColS = headersSub.indexOf('categoria_autor');
+        const tipoEstudoColS = headersSub.indexOf('tipo_estudo');
+        const tipoEstudoOutroColS = headersSub.indexOf('tipo_estudo_outro');
+        const aprovacaoEticaColS = headersSub.indexOf('aprovacao_etica');
+        const protocoloEticaColS = headersSub.indexOf('protocolo_etica');
         const arquivoNomeColS = headersSub.indexOf('arquivo_nome');
         const arquivoUrlColS = headersSub.indexOf('arquivo_url');
-        const observacaoColS = headersSub.indexOf('observacao');
         const origemColS = headersSub.indexOf('origem');
         const revisor1ColS = headersSub.indexOf('aceite_revisor1');
         const revisor2ColS = headersSub.indexOf('aceite_revisor2');
@@ -467,10 +520,16 @@ function doPost(e) {
             data.submissoes.push({
               data_envio: dataEnvioColS !== -1 ? dataSub[l][dataEnvioColS] : '',
               titulo: tituloColS !== -1 ? dataSub[l][tituloColS] : '',
-              tipo_arquivo: tipoArquivoColS !== -1 ? dataSub[l][tipoArquivoColS] : '',
+              area_tematica: areaTematicaColS !== -1 ? dataSub[l][areaTematicaColS] : '',
+              autores_afiliacoes: autoresAfiliacoesColS !== -1 ? dataSub[l][autoresAfiliacoesColS] : '',
+              autor_correspondente: autorCorrespondenteColS !== -1 ? dataSub[l][autorCorrespondenteColS] : '',
+              categoria_autor: categoriaAutorColS !== -1 ? dataSub[l][categoriaAutorColS] : '',
+              tipo_estudo: tipoEstudoColS !== -1 ? dataSub[l][tipoEstudoColS] : '',
+              tipo_estudo_outro: tipoEstudoOutroColS !== -1 ? dataSub[l][tipoEstudoOutroColS] : '',
+              aprovacao_etica: aprovacaoEticaColS !== -1 ? dataSub[l][aprovacaoEticaColS] : '',
+              protocolo_etica: protocoloEticaColS !== -1 ? dataSub[l][protocoloEticaColS] : '',
               arquivo_nome: arquivoNomeColS !== -1 ? dataSub[l][arquivoNomeColS] : '',
               arquivo_url: arquivoUrlColS !== -1 ? dataSub[l][arquivoUrlColS] : '',
-              observacao: observacaoColS !== -1 ? dataSub[l][observacaoColS] : '',
               origem: origemColS !== -1 ? dataSub[l][origemColS] : '',
               status: statusSub
             });

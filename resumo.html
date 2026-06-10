@@ -117,6 +117,21 @@
         }
         .form-section textarea { height: 200px; resize: vertical; }
         .char-counter { text-align: right; font-size: 0.8rem; color: #888; margin-top: 5px; }
+        .checkbox-option {
+            background: #f8f9fa;
+            padding: 14px;
+            border-radius: 10px;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            border: 2px solid transparent;
+            line-height: 1.4;
+        }
+        .checkbox-option input {
+            width: auto;
+            margin-top: 3px;
+            flex: 0 0 auto;
+        }
         .file-upload-box {
             border: 2px dashed #ddd;
             border-radius: 14px;
@@ -239,6 +254,10 @@
                 height: 140px;
             }
 
+            .checkbox-option {
+                padding: 12px;
+            }
+
             .file-upload-box {
                 padding: 18px 14px;
             }
@@ -352,8 +371,8 @@
 
         <!-- TELA 3: FORMULÁRIO -->
         <div id="submission-form">
-            <h2 style="color: var(--color-4); margin-bottom: 5px;">Enviar Arquivo de Submissão</h2>
-            <p style="color: #666; margin-bottom: 25px; font-size: 0.9rem;">Preencha apenas a identificação básica e anexe o arquivo do trabalho conforme o template oficial.</p>
+            <h2 style="color: var(--color-4); margin-bottom: 5px;">Submissão de Resumo para Apresentação</h2>
+            <p style="color: #666; margin-bottom: 25px; font-size: 0.9rem;">Todos os campos são obrigatórios e devem seguir o modelo oficial do evento.</p>
 
             <div class="form-section">
                 <label>Nome do(a) apresentador(a)</label>
@@ -366,27 +385,101 @@
             </div>
 
             <div class="form-section">
-                <label>Tipo de arquivo enviado</label>
-                <select id="sub-tipo-arquivo">
-                    <option value="Resumo">Resumo</option>
-                    <option value="Resumo sem identificação">Resumo sem identificação</option>
-                    <option value="Banner">Banner / Pôster</option>
+                <label>Área temática</label>
+                <select id="sub-area-tematica">
+                    <option value="">Selecione uma área</option>
+                    <option value="Genética do Câncer">Genética do Câncer</option>
+                    <option value="Imunogenética">Imunogenética</option>
+                    <option value="Genética de Populações">Genética de Populações</option>
+                    <option value="Genética de Doenças Complexas">Genética de Doenças Complexas</option>
+                    <option value="Genética de microrganismos">Genética de microrganismos</option>
+                    <option value="Mutagênese ambiental">Mutagênese ambiental</option>
+                    <option value="Educação científica">Educação científica</option>
+                    <option value="Evolução genômica">Evolução genômica</option>
+                    <option value="Bioquímica e biologia de microrganismos">Bioquímica e biologia de microrganismos</option>
+                    <option value="Química de carboidratos">Química de carboidratos</option>
+                    <option value="Bioquímica farmacológica e metabolismo celular">Bioquímica farmacológica e metabolismo celular</option>
+                    <option value="Enzimologia e biotecnologia">Enzimologia e biotecnologia</option>
+                    <option value="Biologia dos processos celulares">Biologia dos processos celulares</option>
+                    <option value="Toxicologia celular e ambiental">Toxicologia celular e ambiental</option>
+                    <option value="Biologia molecular de patógenos">Biologia molecular de patógenos</option>
                 </select>
+            </div>
+
+            <div class="form-section">
+                <label>Autores e afiliações</label>
+                <textarea id="sub-autores-afiliacoes" maxlength="3000" placeholder="Nome completo dos autores e instituição vinculada. Copie exatamente a lista de autores conforme o modelo do Word."></textarea>
+                <div class="char-counter"><span id="autores-count">0</span> / 3000 caracteres</div>
+            </div>
+
+            <div class="form-section">
+                <label>Autor correspondente</label>
+                <input type="text" id="sub-autor-correspondente" placeholder="Nome + e-mail obrigatório">
+            </div>
+
+            <div class="form-section">
+                <label>Categoria do autor</label>
+                <select id="sub-categoria-autor">
+                    <option value="">Selecione uma categoria</option>
+                    <option value="Graduação">Graduação</option>
+                    <option value="Opção 2">Opção 2</option>
+                    <option value="Doutorado">Doutorado</option>
+                    <option value="Pós-doutorado">Pós-doutorado</option>
+                </select>
+            </div>
+
+            <div class="form-section">
+                <label>Classificação científica do tipo de estudo</label>
+                <select id="sub-tipo-estudo">
+                    <option value="">Selecione uma classificação</option>
+                    <option value="Experimental">Experimental</option>
+                    <option value="Clínico">Clínico</option>
+                    <option value="Revisão">Revisão</option>
+                    <option value="Outro">Outro</option>
+                </select>
+            </div>
+
+            <div class="form-section" id="tipo-estudo-outro-container" style="display: none;">
+                <label>Informe o tipo de estudo</label>
+                <input type="text" id="sub-tipo-estudo-outro" placeholder="Descreva a classificação científica">
+            </div>
+
+            <div class="form-section">
+                <label>Nível de aprovação ética</label>
+                <select id="sub-aprovacao-etica">
+                    <option value="">Selecione uma opção</option>
+                    <option value="Envolvendo seres humanos (CEP)">Envolvendo seres humanos (CEP)</option>
+                    <option value="Animais (CEUA)">Animais (CEUA)</option>
+                    <option value="Não aplicável">Não aplicável</option>
+                </select>
+            </div>
+
+            <div class="form-section" id="protocolo-etica-container" style="display: none;">
+                <label>Número do protocolo de aprovação ética</label>
+                <input type="text" id="sub-protocolo-etica" placeholder="Obrigatório quando houver aprovação ética">
             </div>
 
             <div class="form-section">
                 <label>Arquivo da submissão</label>
                 <label class="file-upload-box" id="sub-file-box">
-                    <input type="file" id="sub-arquivo" required accept=".doc,.docx,.pdf,.ppt,.pptx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation">
-                    <strong>Clique para selecionar o arquivo</strong>
-                    <span id="sub-file-name">Formatos aceitos: DOC, DOCX, PDF, PPT ou PPTX.</span>
+                    <input type="file" id="sub-arquivo" required accept=".pdf,application/pdf">
+                    <strong>Clique para selecionar o PDF</strong>
+                    <span id="sub-file-name">Formato aceito: PDF.</span>
                 </label>
             </div>
 
             <div class="form-section">
-                <label>Observação para a comissão (opcional)</label>
-                <textarea id="sub-observacao" maxlength="500" placeholder="Use este campo apenas se precisar deixar alguma informação adicional."></textarea>
-                <div class="char-counter"><span id="char-count">0</span> / 500 caracteres</div>
+                <label class="checkbox-option">
+                    <input type="checkbox" id="sub-declara-modelo">
+                    <span>Declaro que o arquivo submetido segue o modelo oficial do evento.</span>
+                </label>
+            </div>
+
+            <div class="form-section">
+                <label class="checkbox-option">
+                    <input type="checkbox" id="sub-declara-regulamento">
+                    <span>Declaro que li e concordo com o Regulamento de Submissão de Resumos do I SIMOL e com o tratamento dos meus dados pessoais para fins de organização e divulgação do evento.</span>
+                </label>
             </div>
 
             <button id="submit-btn" class="btn-primary">Finalizar Submissão</button>
@@ -407,7 +500,7 @@
     </div>
 
     <script>
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbxi2LDROtDT3zQp3uS2w7ALXpTwDTZD-Gvg9vZx4NVVqLYhYIM9vC070EpHrzmVH1wjeA/exec';
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbzL6PaflzxXnYmp2Fb28OEX_6ylKJ3HG1MGYLEpRVCrAnBhB7_VYirq3TjxuyZ9ReJktg/exec';
         const roleSelectionScreen = document.getElementById('role-selection-screen');
         const reviewerScreen = document.getElementById('reviewer-screen');
         const verifScreen = document.getElementById('verification-screen');
@@ -472,9 +565,28 @@
         }
 
         // 3. FORMULÁRIO
-        const textarea = document.getElementById('sub-observacao');
-        const charCount = document.getElementById('char-count');
-        textarea.addEventListener('input', () => charCount.innerText = textarea.value.length);
+        const autoresTextarea = document.getElementById('sub-autores-afiliacoes');
+        const autoresCount = document.getElementById('autores-count');
+        autoresTextarea.addEventListener('input', () => autoresCount.innerText = autoresTextarea.value.length);
+
+        const tipoEstudoSelect = document.getElementById('sub-tipo-estudo');
+        const tipoEstudoOutroContainer = document.getElementById('tipo-estudo-outro-container');
+        const tipoEstudoOutroInput = document.getElementById('sub-tipo-estudo-outro');
+        tipoEstudoSelect.addEventListener('change', () => {
+            const isOutro = tipoEstudoSelect.value === 'Outro';
+            tipoEstudoOutroContainer.style.display = isOutro ? 'block' : 'none';
+            if (!isOutro) tipoEstudoOutroInput.value = '';
+        });
+
+        const aprovacaoEticaSelect = document.getElementById('sub-aprovacao-etica');
+        const protocoloEticaContainer = document.getElementById('protocolo-etica-container');
+        const protocoloEticaInput = document.getElementById('sub-protocolo-etica');
+        aprovacaoEticaSelect.addEventListener('change', () => {
+            const exigeProtocolo = aprovacaoEticaSelect.value && aprovacaoEticaSelect.value !== 'Não aplicável';
+            protocoloEticaContainer.style.display = exigeProtocolo ? 'block' : 'none';
+            if (!exigeProtocolo) protocoloEticaInput.value = '';
+        });
+
         const arquivoInput = document.getElementById('sub-arquivo');
         const fileBox = document.getElementById('sub-file-box');
         const fileName = document.getElementById('sub-file-name');
@@ -485,17 +597,32 @@
             fileBox.classList.toggle('has-file', !!selectedSubmissionFile);
             fileName.textContent = selectedSubmissionFile
                 ? `Arquivo selecionado: ${selectedSubmissionFile.name}`
-                : 'Formatos aceitos: DOC, DOCX, PDF, PPT ou PPTX.';
+                : 'Formato aceito: PDF.';
         });
 
         document.getElementById('submit-btn').addEventListener('click', () => {
             const nomeSubmissao = document.getElementById('sub-nome').value.trim();
             const titulo = document.getElementById('sub-titulo').value.trim();
-            const tipoArquivo = document.getElementById('sub-tipo-arquivo').value;
-            const observacao = textarea.value.trim();
+            const areaTematica = document.getElementById('sub-area-tematica').value;
+            const autoresAfiliacoes = autoresTextarea.value.trim();
+            const autorCorrespondente = document.getElementById('sub-autor-correspondente').value.trim();
+            const categoriaAutor = document.getElementById('sub-categoria-autor').value;
+            const tipoEstudo = tipoEstudoSelect.value;
+            const tipoEstudoOutro = tipoEstudoOutroInput.value.trim();
+            const aprovacaoEtica = aprovacaoEticaSelect.value;
+            const protocoloEtica = protocoloEticaInput.value.trim();
+            const declaraModelo = document.getElementById('sub-declara-modelo').checked;
+            const declaraRegulamento = document.getElementById('sub-declara-regulamento').checked;
 
-            if (!nomeSubmissao || !titulo || !selectedSubmissionFile) return alert('Preencha o nome, o título e anexe o arquivo da submissão.');
+            if (!nomeSubmissao || !titulo || !areaTematica || !autoresAfiliacoes || !autorCorrespondente || !categoriaAutor || !tipoEstudo || !aprovacaoEtica) {
+                return alert('Preencha todos os campos obrigatórios.');
+            }
+            if (tipoEstudo === 'Outro' && !tipoEstudoOutro) return alert('Informe o tipo de estudo.');
+            if (aprovacaoEtica !== 'Não aplicável' && !protocoloEtica) return alert('Informe o número do protocolo de aprovação ética.');
+            if (!declaraModelo || !declaraRegulamento) return alert('Marque as declarações obrigatórias.');
+            if (!selectedSubmissionFile) return alert('Anexe o arquivo PDF da submissão.');
             if (selectedSubmissionFile.size === 0) return alert('O arquivo selecionado está vazio. Anexe um arquivo válido.');
+            if (!/\.pdf$/i.test(selectedSubmissionFile.name)) return alert('A submissão deve ser enviada em PDF.');
 
             const btn = document.getElementById('submit-btn');
             btn.innerText = 'Enviando...';
@@ -515,8 +642,16 @@
                 formData.append('nome', nomeSubmissao);
                 formData.append('cpf', currentUser.cpf);
                 formData.append('titulo', titulo);
-                formData.append('tipo_arquivo', tipoArquivo);
-                formData.append('observacao', observacao);
+                formData.append('area_tematica', areaTematica);
+                formData.append('autores_afiliacoes', autoresAfiliacoes);
+                formData.append('autor_correspondente', autorCorrespondente);
+                formData.append('categoria_autor', categoriaAutor);
+                formData.append('tipo_estudo', tipoEstudo);
+                formData.append('tipo_estudo_outro', tipoEstudoOutro);
+                formData.append('aprovacao_etica', aprovacaoEtica);
+                formData.append('protocolo_etica', protocoloEtica);
+                formData.append('declara_modelo_oficial', declaraModelo ? 'Sim' : '');
+                formData.append('declara_regulamento_dados', declaraRegulamento ? 'Sim' : '');
                 formData.append('origem', currentUser.isExternal ? 'Aluno externo' : 'Inscrito SIMOL');
                 formData.append('filename', selectedSubmissionFile.name);
                 formData.append('mimeType', selectedSubmissionFile.type);
