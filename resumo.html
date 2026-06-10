@@ -403,7 +403,13 @@
                     <option value="Biologia dos processos celulares">Biologia dos processos celulares</option>
                     <option value="Toxicologia celular e ambiental">Toxicologia celular e ambiental</option>
                     <option value="Biologia molecular de patógenos">Biologia molecular de patógenos</option>
+                    <option value="Outro">Outro</option>
                 </select>
+            </div>
+
+            <div class="form-section" id="area-tematica-outro-container" style="display: none;">
+                <label>Informe a área temática</label>
+                <input type="text" id="sub-area-tematica-outro" placeholder="Descreva a área temática">
             </div>
 
             <div class="form-section">
@@ -422,10 +428,16 @@
                 <select id="sub-categoria-autor">
                     <option value="">Selecione uma categoria</option>
                     <option value="Graduação">Graduação</option>
-                    <option value="Opção 2">Opção 2</option>
+                    <option value="Mestrado">Mestrado</option>
                     <option value="Doutorado">Doutorado</option>
                     <option value="Pós-doutorado">Pós-doutorado</option>
+                    <option value="Outro">Outro</option>
                 </select>
+            </div>
+
+            <div class="form-section" id="categoria-autor-outro-container" style="display: none;">
+                <label>Informe a categoria do autor</label>
+                <input type="text" id="sub-categoria-autor-outro" placeholder="Descreva a categoria">
             </div>
 
             <div class="form-section">
@@ -451,7 +463,13 @@
                     <option value="Envolvendo seres humanos (CEP)">Envolvendo seres humanos (CEP)</option>
                     <option value="Animais (CEUA)">Animais (CEUA)</option>
                     <option value="Não aplicável">Não aplicável</option>
+                    <option value="Outro">Outro</option>
                 </select>
+            </div>
+
+            <div class="form-section" id="aprovacao-etica-outro-container" style="display: none;">
+                <label>Informe o nível de aprovação ética</label>
+                <input type="text" id="sub-aprovacao-etica-outro" placeholder="Descreva o nível de aprovação ética">
             </div>
 
             <div class="form-section" id="protocolo-etica-container" style="display: none;">
@@ -569,6 +587,30 @@
         const autoresCount = document.getElementById('autores-count');
         autoresTextarea.addEventListener('input', () => autoresCount.innerText = autoresTextarea.value.length);
 
+        function setupOutroField(selectId, containerId, inputId) {
+            const select = document.getElementById(selectId);
+            const container = document.getElementById(containerId);
+            const input = document.getElementById(inputId);
+            select.addEventListener('change', () => {
+                const isOutro = select.value === 'Outro';
+                container.style.display = isOutro ? 'block' : 'none';
+                if (!isOutro) input.value = '';
+            });
+            return { select, input };
+        }
+
+        function resolveOutroValue(label, select, input) {
+            if (select.value !== 'Outro') return select.value;
+            const customValue = input.value.trim();
+            if (!customValue) {
+                alert(`Informe ${label}.`);
+                return '';
+            }
+            return `Outro: ${customValue}`;
+        }
+
+        const areaTematicaOutro = setupOutroField('sub-area-tematica', 'area-tematica-outro-container', 'sub-area-tematica-outro');
+        const categoriaAutorOutro = setupOutroField('sub-categoria-autor', 'categoria-autor-outro-container', 'sub-categoria-autor-outro');
         const tipoEstudoSelect = document.getElementById('sub-tipo-estudo');
         const tipoEstudoOutroContainer = document.getElementById('tipo-estudo-outro-container');
         const tipoEstudoOutroInput = document.getElementById('sub-tipo-estudo-outro');
@@ -579,6 +621,7 @@
         });
 
         const aprovacaoEticaSelect = document.getElementById('sub-aprovacao-etica');
+        const aprovacaoEticaOutro = setupOutroField('sub-aprovacao-etica', 'aprovacao-etica-outro-container', 'sub-aprovacao-etica-outro');
         const protocoloEticaContainer = document.getElementById('protocolo-etica-container');
         const protocoloEticaInput = document.getElementById('sub-protocolo-etica');
         aprovacaoEticaSelect.addEventListener('change', () => {
@@ -603,22 +646,28 @@
         document.getElementById('submit-btn').addEventListener('click', () => {
             const nomeSubmissao = document.getElementById('sub-nome').value.trim();
             const titulo = document.getElementById('sub-titulo').value.trim();
-            const areaTematica = document.getElementById('sub-area-tematica').value;
+            const areaTematicaSelecionada = areaTematicaOutro.select.value;
             const autoresAfiliacoes = autoresTextarea.value.trim();
             const autorCorrespondente = document.getElementById('sub-autor-correspondente').value.trim();
-            const categoriaAutor = document.getElementById('sub-categoria-autor').value;
+            const categoriaAutorSelecionada = categoriaAutorOutro.select.value;
             const tipoEstudo = tipoEstudoSelect.value;
             const tipoEstudoOutro = tipoEstudoOutroInput.value.trim();
-            const aprovacaoEtica = aprovacaoEticaSelect.value;
+            const aprovacaoEticaSelecionada = aprovacaoEticaOutro.select.value;
             const protocoloEtica = protocoloEticaInput.value.trim();
             const declaraModelo = document.getElementById('sub-declara-modelo').checked;
             const declaraRegulamento = document.getElementById('sub-declara-regulamento').checked;
 
-            if (!nomeSubmissao || !titulo || !areaTematica || !autoresAfiliacoes || !autorCorrespondente || !categoriaAutor || !tipoEstudo || !aprovacaoEtica) {
+            if (!nomeSubmissao || !titulo || !areaTematicaSelecionada || !autoresAfiliacoes || !autorCorrespondente || !categoriaAutorSelecionada || !tipoEstudo || !aprovacaoEticaSelecionada) {
                 return alert('Preencha todos os campos obrigatórios.');
             }
+            const areaTematica = resolveOutroValue('a área temática', areaTematicaOutro.select, areaTematicaOutro.input);
+            if (!areaTematica) return;
+            const categoriaAutor = resolveOutroValue('a categoria do autor', categoriaAutorOutro.select, categoriaAutorOutro.input);
+            if (!categoriaAutor) return;
             if (tipoEstudo === 'Outro' && !tipoEstudoOutro) return alert('Informe o tipo de estudo.');
-            if (aprovacaoEtica !== 'Não aplicável' && !protocoloEtica) return alert('Informe o número do protocolo de aprovação ética.');
+            const aprovacaoEtica = resolveOutroValue('o nível de aprovação ética', aprovacaoEticaOutro.select, aprovacaoEticaOutro.input);
+            if (!aprovacaoEtica) return;
+            if (aprovacaoEticaSelecionada !== 'Não aplicável' && !protocoloEtica) return alert('Informe o número do protocolo de aprovação ética.');
             if (!declaraModelo || !declaraRegulamento) return alert('Marque as declarações obrigatórias.');
             if (!selectedSubmissionFile) return alert('Anexe o arquivo PDF da submissão.');
             if (selectedSubmissionFile.size === 0) return alert('O arquivo selecionado está vazio. Anexe um arquivo válido.');
