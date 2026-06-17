@@ -31,7 +31,8 @@ const VAGAS_MINICURSOS = {
   'Genotoxicidade em Organismos Aquáticos: Fundamentos e Aplicações do Ensaio Cometa': 8,
   'Proteômica baseada em espectrometria de massas': 10,
   'Princípios e Aplicações da Extração de DNA': 10,
-  'Inteligência Artificial e Dados Biológicos': null
+  'Inteligência Artificial e Dados Biológicos': null,
+  '123': 1
 };
 
 function getLimiteMinicurso_(curso) {
@@ -39,7 +40,8 @@ function getLimiteMinicurso_(curso) {
 }
 
 function normalizarCpf_(cpf) {
-  return (cpf || '').toString().replace(/\D/g, '').padStart(11, '0');
+  const digits = (cpf || '').toString().replace(/\D/g, '');
+  return digits ? digits.padStart(11, '0') : '';
 }
 
 function parseDataPrioridade_(value) {
@@ -64,7 +66,8 @@ function getMapaPrioridadeInscricao_(sheetPrincipal) {
 
   const headers = dataPrincipal[0].map(h => h.toString().toLowerCase().trim());
   const cpfCol = headers.indexOf('cpf');
-  const dataCol = 0; // primeira coluna da planilha principal
+  const dataColHeader = headers.indexOf('data');
+  const dataCol = dataColHeader !== -1 ? dataColHeader : 0; // usa a coluna Data; se não existir, cai na primeira coluna
   const mapa = {};
 
   if (cpfCol === -1) return mapa;
@@ -91,10 +94,11 @@ function calcularRankingMinicursos_(sheetPrincipal, sheetMinicursos) {
   for (var i = 1; i < dataMinicursos.length; i++) {
     const row = dataMinicursos[i];
     const cpf = normalizarCpf_(row[2]);
+    if (!cpf) continue;
     const nome = row[1] || '';
     const lista = (row[3] || '').toString().split(',').map(c => c.trim()).filter(c => c);
     const prioridade = mapaPrioridade[cpf] || null;
-    const ordemFallback = prioridade === null ? 9000000000000 + i : prioridade;
+    const ordem = prioridade === null ? 9000000000000 + i : prioridade;
 
     lista.forEach(function(curso) {
       if (!cursos[curso]) cursos[curso] = [];
@@ -104,10 +108,86 @@ function calcularRankingMinicursos_(sheetPrincipal, sheetMinicursos) {
         nome: nome,
         rowIndex: i,
         prioridade: prioridade,
-        ordem: ordemFallback
+        ordem: ordem
       });
     });
   }
+
+  Object.keys(cursos).forEach(function(curso) {
+    cursos[curso].sort(function(a, b) {
+      if (a.ordem !== b.ordem) return a.ordem - b.ordem;
+      return a.rowIndex - b.rowIndex;
+    });
+
+    const limite = getLimiteMinicurso_(curso);
+    cursos[curso].forEach(function(item, index) {
+      const ranking = {
+        curso: curso,
+        posicao: index + 1,
+        limite: limite,
+        inscritos: cursos[curso].length,
+        dentroDasVagas: limite === null || index < limite,
+        prioridadeInscricao: item.prioridade ? new Date(item.prioridade) : null
+      };
+      if (!porCpf[item.cpf]) porCpf[item.cpf] = [];
+      porCpf[item.cpf].push(ranking);
+    });
+  });
+
+  return { cursos: cursos, porCpf: porCpf };
+}
+
+function calcularPreviaRankingMinicursos_(sheetPrincipal, sheetMinicursos, participante) {
+  const mapaPrioridade = getMapaPrioridadeInscricao_(sheetPrincipal);
+  const dataMinicursos = sheetMinicursos.getDataRange().getValues();
+  const cursos = {};
+  const porCpf = {};
+  const cpfParticipante = normalizarCpf_(participante.cpf);
+  let rowParticipanteExistente = null;
+
+  for (var i = 1; i < dataMinicursos.length; i++) {
+    const row = dataMinicursos[i];
+    const cpf = normalizarCpf_(row[2]);
+    if (!cpf) continue;
+    if (cpf === cpfParticipante) {
+      rowParticipanteExistente = i;
+      continue;
+    }
+
+    const nome = row[1] || '';
+    const lista = (row[3] || '').toString().split(',').map(c => c.trim()).filter(c => c);
+    const prioridade = mapaPrioridade[cpf] || null;
+    const ordem = prioridade === null ? 9000000000000 + i : prioridade;
+
+    lista.forEach(function(curso) {
+      if (!cursos[curso]) cursos[curso] = [];
+      cursos[curso].push({
+        curso: curso,
+        cpf: cpf,
+        nome: nome,
+        rowIndex: i,
+        prioridade: prioridade,
+        ordem: ordem
+      });
+    });
+  }
+
+  const prioridadeParticipante = mapaPrioridade[cpfParticipante] || null;
+  const rowParticipante = rowParticipanteExistente || dataMinicursos.length;
+  const ordemParticipante = prioridadeParticipante === null ? 9000000000000 + rowParticipante : prioridadeParticipante;
+  const cursosSelecionados = (participante.minicursos || '').toString().split(',').map(c => c.trim()).filter(c => c);
+
+  cursosSelecionados.forEach(function(curso) {
+    if (!cursos[curso]) cursos[curso] = [];
+    cursos[curso].push({
+      curso: curso,
+      cpf: cpfParticipante,
+      nome: participante.nome || '',
+      rowIndex: rowParticipante,
+      prioridade: prioridadeParticipante,
+      ordem: ordemParticipante
+    });
+  });
 
   Object.keys(cursos).forEach(function(curso) {
     cursos[curso].sort(function(a, b) {
@@ -148,8 +228,7 @@ function inscricoesEsgotadasResponse_() {
 }
 
 function initialSetup () {
-  const activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
-  scriptProp.setProperty('key', activeSpreadsheet.getId());
+  scriptProp.setProperty('key', '1Hilxni9Z-Vq7YtHQ2d7u05B7rVRkzJI8e2Upm5P9dQw');
 }
 
 function doGet(e) {
@@ -282,6 +361,39 @@ function doPost(e) {
       sheetMinicursos.getRange(rowToUpdate, 8).setValue(statusPagamento);
 
       return ContentService.createTextOutput(JSON.stringify({ result: 'success', updated: true })).setMimeType(ContentService.MimeType.JSON);
+    }
+
+    // ====== 1.2. PRÉVIA DE RANKING SEM GRAVAR NA PLANILHA ======
+    else if (action === 'previewRankingMinicursos') {
+      const cpfBusca = normalizarCpf_(e.parameter.cpf);
+      const sheetPrincipal = doc.getSheetByName(sheetName);
+      const ssMinicursos = SpreadsheetApp.openById(ID_PLANILHA_MINICURSOS);
+      const sheetMinicursos = ssMinicursos.getSheets()[0];
+      const rankingPreview = calcularPreviaRankingMinicursos_(sheetPrincipal, sheetMinicursos, {
+        nome: e.parameter.nome,
+        cpf: cpfBusca,
+        minicursos: e.parameter.minicursos
+      });
+      const listaCursos = (e.parameter.minicursos || '').toString().split(',').map(function(c) { return c.trim(); }).filter(function(c) { return c; });
+      const rankingsCpf = rankingPreview.porCpf[cpfBusca] || [];
+
+      return ContentService.createTextOutput(JSON.stringify({
+        result: 'success',
+        minicursos: [{
+          lista: e.parameter.minicursos || '',
+          status: 'Prévia',
+          rankings: listaCursos.map(function(curso) {
+            return rankingsCpf.find(function(r) { return r.curso === curso; }) || {
+              curso: curso,
+              posicao: null,
+              limite: getLimiteMinicurso_(curso),
+              inscritos: null,
+              dentroDasVagas: false,
+              prioridadeInscricao: null
+            };
+          })
+        }]
+      })).setMimeType(ContentService.MimeType.JSON);
     }
 
     // ====== 1.5. CONSULTAR VAGAS DOS MINICURSOS ======

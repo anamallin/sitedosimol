@@ -27,7 +27,7 @@
             flex-direction: column;
         }
 
-        /* Bloqueio Temporário */
+        /* Bloqueio Temporario */
         #lock-screen {
             display: flex;
             flex-direction: column;
@@ -247,7 +247,7 @@
     <div id="lock-screen">
         <div class="lock-icon">🔒</div>
         <h2>Acesso Restrito</h2>
-        <p>A inscrição nos minicursos ainda não foi aberta, digite o código de organizador para ver o preview 😊</p>
+        <p>A inscrição nos minicursos ainda não foi aberta, digite o código de organizador para ver o preview.</p>
         <div class="code-input-container">
             <input type="text" id="org-code" placeholder="Digite o código" autocomplete="off">
             <button id="unlock-btn">Acessar Preview</button>
@@ -262,6 +262,13 @@
             <div id="greeting-area" style="display: none; margin-bottom: 20px;">
                 <h3 id="user-greeting" style="color: var(--color-1);"></h3>
                 <p>Monte sua semana de minicursos (20 a 24 de Julho).</p>
+                <div style="background: #eef8ff; border-left: 5px solid var(--color-1); padding: 15px; margin: 16px auto 0; max-width: 760px; text-align: left; font-size: 0.92rem; line-height: 1.55; border-radius: 8px; color: #24455a;">
+                    <strong>Aviso:</strong> A posição no ranking de inscrições dos minicursos seguirá a ordem de inscrição no SIMOL, priorizando quem se inscreveu primeiro no evento.
+                    <br><br>
+                    Por exemplo: se uma pessoa se inscreveu no SIMOL no dia 30 e outra no dia 31, a pessoa inscrita no dia 30 terá prioridade no ranking do minicurso, mesmo que a pessoa do dia 31 escolha o minicurso antes.
+                    <br><br>
+                    Por isso, fique atento(a) à sua posição nos minicursos escolhidos. Até o final do período de inscrições, será possível alterar os minicursos selecionados diretamente pelo site. Confira sua posição na área do inscrito.
+                </div>
             </div>
         </header>
 
@@ -377,7 +384,7 @@
         </div>
 
         <div style="text-align: center; margin-top: 40px;">
-            <a href="index.html" style="color: var(--color-4); font-weight: bold; text-decoration: none;">← Sair do Preview</a>
+            <a href="index.html" style="color: var(--color-4); font-weight: bold; text-decoration: none;">← Voltar para Home</a>
         </div>
     </div>
 
@@ -416,6 +423,19 @@
         </div>
     </div>
 
+    <!-- Ranking após confirmação -->
+    <div class="modal-overlay" id="post-submit-ranking-overlay">
+        <div class="course-modal" style="text-align: center; border-top: 8px solid var(--color-1);">
+            <h2 style="color: var(--color-4);">Posição nos Minicursos</h2>
+            <p id="post-submit-ranking-message" style="margin: 12px 0 18px; line-height: 1.5; color: #555;">Confira sua posição antes de confirmar.</p>
+            <div id="post-submit-ranking-content" style="text-align: left; font-size: 0.9rem; color: #555; line-height: 1.45;"></div>
+            <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 18px;">
+                <button id="post-submit-back-btn" style="display: none; background: #eee; color: #333; border: none; padding: 12px 22px; border-radius: 10px; font-weight: bold; cursor: pointer;">Voltar e escolher outro</button>
+                <button id="post-submit-continue-btn" style="display: inline-block; background: var(--color-1); color: white; border: none; padding: 12px 28px; border-radius: 10px; text-decoration: none; font-weight: bold; cursor: pointer;" disabled>Calculando...</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Tela de Sucesso -->
     <div class="modal-overlay" id="success-overlay">
         <div class="course-modal" style="text-align: center; border-top: 8px solid #2ecc71;">
@@ -427,7 +447,7 @@
     </div>
 
     <script>
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbxhbjghdyW26k8MzEEmSVge15-uE1i9FkwRnQd72SVc_WBkAfN5mtQlmzz3N06_TJ0wiA/exec';
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbw9mi6IQfU90jw9_tuH4gp2W-Pap9Aku0DCCuS1T7F0XsJpgCBO6VSlFT3dKDmvMv9e/exec';
         const SECRET_CODE = 'SIMOL_ORG_2026_PREVIEW';
         const pageParams = new URLSearchParams(window.location.search);
         const isChangeMode = pageParams.get('troca') === '1';
@@ -457,7 +477,8 @@
             { id: 20, dept: 'GENETICA', ppgLabel: 'PPG em Genética', title: 'Genotoxicidade em Organismos Aquáticos: Fundamentos e Aplicações do Ensaio Cometa', days: [1, 2], period: 'night', limit: 8, format: 'Presencial', instructors: 'Luis Phelipe de Souza Miranda, Gabriel da Silva e Gustavo Martello Wiener', syllabus: 'Ecotoxicologia, genotoxicidade, dano ao DNA, princípios e aplicações do ensaio cometa, modificações do método, preparo de lâminas, eletroforese, coloração e análise visual dos resultados.' },
             { id: 21, dept: 'GENETICA', ppgLabel: 'PPG em Genética', title: 'Proteômica baseada em espectrometria de massas', days: [2, 3], period: 'morning', limit: 10, format: 'Presencial', instructors: 'Ana Carolina Mallin, João Vitor Mello Hortega, Talita Helen Bombardelli Gomig, Isadora Fantaloche, Ana Júlia P. de Lima e Juliana da Costa Moraes', syllabus: 'Conceitos de proteômica, princípios de espectrometria de massas, aplicações em pesquisa, processamento de amostras e simulação/análise de dados proteômicos em softwares como Perseus e R.' },
             { id: 22, dept: 'GENETICA', ppgLabel: 'PPG em Genética', title: 'Princípios e Aplicações da Extração de DNA', days: [1, 2], period: 'morning', limit: 10, format: 'Presencial', instructors: 'Ana Carolina Mallin, Gabriel Valaski Grzegorczyk e João Vitor Mello Hortega', syllabus: 'Estrutura do DNA, coleta e preparo de amostras, lise celular, extração e purificação, avaliação por eletroforese, quantificação por NanoDrop/Qubit e aplicações em PCR e sequenciamento.' },
-            { id: 23, dept: 'GENETICA', ppgLabel: 'PPG em Genética', title: 'Inteligência Artificial e Dados Biológicos', days: [2, 3], period: 'night', limit: Infinity, format: 'Remoto', instructors: 'Ana Carolina Mallin', syllabus: 'Fundamentos de inteligência artificial, aprendizado de máquina e profundo, modelos aplicados a dados biológicos, organização de dados, treinamento, validação, explicabilidade, vieses, ética e exemplos em genômica, transcriptômica, proteômica e bioinformática.' }
+            { id: 23, dept: 'GENETICA', ppgLabel: 'PPG em Genética', title: 'Inteligência Artificial e Dados Biológicos', days: [2, 3], period: 'night', limit: Infinity, format: 'Remoto', instructors: 'Ana Carolina Mallin', syllabus: 'Fundamentos de inteligência artificial, aprendizado de máquina e profundo, modelos aplicados a dados biológicos, organização de dados, treinamento, validação, explicabilidade, vieses, ética e exemplos em genômica, transcriptômica, proteômica e bioinformática.' },
+            { id: 24, dept: 'GENETICA', ppgLabel: 'PPG em Genética', title: '123', days: [4], period: 'night', limit: 1, format: 'Presencial', instructors: 'Teste', syllabus: 'Minicurso fantasma para testar o ranking, a ocupação de vagas e a lista de espera.' }
         ];
 
         let selectedCourses = [];
@@ -466,30 +487,35 @@
         let vagasData = {};  // { 'NomeMinicurso': quantidade_inscritos }
         let vagasLimites = {};  // { 'NomeMinicurso': limite_de_vagas }
 
-        // Lock screen logic
         const lockScreen = document.getElementById('lock-screen');
         const mainContent = document.getElementById('main-content');
         const unlockBtn = document.getElementById('unlock-btn');
         const codeInput = document.getElementById('org-code');
 
-        unlockBtn.addEventListener('click', () => {
-            if (codeInput.value.trim().toUpperCase() === SECRET_CODE) {
-                lockScreen.style.display = 'none';
-                mainContent.style.display = 'block';
-                document.body.style.display = 'block';
-                document.body.style.alignItems = 'initial';
-                document.body.style.justifyContent = 'initial';
-            } else {
-                document.getElementById('error-msg').style.display = 'block';
-            }
-        });
-
-        if (isChangeMode) {
+        function showMainContent() {
             lockScreen.style.display = 'none';
             mainContent.style.display = 'block';
             document.body.style.display = 'block';
             document.body.style.alignItems = 'initial';
             document.body.style.justifyContent = 'initial';
+        }
+
+        unlockBtn.addEventListener('click', () => {
+            if (codeInput.value.trim().toUpperCase() === SECRET_CODE) {
+                showMainContent();
+            } else {
+                document.getElementById('error-msg').style.display = 'block';
+            }
+        });
+
+        codeInput.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                unlockBtn.click();
+            }
+        });
+
+        if (isChangeMode) {
+            showMainContent();
         }
 
         // Lógica de Verificação de Inscrição
@@ -567,44 +593,15 @@
 
         realFinishBtn.addEventListener('click', () => {
             realFinishBtn.disabled = true;
-            realFinishBtn.innerText = 'Processando...';
+            realFinishBtn.innerText = 'Calculando posição...';
 
             const count = selectedCourses.length;
-            const coursesList = selectedCourses.map(c => c.title).join(', ');
-            const tipo = isExternalUser ? 'Aluno Externo' : 'Inscrito SIMOL';
-
-            const formData = new URLSearchParams();
-            formData.append('action', isChangeMode ? 'atualizarMinicursos' : 'inscreverMinicursos');
-            formData.append('nome', currentUserData.nome);
-            formData.append('cpf', currentUserData.cpf);
-            if (currentUserData.email) {
-                formData.append('email', currentUserData.email);
-            }
-            formData.append('minicursos', coursesList);
-            formData.append('n_minicursos', count);
-            formData.append('tipo', tipo);
-
-            fetch(scriptURL, {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.result === 'success') {
-                    proceedToNextStep(count);
-                } else {
-                    alert(data.message || 'Erro ao salvar inscrição. Tente novamente.');
-                }
-            })
-            .catch(error => {
-                console.error('Erro:', error);
-                alert('Erro de conexão. Sua inscrição pode não ter sido salva.');
-            })
-            .finally(() => {
-                closeConfirmModal();
-                realFinishBtn.disabled = false;
-                realFinishBtn.innerText = 'Estou Ciente e Quero Finalizar';
-            });
+            showRankingPreviewBeforeSubmit(count)
+                .finally(() => {
+                    closeConfirmModal();
+                    realFinishBtn.disabled = false;
+                    realFinishBtn.innerText = 'Estou Ciente e Quero Finalizar';
+                });
         });
 
         function proceedToNextStep(count) {
@@ -620,6 +617,129 @@
                     window.location.href = `pagamento-minicursos.html?value=${total}&count=${count}&type=registered&nome=${encodeURIComponent(currentUserData.nome)}&cpf=${currentUserData.cpf}`;
                 }
             }
+        }
+
+        function getNextStepLabel(count) {
+            if (isExternalUser || (!isExternalUser && count > 2)) return 'Continuar para pagamento';
+            return isChangeMode ? 'Concluir troca' : 'Concluir inscrição';
+        }
+
+        function buildMinicursosFormData(action) {
+            const count = selectedCourses.length;
+            const coursesList = selectedCourses.map(c => c.title).join(', ');
+            const tipo = isExternalUser ? 'Aluno Externo' : 'Inscrito SIMOL';
+            const formData = new URLSearchParams();
+
+            formData.append('action', action);
+            formData.append('nome', currentUserData.nome);
+            formData.append('cpf', currentUserData.cpf);
+            if (currentUserData.email) {
+                formData.append('email', currentUserData.email);
+            }
+            formData.append('minicursos', coursesList);
+            formData.append('n_minicursos', count);
+            formData.append('tipo', tipo);
+
+            return formData;
+        }
+
+        function showRankingPreviewBeforeSubmit(count) {
+            const overlay = document.getElementById('post-submit-ranking-overlay');
+            const content = document.getElementById('post-submit-ranking-content');
+            const message = document.getElementById('post-submit-ranking-message');
+            const continueBtn = document.getElementById('post-submit-continue-btn');
+            const backBtn = document.getElementById('post-submit-back-btn');
+
+            content.innerHTML = '<div style="text-align: center; padding: 18px;">Calculando sua posição...</div>';
+            message.textContent = 'Confira sua posição antes de confirmar. Nada foi gravado ainda.';
+            continueBtn.disabled = true;
+            continueBtn.innerText = 'Calculando...';
+            continueBtn.onclick = null;
+            backBtn.style.display = 'none';
+            backBtn.onclick = null;
+            overlay.style.display = 'flex';
+
+            return fetch(scriptURL, {
+                method: 'POST',
+                body: buildMinicursosFormData('previewRankingMinicursos')
+            })
+                .then(r => r.json())
+                .then(data => {
+                    if (!data || data.result !== 'success') {
+                        throw new Error(data && (data.message || data.error) ? (data.message || data.error) : 'Erro ao calcular ranking.');
+                    }
+                    const minicursos = data.minicursos || [];
+                    const rankingHTML = buildRankingRowsHTML(minicursos);
+                    const hasWaitlist = minicursos.some(m => (m.rankings || []).some(r => !r.dentroDasVagas));
+
+                    message.textContent = hasWaitlist
+                        ? 'Você ficou em lista de espera em pelo menos um minicurso. Você pode voltar e escolher outro antes de gravar.'
+                        : 'Você está dentro das vagas selecionadas. Confirme para gravar sua inscrição.';
+
+                    content.innerHTML = (hasWaitlist ? `
+                        <div style="padding: 12px; background: #fff9db; border-radius: 8px; margin-bottom: 10px; color: #856404;">
+                            Atenção: pelo menos um minicurso selecionado está em lista de espera.
+                        </div>
+                    ` : '') + (rankingHTML || selectedCourses.map(course => `
+                        <div style="padding: 10px 0; border-bottom: 1px solid #eee;">
+                            <strong style="color: var(--color-4);">${escapeHTML(course.title)}</strong>
+                            <div style="font-size: 0.85rem; margin-top: 4px;">Posição ainda não calculada.</div>
+                        </div>
+                    `).join(''));
+
+                    backBtn.style.display = hasWaitlist ? 'inline-block' : 'none';
+                    backBtn.onclick = () => {
+                        overlay.style.display = 'none';
+                    };
+
+                    continueBtn.disabled = false;
+                    continueBtn.innerText = hasWaitlist ? 'Confirmar mesmo assim' : 'Confirmar e gravar';
+                    continueBtn.onclick = () => submitMinicursosFinal(count);
+                })
+                .catch(err => {
+                    console.error('Erro ao calcular prévia do ranking:', err);
+                    content.innerHTML = '<div style="padding: 12px; background: #fff9db; border-radius: 8px;">Não foi possível calcular a posição agora. Tente novamente antes de confirmar.</div>';
+                    message.textContent = 'Não conseguimos calcular sua posição.';
+                    backBtn.style.display = 'inline-block';
+                    backBtn.onclick = () => {
+                        overlay.style.display = 'none';
+                    };
+                    continueBtn.disabled = true;
+                    continueBtn.innerText = 'Indisponível';
+                });
+        }
+
+        function submitMinicursosFinal(count) {
+            const continueBtn = document.getElementById('post-submit-continue-btn');
+            const backBtn = document.getElementById('post-submit-back-btn');
+
+            continueBtn.disabled = true;
+            backBtn.style.display = 'none';
+            continueBtn.innerText = 'Gravando...';
+
+            fetch(scriptURL, {
+                method: 'POST',
+                body: buildMinicursosFormData(isChangeMode ? 'atualizarMinicursos' : 'inscreverMinicursos')
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.result === 'success') {
+                    document.getElementById('post-submit-ranking-overlay').style.display = 'none';
+                    proceedToNextStep(count);
+                } else {
+                    alert(data.message || 'Erro ao salvar inscrição. Tente novamente.');
+                    continueBtn.disabled = false;
+                    continueBtn.innerText = 'Tentar gravar novamente';
+                    backBtn.style.display = 'inline-block';
+                }
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                alert('Erro de conexão. Sua inscrição não foi salva.');
+                continueBtn.disabled = false;
+                continueBtn.innerText = 'Tentar gravar novamente';
+                backBtn.style.display = 'inline-block';
+            });
         }
 
         // Toggle Forms (Externo)
@@ -709,10 +829,7 @@
                 .catch(err => console.error('Erro ao buscar ranking dos minicursos:', err));
         }
 
-        function renderParticipantRankings(nome, cpf, minicursos) {
-            const panel = document.getElementById('ranking-panel');
-            const content = document.getElementById('ranking-panel-content');
-            const hasWaitlist = minicursos.some(m => (m.rankings || []).some(r => !r.dentroDasVagas));
+        function buildRankingRowsHTML(minicursos) {
             const rows = [];
 
             minicursos.forEach(m => {
@@ -732,12 +849,21 @@
                 });
             });
 
-            content.innerHTML = rows.join('') + (hasWaitlist && !isChangeMode ? `
+            return rows.join('');
+        }
+
+        function renderParticipantRankings(nome, cpf, minicursos) {
+            const panel = document.getElementById('ranking-panel');
+            const content = document.getElementById('ranking-panel-content');
+            const hasWaitlist = minicursos.some(m => (m.rankings || []).some(r => !r.dentroDasVagas));
+            const rowsHTML = buildRankingRowsHTML(minicursos);
+
+            content.innerHTML = rowsHTML + (hasWaitlist && !isChangeMode ? `
                 <a href="ppgs.html?troca=1&nome=${encodeURIComponent(nome)}&cpf=${encodeURIComponent(cpf)}" style="display: inline-block; margin-top: 12px; background: var(--color-1); color: white; padding: 10px 14px; border-radius: 8px; text-decoration: none; font-weight: 700;">
                     Trocar minicursos
                 </a>
             ` : '');
-            panel.style.display = rows.length ? 'block' : 'none';
+            panel.style.display = rowsHTML ? 'block' : 'none';
         }
 
         function getVagasBadgeHTML(title) {
