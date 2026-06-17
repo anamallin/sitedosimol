@@ -447,7 +447,7 @@
     </div>
 
     <script>
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbw9mi6IQfU90jw9_tuH4gp2W-Pap9Aku0DCCuS1T7F0XsJpgCBO6VSlFT3dKDmvMv9e/exec';
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbyE1iioSHURXlY17M9tkEc7Ht76AhD5DJqnZ7Yfe5NasObLlaeH3GKJYuAcPmRVnlB3/exec';
         const SECRET_CODE = 'SIMOL_ORG_2026_PREVIEW';
         const pageParams = new URLSearchParams(window.location.search);
         const isChangeMode = pageParams.get('troca') === '1';
@@ -757,8 +757,7 @@
             plannerArea.style.display = 'block';
             greetingArea.style.display = 'block';
             userGreeting.textContent = `Modo troca de minicursos - ${currentUserData.nome || 'participante'}`;
-            fetchVagas();
-            fetchParticipantRankings(currentUserData.nome, currentUserData.cpf);
+            fetchVagas().then(() => fetchParticipantRankings(currentUserData.nome, currentUserData.cpf));
         }
 
         function toggleForms(showMain) {
@@ -817,16 +816,36 @@
         }
 
         function fetchParticipantRankings(nome, cpf) {
-            if (!cpf) return;
+            if (!cpf) return Promise.resolve(null);
 
-            fetch(`${scriptURL}?action=getParticipantData&cpf=${encodeURIComponent(cpf)}`, { method: 'GET' })
+            return fetch(`${scriptURL}?action=getParticipantData&cpf=${encodeURIComponent(cpf)}`, { method: 'GET' })
                 .then(r => r.json())
                 .then(data => {
                     if (data && data.minicursos && data.minicursos.length > 0) {
+                        applyExistingMinicursosToSchedule(data.minicursos);
                         renderParticipantRankings(nome, cpf, data.minicursos);
                     }
+                    return data;
                 })
                 .catch(err => console.error('Erro ao buscar ranking dos minicursos:', err));
+        }
+
+        function applyExistingMinicursosToSchedule(minicursosData) {
+            const selectedByTitle = {};
+
+            (minicursosData || []).forEach(item => {
+                const sourceList = item.lista || '';
+                sourceList.toString().split(',').map(c => c.trim()).filter(Boolean).forEach(title => {
+                    const course = courses.find(c => c.title === title);
+                    if (course) selectedByTitle[course.title] = course;
+                });
+            });
+
+            const existingCourses = Object.values(selectedByTitle);
+            if (!existingCourses.length) return;
+
+            selectedCourses = existingCourses;
+            updateSchedule();
         }
 
         function buildRankingRowsHTML(minicursos) {
@@ -904,6 +923,7 @@
             deptCourses.forEach(c => {
                 const item = document.createElement('div');
                 item.className = `course-item item-${c.dept}`;
+                const isSelected = selectedCourses.some(course => course.id === c.id);
                 item.innerHTML = `
                     <div class="course-info">
                         <h4>${c.title}</h4>
@@ -912,7 +932,7 @@
                     </div>
                     <div class="course-actions">
                         <button class="btn-details" onclick="showDetails(${c.id})">Ementa</button>
-                        <button class="btn-add" onclick="addCourse(${c.id})">Adicionar</button>
+                        <button class="btn-add" onclick="addCourse(${c.id})">${isSelected ? 'Selecionado' : 'Adicionar'}</button>
                     </div>
                 `;
                 container.appendChild(item);
@@ -922,6 +942,12 @@
 
         function addCourse(id) {
             const course = courses.find(c => c.id === id);
+            if (!course) return;
+
+            if (selectedCourses.some(c => c.id === id)) {
+                alert('Este minicurso já está no seu quadro semanal.');
+                return;
+            }
             
             const conflict = selectedCourses.find(c => c.period === course.period && c.days.some(day => course.days.includes(day)));
             
