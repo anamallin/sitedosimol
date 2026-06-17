@@ -62,7 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('registration-form');
     if (form) {
         // URL do Web App Apps Script (deploy fornecido)
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbzL6PaflzxXnYmp2Fb28OEX_6ylKJ3HG1MGYLEpRVCrAnBhB7_VYirq3TjxuyZ9ReJktg/exec'; 
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbxhbjghdyW26k8MzEEmSVge15-uE1i9FkwRnQd72SVc_WBkAfN5mtQlmzz3N06_TJ0wiA/exec'; 
         
         const submitBtn = document.getElementById('submit-btn');
         const spinner = submitBtn.querySelector('.spinner');
@@ -228,7 +228,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let uploadCompleted = false; // Rastrear se o upload foi concluído com sucesso
 
         // URL do Web App Apps Script (deploy fornecido) - usado para uploads
-        const uploadScriptURL = 'https://script.google.com/macros/s/AKfycbzL6PaflzxXnYmp2Fb28OEX_6ylKJ3HG1MGYLEpRVCrAnBhB7_VYirq3TjxuyZ9ReJktg/exec'; 
+        const uploadScriptURL = 'https://script.google.com/macros/s/AKfycbxhbjghdyW26k8MzEEmSVge15-uE1i9FkwRnQd72SVc_WBkAfN5mtQlmzz3N06_TJ0wiA/exec'; 
 
         // Abrir seletor ao clicar
         dropArea.addEventListener('click', () => fileInput.click());
@@ -466,7 +466,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const successModal = document.getElementById('festa-success-modal');
 
         // URL do Google Apps Script (mesmo já usado no projeto)
-        const festaScriptURL = 'https://script.google.com/macros/s/AKfycbzL6PaflzxXnYmp2Fb28OEX_6ylKJ3HG1MGYLEpRVCrAnBhB7_VYirq3TjxuyZ9ReJktg/exec';
+        const festaScriptURL = 'https://script.google.com/macros/s/AKfycbxhbjghdyW26k8MzEEmSVge15-uE1i9FkwRnQd72SVc_WBkAfN5mtQlmzz3N06_TJ0wiA/exec';
 
         let selectedOption = null;
 
@@ -862,3 +862,4 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 });
+

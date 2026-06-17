@@ -355,7 +355,7 @@
     </div>
 
     <script>
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbzL6PaflzxXnYmp2Fb28OEX_6ylKJ3HG1MGYLEpRVCrAnBhB7_VYirq3TjxuyZ9ReJktg/exec';
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbxhbjghdyW26k8MzEEmSVge15-uE1i9FkwRnQd72SVc_WBkAfN5mtQlmzz3N06_TJ0wiA/exec';
 
         function switchTab(tab) {
             document.getElementById('dashboard-tab').style.display = tab === 'dashboard' ? 'block' : 'none';
@@ -421,6 +421,24 @@
             });
         }
 
+        function renderMinicursoRanking(ranking) {
+            const limiteTexto = ranking.limite === null || ranking.limite === undefined
+                ? 'vagas ilimitadas'
+                : `${ranking.limite} vaga${ranking.limite > 1 ? 's' : ''}`;
+
+            return `
+                <div style="margin-bottom: 8px; line-height: 1.35;">
+                    <div>${escapeHTML(ranking.curso)}</div>
+                    ${ranking.posicao ? `
+                        <div style="font-size: 0.8rem; color: #666; margin-top: 3px;">
+                            Posição ${ranking.posicao} - ${limiteTexto}
+                        </div>
+                        <span class="badge ${ranking.dentroDasVagas ? 'badge-success' : 'badge-pending'}">${ranking.dentroDasVagas ? 'Dentro das vagas' : 'Lista de espera'}</span>
+                    ` : ''}
+                </div>
+            `;
+        }
+
         function renderDashboard(data, nome, cpf) {
             loggedUser.nome = nome;
             loggedUser.cpf = cpf;
@@ -456,12 +474,21 @@
             // 3. Minicursos
             const miniList = document.getElementById('minicursos-list');
             if (data.minicursos.length > 0) {
+                const hasWaitlist = data.minicursos.some(m => (m.rankings || []).some(r => !r.dentroDasVagas));
+                const trocaUrl = `ppgs.html?troca=1&nome=${encodeURIComponent(nome)}&cpf=${encodeURIComponent(cpf)}`;
                 miniList.innerHTML = data.minicursos.map(m => `
                     <div style="margin-bottom: 10px; padding-bottom: 5px; border-bottom: 1px solid #eee;">
-                        <div>${m.lista}</div>
+                        ${(m.rankings && m.rankings.length ? m.rankings : String(m.lista || '').split(',').map(curso => ({ curso: curso.trim() }))).map(renderMinicursoRanking).join('')}
                         <span class="badge ${m.status === 'Pago' || m.status === 'Não se aplica' ? 'badge-success' : 'badge-pending'}">${m.status}</span>
                     </div>
-                `).join('');
+                `).join('') + (hasWaitlist ? `
+                    <a href="${trocaUrl}" class="btn-primary" style="display: inline-block; margin-top: 10px; padding: 10px 14px; font-size: 0.85rem; text-decoration: none;">
+                        Trocar minicursos
+                    </a>
+                    <div style="font-size: 0.75rem; color: #777; margin-top: 8px; line-height: 1.4;">
+                        A troca fica disponível porque você está em lista de espera em pelo menos um minicurso.
+                    </div>
+                ` : '');
             }
 
             // 4. Submissões
@@ -626,3 +653,4 @@
     </script>
 </body>
 </html>
+

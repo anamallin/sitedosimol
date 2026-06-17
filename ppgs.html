@@ -230,6 +230,7 @@
         .course-modal {
             background: white; padding: 35px; border-radius: 20px;
             max-width: 600px; width: 90%; position: relative;
+            max-height: 90vh; overflow-y: auto;
         }
         .close-modal {
             position: absolute; top: 20px; right: 20px; font-size: 24px;
@@ -313,6 +314,11 @@
         </section>
 
         <div id="planner-area" style="display: none;">
+            <section id="ranking-panel" style="display: none; margin: 0 0 25px 0; background: white; padding: 20px; border-radius: 12px; border: 1px solid rgba(103, 42, 147, 0.15); box-shadow: 0 4px 12px rgba(0,0,0,0.04);">
+                <h3 style="color: var(--color-4); margin-bottom: 10px;">Minha posição nos minicursos</h3>
+                <div id="ranking-panel-content" style="font-size: 0.9rem; color: #555; line-height: 1.45;"></div>
+            </section>
+
             <div class="dept-grid">
                 <div class="dept-card" onclick="showCourses('BIOCEL')">
                     <img src="BIOCEL.png" alt="Biologia Celular">
@@ -387,6 +393,8 @@
                 <p id="modal-syllabus"></p>
                 <h4 style="margin-top: 15px;">Ministrantes:</h4>
                 <p id="modal-instructors"></p>
+                <h4 style="margin-top: 15px;">PPG de origem:</h4>
+                <p id="modal-ppg"></p>
             </div>
         </div>
     </div>
@@ -396,7 +404,7 @@
         <div class="course-modal" style="text-align: center;">
             <h2 style="color: #e67e22; margin-bottom: 20px;">⚠️ Aviso Importante</h2>
             <p style="text-align: left; line-height: 1.6; color: #444; margin-bottom: 25px;">
-                Ao confirmar, você declara estar ciente de que <strong>não é possível trocar os minicursos após a inscrição</strong>. 
+                Ao confirmar, você declara estar ciente de que <strong>a troca de minicursos fica disponível apenas para participantes em lista de espera</strong>. 
                 Em caso de pagamentos, o reembolso pode ser solicitado em até 7 dias úteis. 
                 <br><br>
                 Por favor, revise todos os seus dados e sua agenda antes de finalizar.
@@ -419,37 +427,44 @@
     </div>
 
     <script>
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbzL6PaflzxXnYmp2Fb28OEX_6ylKJ3HG1MGYLEpRVCrAnBhB7_VYirq3TjxuyZ9ReJktg/exec';
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbxhbjghdyW26k8MzEEmSVge15-uE1i9FkwRnQd72SVc_WBkAfN5mtQlmzz3N06_TJ0wiA/exec';
         const SECRET_CODE = 'SIMOL_ORG_2026_PREVIEW';
+        const pageParams = new URLSearchParams(window.location.search);
+        const isChangeMode = pageParams.get('troca') === '1';
 
         const courses = [
-            // BIOCEL (Verde)
-            { id: 1, dept: 'BIOCEL', title: 'Microscopia Confocal', day: 0, period: 'morning', instructors: 'Dr. Silva, Dra. Santos', syllabus: 'Princípios da fluorescência e aplicações em biologia celular.' },
-            { id: 2, dept: 'BIOCEL', title: 'Cultivo de Células-Tronco', day: 1, period: 'night', instructors: 'Dra. Oliveira', syllabus: 'Técnicas de isolamento e manutenção de linhagens.' },
-            { id: 7, dept: 'BIOCEL', title: 'Sinalização Intracelular', day: 2, period: 'night', instructors: 'Dra. Ferreira', syllabus: 'Cascata de quinases e receptores de membrana.' },
-            { id: 9, dept: 'BIOCEL', title: 'Morte Celular Programada', day: 3, period: 'morning', instructors: 'Dr. Veloso', syllabus: 'Apoptose, autofagia e necrose regulada.' },
-            { id: 10, dept: 'BIOCEL', title: 'Dinâmica de Organelas', day: 4, period: 'night', instructors: 'Dra. Neves', syllabus: 'Tráfego de vesículas e interações mitocondriais.' },
+            { id: 1, dept: 'BIOCEL', ppgLabel: 'PPG em Biologia Celular e Molecular', title: 'Expressão e purificação de Proteínas', days: [1, 2, 3], period: 'morning', limit: 6, format: 'Presencial', instructors: 'Milena Biguetti dos Santos; Zelinda Schemczssen', syllabus: 'Introdução às proteínas recombinantes, clonagem molecular, vetores de expressão, sistemas de expressão, purificação cromatográfica e análise de qualidade proteica, com atividades práticas de expressão, purificação e SDS-PAGE.' },
+            { id: 2, dept: 'BIOCEL', ppgLabel: 'PPG em Biologia Celular e Molecular', title: 'Toxicologia Celular', days: [1, 2, 3], period: 'morning', limit: 10, format: 'Presencial', instructors: 'Gabriel Elias Bueno, Prof. Dr. Francisco Filipak Neto, Laura Lima Verde e Deborah Helen Fabiano Ribeiro', syllabus: 'Conceitos de toxicologia celular, carcinogênese, cultivo de células de câncer de mama, exposição a poluentes orgânicos e inorgânicos e avaliação da citotoxicidade por ensaio colorimétrico de viabilidade celular.' },
+            { id: 3, dept: 'BIOCEL', ppgLabel: 'PPG em Biologia Celular e Molecular', title: 'Biomarcadores: da teoria à prática experimental', days: [1, 2, 3], period: 'morning', limit: 12, format: 'Presencial', instructors: 'Ana Paula da Silva e Felipe Schaly', syllabus: 'Fundamentos de biomarcadores em ecotoxicologia, incluindo biomarcadores bioquímicos, hematológicos e histológicos, com atividades práticas laboratoriais e interpretação de respostas biológicas frente a estressores ambientais.' },
+            { id: 4, dept: 'BIOCEL', ppgLabel: 'PPG em Biologia Celular e Molecular', title: 'Tópicos básicos em biologia molecular, bioinformática e cultivo celular', days: [1, 2, 3], period: 'morning', limit: 20, format: 'Presencial', instructors: 'Rhandria Sampaio de Souza, Geórgia Seifert Neves, Sabina Beganovic, Alan Miguel Brum da Silva e Tainara Marcansoni', syllabus: 'Tópicos de cultivo celular, cultivo 3D, ensaios de citotoxicidade, extração de RNA/DNA, PCR, eletroforese e bioinformática básica, com práticas laboratoriais e em computador.' },
+            { id: 5, dept: 'BIOCEL', ppgLabel: 'PPG em Biologia Celular e Molecular', title: 'Introdução a Biologia da Interação Patógeno-Hospedeiro', days: [1, 2, 3], period: 'morning', limit: 10, format: 'Presencial', instructors: 'Abel Sana, Fernanda Araujo Fernandes e Nusrat Sattar', syllabus: 'Mecanismos celulares e moleculares da interação entre protozoários patogênicos e hospedeiros, com adesão, invasão celular, evasão imune, vesículas extracelulares e práticas com Giardia intestinalis e Trypanosoma cruzi.' },
+            { id: 6, dept: 'BIOCEL', ppgLabel: 'PPG em Biologia Celular e Molecular', title: 'Introdução ao cultivo celular', days: [1, 2, 3], period: 'morning', limit: 15, format: 'Presencial', instructors: 'Debora C. V. Del Grossi e Fabiana Lolis', syllabus: 'Boas práticas laboratoriais, biossegurança, técnicas de cultivo celular, repique, contagem celular, células-tronco e aplicações da cultura de células em pesquisa e biotecnologia, com aula prática e atividade final.' },
+            { id: 7, dept: 'BIOCEL', ppgLabel: 'PPG em Biologia Celular e Molecular', title: 'Desvendando os Peixes Antárticos: Ecofisiologia e Biologia Celular e Molecular Aplicada', days: [1, 2, 3], period: 'morning', limit: 20, format: 'Presencial', instructors: 'Sun Tae Languinotti dos Santos Viana, Cesar Wisniewski Potuk, Ana Paula Nascimento Corrêa e Ananda Karla Alves Neundorf', syllabus: 'Conceitos gerais da Antártica e dos peixes antárticos, poluentes ambientais, técnicas proteômicas frente a alterações de temperatura e microbiota, com aulas presenciais e atividades remotas assíncronas.' },
 
-            // BIOQUIMICA (Laranja/Vermelho)
-            { id: 3, dept: 'BIOQUIMICA', title: 'Proteômica Aplicada', day: 2, period: 'morning', instructors: 'Dr. Costa, Dra. Lima', syllabus: 'Espectrometria de massas para identificação de proteínas.' },
-            { id: 4, dept: 'BIOQUIMICA', title: 'Metabolismo de Lipídios', day: 0, period: 'night', instructors: 'Dr. Rocha', syllabus: 'Vias bioquímicas e regulação hormonal.' },
-            { id: 8, dept: 'BIOQUIMICA', title: 'Enzimologia Industrial', day: 4, period: 'night', instructors: 'Dr. Castro', syllabus: 'Cinética enzimática e aplicações em bioprocessos.' },
-            { id: 11, dept: 'BIOQUIMICA', title: 'Bioenergética Mitocondrial', day: 1, period: 'morning', instructors: 'Dr. Antunes', syllabus: 'Cadeia transportadora de elétrons e síntese de ATP.' },
-            { id: 12, dept: 'BIOQUIMICA', title: 'Glicobiologia Estrutural', day: 3, period: 'night', instructors: 'Dra. Prado', syllabus: 'Importância biológica dos carboidratos complexos.' },
+            { id: 8, dept: 'BIOQUIMICA', ppgLabel: 'PPG em Bioquímica', title: 'Explorando a biologia através do nematoide C. elegans: aplicações como modelo animal em estudos biológicos, genéticos e comportamentais.', days: [1, 2], period: 'morning', limit: 20, format: 'Presencial', instructors: 'Julia Anselmo da Luz Rico e Gustavo Passaglia Bruschi', syllabus: 'História, biologia, genética, RNAi, transgenia, neurobiologia, fisiologia, doenças humanas e ensaios comportamentais com C. elegans, incluindo manipulação prática, quimiotaxia e análise no RStudio.' },
+            { id: 9, dept: 'BIOQUIMICA', ppgLabel: 'PPG em Bioquímica', title: 'Nanotecnologia em Saúde: De Nanopartículas a Vacinas', days: [1, 2], period: 'morning', limit: 15, format: 'Presencial', instructors: 'Julia Teixeira Lucena, Mariana Vodiani, Isabela Pereira Dias, Marina Siqueira de Lima e Camila de Almeida Salvego', syllabus: 'Fundamentos de nanotecnologia, classificação e aplicações de nanopartículas em saúde, vacinas, liberação controlada e toxicidade, com síntese e caracterização de nano e micropartículas.' },
+            { id: 10, dept: 'BIOQUIMICA', ppgLabel: 'PPG em Bioquímica', title: 'Análise Eletroforética de Proteínas por SDS-PAGE', days: [1], period: 'morning', limit: 15, format: 'Presencial', instructors: 'Rafaela Kriczinski e Lucas Passarin', syllabus: 'Princípios da eletroforese de proteínas em gel de poliacrilamida com SDS, preparo de soluções e amostras, montagem, corrida, coloração, visualização e interpretação de resultados.' },
+            { id: 11, dept: 'BIOQUIMICA', ppgLabel: 'PPG em Bioquímica', title: 'Otimizando a Bioatividade de Polissacarídeos via Síntese Orgânica', days: [3], period: 'morning', limit: 8, format: 'Presencial', instructors: 'Emerson Spaki Rodrigues', syllabus: 'Estrutura e reatividade de polissacarídeos, métodos de caracterização estrutural, estado da arte e visita ao Laboratório de Ressonância Magnética Nuclear do Departamento de Química.' },
+            { id: 12, dept: 'BIOQUIMICA', ppgLabel: 'PPG em Bioquímica', title: 'Biologia Sintética: Do design á síntese', days: [1, 2, 3], period: 'morning', limit: 12, format: 'Presencial', instructors: 'Francisco José Teles Mota e Laura Witzler Ismael', syllabus: 'Introdução à biologia sintética, clonagem modular, microrganismos chassis, design de plasmídeos no Benchling, cultivo bacteriano, biossíntese heteróloga e uso de biossensores para análise de bioprodutos.' },
+            { id: 13, dept: 'BIOQUIMICA', ppgLabel: 'PPG em Bioquímica', title: 'Bioinovação: fundamens de inovação, modelagem de negócios e pitch (teoria e prática)', days: [1, 2], period: 'morning', limit: 30, format: 'Presencial', instructors: 'Juliany Torres Siqueira', syllabus: 'Conceitos de inovação, tipos de inovação, propriedade intelectual, noções de patentes, modelos de negócio, proposta de valor e estruturação/apresentação de ideias em formato pitch.' },
+            { id: 14, dept: 'BIOQUIMICA', ppgLabel: 'PPG em Bioquímica', title: 'Cultivo de células tumorais: da teoria a prática', days: [3], period: 'morning', limit: 12, format: 'Presencial', instructors: 'Ana Gabriela Jungles, Ana Luiza Provesi Hilgert, Bruna Isadora Pilger, Douglas de Jesus da Silva Claudino e Matheus D’Avila Almeida', syllabus: 'Cultivo celular aplicado à pesquisa em câncer, metabolismo tumoral, biossegurança, tratamento farmacológico in vitro, métodos de avaliação de viabilidade celular e introdução a modelos animais no estudo do câncer.' },
 
-            // GENETICA (Azul)
-            { id: 5, dept: 'GENETICA', title: 'Edição Genômica CRISPR', day: 3, period: 'morning', instructors: 'Dra. Almeida, Dr. Souza', syllabus: 'Design de guias e ferramentas de edição precisa.' },
-            { id: 6, dept: 'GENETICA', title: 'Bioinformática Básica', day: 4, period: 'morning', instructors: 'Dr. Menezes', syllabus: 'Alinhamento de sequências e bancos de dados genômicos.' },
-            { id: 13, dept: 'GENETICA', title: 'Genética de Populações', day: 0, period: 'morning', instructors: 'Dr. Lins', syllabus: 'Equilíbrio de Hardy-Weinberg e deriva genética.' },
-            { id: 14, dept: 'GENETICA', title: 'Epigenética e Cromatina', day: 2, period: 'night', instructors: 'Dra. Ramos', syllabus: 'Metilação do DNA e modificações de histonas.' },
-            { id: 15, dept: 'GENETICA', title: 'Genômica Humana Aplicada', day: 1, period: 'night', instructors: 'Dr. Barbosa', syllabus: 'Interpretação de variantes clínicas e GWAS.' }
+            { id: 15, dept: 'GENETICA', ppgLabel: 'PPG em Genética', title: 'Genes e Medicamentos: uma introdução à farmacogenética e farmacogenômica', days: [1], period: 'night', limit: 10, format: 'Presencial', instructors: 'João Vitor Mello Hortega e Jeferson Machado Batista Sohn', syllabus: 'Bases de genética e farmacologia, com discussão de artigos sobre como características genéticas influenciam a resposta a medicamentos e os fundamentos da farmacogenética e farmacogenômica.' },
+            { id: 16, dept: 'GENETICA', ppgLabel: 'PPG em Genética', title: 'Cultivo Celular e suas Aplicações', days: [2, 3], period: 'morning', limit: 15, format: 'Presencial', instructors: 'Vitória Colucci de Oliveira, Hugo Catiano Paes Junior e Milena Rocha Sampaio', syllabus: 'Fundamentos do cultivo celular, linhagens celulares, rotina laboratorial, princípios dos 3Rs e biomarcadores de citotoxicidade, genotoxicidade, estresse oxidativo, expressão gênica e morte celular.' },
+            { id: 17, dept: 'GENETICA', ppgLabel: 'PPG em Genética', title: 'Fungos endofíticos: estratégias de isolamento e prospecção enzimática', days: [1, 2, 3], period: 'morning', limit: 12, format: 'Presencial', instructors: 'Vinícius da Luz Redígolo', syllabus: 'Biologia, diversidade e relevância biotecnológica de fungos endofíticos, com coleta e preparo vegetal, desinfestação superficial, isolamento, identificação, preservação e triagem enzimática.' },
+            { id: 18, dept: 'GENETICA', ppgLabel: 'PPG em Genética', title: 'Clinical Interpretation of Genomic Variants: Application of ACMG Criteria in Exome Sequencing Data. (Interpretação Clínica de Variantes Genômicas: Aplicação dos Critérios do ACMG em Dados de Sequenciamento do Exoma.)', days: [1, 2], period: 'night', limit: 12, format: 'Remota', instructors: 'Dr. Tiago Fernando Chaves (UFSC)', syllabus: 'Fundamentos do sequenciamento de exoma, fluxo FASTQ-VCF, critérios ACMG/AMP e refinamentos ClinGen, bases de referência, preditores in silico, modos de herança e uso prático da plataforma Franklin by Genoox.' },
+            { id: 19, dept: 'GENETICA', ppgLabel: 'PPG em Genética', title: 'Epigenética e Exposoma relacionado ao DOHaD (Developmental origins of health and disease)', days: [1, 2], period: 'morning', limit: Infinity, format: 'Remoto', instructors: 'Profa. Dra. Stephanie Rubianne Silva Carvalhal, Profa. MSc. Ana Cláudia Thomaz, Profa. MSc. Ana Paolla Protachevicz, MSc. Fernanda Vitório da Silva e Raphaela Ohana Rios', syllabus: 'Epigenética e exposoma aplicados ao DOHaD, incluindo dieta, microbiota, exercício, estresse, marcas epigenéticas nos primeiros ciclos de vida e resolução de caso por aprendizagem baseada em problemas.' },
+            { id: 20, dept: 'GENETICA', ppgLabel: 'PPG em Genética', title: 'Genotoxicidade em Organismos Aquáticos: Fundamentos e Aplicações do Ensaio Cometa', days: [1, 2], period: 'night', limit: 8, format: 'Presencial', instructors: 'Luis Phelipe de Souza Miranda, Gabriel da Silva e Gustavo Martello Wiener', syllabus: 'Ecotoxicologia, genotoxicidade, dano ao DNA, princípios e aplicações do ensaio cometa, modificações do método, preparo de lâminas, eletroforese, coloração e análise visual dos resultados.' },
+            { id: 21, dept: 'GENETICA', ppgLabel: 'PPG em Genética', title: 'Proteômica baseada em espectrometria de massas', days: [2, 3], period: 'morning', limit: 10, format: 'Presencial', instructors: 'Ana Carolina Mallin, João Vitor Mello Hortega, Talita Helen Bombardelli Gomig, Isadora Fantaloche, Ana Júlia P. de Lima e Juliana da Costa Moraes', syllabus: 'Conceitos de proteômica, princípios de espectrometria de massas, aplicações em pesquisa, processamento de amostras e simulação/análise de dados proteômicos em softwares como Perseus e R.' },
+            { id: 22, dept: 'GENETICA', ppgLabel: 'PPG em Genética', title: 'Princípios e Aplicações da Extração de DNA', days: [1, 2], period: 'morning', limit: 10, format: 'Presencial', instructors: 'Ana Carolina Mallin, Gabriel Valaski Grzegorczyk e João Vitor Mello Hortega', syllabus: 'Estrutura do DNA, coleta e preparo de amostras, lise celular, extração e purificação, avaliação por eletroforese, quantificação por NanoDrop/Qubit e aplicações em PCR e sequenciamento.' },
+            { id: 23, dept: 'GENETICA', ppgLabel: 'PPG em Genética', title: 'Inteligência Artificial e Dados Biológicos', days: [2, 3], period: 'night', limit: Infinity, format: 'Remoto', instructors: 'Ana Carolina Mallin', syllabus: 'Fundamentos de inteligência artificial, aprendizado de máquina e profundo, modelos aplicados a dados biológicos, organização de dados, treinamento, validação, explicabilidade, vieses, ética e exemplos em genômica, transcriptômica, proteômica e bioinformática.' }
         ];
 
         let selectedCourses = [];
         let isExternalUser = false;
         let currentUserData = { nome: '', cpf: '' };
         let vagasData = {};  // { 'NomeMinicurso': quantidade_inscritos }
-        let vagasLimite = 10;
+        let vagasLimites = {};  // { 'NomeMinicurso': limite_de_vagas }
 
         // Lock screen logic
         const lockScreen = document.getElementById('lock-screen');
@@ -468,6 +483,14 @@
                 document.getElementById('error-msg').style.display = 'block';
             }
         });
+
+        if (isChangeMode) {
+            lockScreen.style.display = 'none';
+            mainContent.style.display = 'block';
+            document.body.style.display = 'block';
+            document.body.style.alignItems = 'initial';
+            document.body.style.justifyContent = 'initial';
+        }
 
         // Lógica de Verificação de Inscrição
         const checkRegBtn = document.getElementById('check-reg-btn');
@@ -507,6 +530,7 @@
                             plannerArea.style.display = 'block';
                             greetingArea.style.display = 'block';
                             userGreeting.textContent = `Olá, ${nome}! 👋`;
+                            fetchParticipantRankings(nome, cpf);
                         });
                     } else {
                         regErrorMsg.textContent = '❌ Inscrição não encontrada. Verifique se os dados estão corretos.';
@@ -550,7 +574,7 @@
             const tipo = isExternalUser ? 'Aluno Externo' : 'Inscrito SIMOL';
 
             const formData = new URLSearchParams();
-            formData.append('action', 'inscreverMinicursos');
+            formData.append('action', isChangeMode ? 'atualizarMinicursos' : 'inscreverMinicursos');
             formData.append('nome', currentUserData.nome);
             formData.append('cpf', currentUserData.cpf);
             if (currentUserData.email) {
@@ -603,6 +627,20 @@
         const verifyFormMain = document.getElementById('verify-form-main');
         const externalFormPlaceholder = document.getElementById('external-form-placeholder');
 
+        if (isChangeMode) {
+            isExternalUser = false;
+            currentUserData = {
+                nome: pageParams.get('nome') || '',
+                cpf: (pageParams.get('cpf') || '').replace(/\D/g, '').padStart(11, '0')
+            };
+            verificationSection.style.display = 'none';
+            plannerArea.style.display = 'block';
+            greetingArea.style.display = 'block';
+            userGreeting.textContent = `Modo troca de minicursos - ${currentUserData.nome || 'participante'}`;
+            fetchVagas();
+            fetchParticipantRankings(currentUserData.nome, currentUserData.cpf);
+        }
+
         function toggleForms(showMain) {
             if (showMain) {
                 verifyFormMain.style.display = 'block';
@@ -642,17 +680,76 @@
                 .then(data => {
                     if (data.result === 'success') {
                         vagasData = data.vagas || {};
-                        vagasLimite = data.limite || 10;
+                        vagasLimites = data.limites || {};
                     }
                 })
                 .catch(err => console.error('Erro ao buscar vagas:', err));
         }
 
+        function escapeHTML(value) {
+            return String(value || '').replace(/[&<>"']/g, char => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            }[char]));
+        }
+
+        function fetchParticipantRankings(nome, cpf) {
+            if (!cpf) return;
+
+            fetch(`${scriptURL}?action=getParticipantData&cpf=${encodeURIComponent(cpf)}`, { method: 'GET' })
+                .then(r => r.json())
+                .then(data => {
+                    if (data && data.minicursos && data.minicursos.length > 0) {
+                        renderParticipantRankings(nome, cpf, data.minicursos);
+                    }
+                })
+                .catch(err => console.error('Erro ao buscar ranking dos minicursos:', err));
+        }
+
+        function renderParticipantRankings(nome, cpf, minicursos) {
+            const panel = document.getElementById('ranking-panel');
+            const content = document.getElementById('ranking-panel-content');
+            const hasWaitlist = minicursos.some(m => (m.rankings || []).some(r => !r.dentroDasVagas));
+            const rows = [];
+
+            minicursos.forEach(m => {
+                (m.rankings || []).forEach(r => {
+                    const limiteTexto = r.limite === null || r.limite === undefined ? 'vagas ilimitadas' : `${r.limite} vaga${r.limite > 1 ? 's' : ''}`;
+                    rows.push(`
+                        <div style="padding: 10px 0; border-bottom: 1px solid #eee;">
+                            <strong style="color: var(--color-4);">${escapeHTML(r.curso)}</strong>
+                            <div style="font-size: 0.85rem; margin-top: 4px;">
+                                ${r.posicao ? `Posição ${r.posicao} - ${limiteTexto}` : 'Posição ainda não calculada'}
+                            </div>
+                            <span class="vagas-badge ${r.dentroDasVagas ? 'vagas-verde' : 'vagas-vermelho'}" style="margin-top: 6px;">
+                                <span class="vagas-dot"></span>${r.dentroDasVagas ? 'Dentro das vagas' : 'Lista de espera'}
+                            </span>
+                        </div>
+                    `);
+                });
+            });
+
+            content.innerHTML = rows.join('') + (hasWaitlist && !isChangeMode ? `
+                <a href="ppgs.html?troca=1&nome=${encodeURIComponent(nome)}&cpf=${encodeURIComponent(cpf)}" style="display: inline-block; margin-top: 12px; background: var(--color-1); color: white; padding: 10px 14px; border-radius: 8px; text-decoration: none; font-weight: 700;">
+                    Trocar minicursos
+                </a>
+            ` : '');
+            panel.style.display = rows.length ? 'block' : 'none';
+        }
+
         function getVagasBadgeHTML(title) {
+            const course = courses.find(c => c.title === title);
+            const limite = vagasLimites[title] || (course ? course.limit : 10);
+            if (limite === Infinity || limite === 'Ilimitado') {
+                return '<span class="vagas-badge vagas-verde"><span class="vagas-dot"></span>Ilimitado</span>';
+            }
             const inscritos = vagasData[title] || 0;
-            const restantes = vagasLimite - inscritos;
+            const restantes = limite - inscritos;
             if (restantes <= 0) {
-                return '<span class="vagas-badge vagas-esgotado"><span class="vagas-dot"></span>Esgotado</span>';
+                return '<span class="vagas-badge vagas-vermelho"><span class="vagas-dot"></span>Lista de espera</span>';
             } else if (restantes <= 3) {
                 return `<span class="vagas-badge vagas-vermelho"><span class="vagas-dot"></span>${restantes} vaga${restantes > 1 ? 's' : ''}</span>`;
             } else if (restantes <= 6) {
@@ -660,11 +757,6 @@
             } else {
                 return `<span class="vagas-badge vagas-verde"><span class="vagas-dot"></span>${restantes} vagas</span>`;
             }
-        }
-
-        function isCourseAvailable(title) {
-            const inscritos = vagasData[title] || 0;
-            return (vagasLimite - inscritos) > 0;
         }
 
         // Funções de Interface do Planejador
@@ -684,18 +776,17 @@
 
             const deptCourses = courses.filter(c => c.dept === dept);
             deptCourses.forEach(c => {
-                const available = isCourseAvailable(c.title);
                 const item = document.createElement('div');
-                item.className = `course-item item-${c.dept}${!available ? ' esgotado' : ''}`;
+                item.className = `course-item item-${c.dept}`;
                 item.innerHTML = `
                     <div class="course-info">
                         <h4>${c.title}</h4>
-                        <div class="course-meta">${getDayName(c.day)} | ${c.period === 'morning' ? '8h-12h' : '19h-21h'}</div>
+                        <div class="course-meta">${formatCourseSchedule(c)} | ${c.ppgLabel}</div>
                         <div style="margin-top: 8px;">${getVagasBadgeHTML(c.title)}</div>
                     </div>
                     <div class="course-actions">
                         <button class="btn-details" onclick="showDetails(${c.id})">Ementa</button>
-                        <button class="btn-add" onclick="addCourse(${c.id})" ${!available ? 'disabled' : ''}>${available ? 'Adicionar' : 'Esgotado'}</button>
+                        <button class="btn-add" onclick="addCourse(${c.id})">Adicionar</button>
                     </div>
                 `;
                 container.appendChild(item);
@@ -706,16 +797,11 @@
         function addCourse(id) {
             const course = courses.find(c => c.id === id);
             
-            // Verificar vagas antes de adicionar
-            if (!isCourseAvailable(course.title)) {
-                alert(`❌ O minicurso "${course.title}" não possui mais vagas disponíveis.`);
-                return;
-            }
-
-            const conflict = selectedCourses.find(c => c.day === course.day && c.period === course.period);
+            const conflict = selectedCourses.find(c => c.period === course.period && c.days.some(day => course.days.includes(day)));
             
             if (conflict) {
-                alert(`⚠️ CONFLITO DE HORÁRIO!\n\nVocê já selecionou o minicurso "${conflict.title}" para este mesmo período (${getDayName(course.day)} - ${course.period === 'morning' ? 'Manhã' : 'Noite'}).`);
+                const overlapDays = conflict.days.filter(day => course.days.includes(day)).map(getDayName).join(', ');
+                alert(`⚠️ CONFLITO DE HORÁRIO!\n\nVocê já selecionou o minicurso "${conflict.title}" neste mesmo período (${overlapDays} - ${getPeriodName(course.period)}).`);
                 return;
             }
 
@@ -737,24 +823,27 @@
             });
 
             selectedCourses.forEach(c => {
-                const cellId = `day${c.day}-${c.period}`;
-                const cell = document.getElementById(cellId);
-                const div = document.createElement('div');
-                div.className = `scheduled-course course-${c.dept}`;
-                div.innerHTML = `
-                    <strong>${c.title}</strong>
-                    <button class="remove-btn" onclick="removeCourse(${c.id})">&times;</button>
-                `;
-                cell.appendChild(div);
+                c.days.forEach(day => {
+                    const cellId = `day${day}-${c.period}`;
+                    const cell = document.getElementById(cellId);
+                    const div = document.createElement('div');
+                    div.className = `scheduled-course course-${c.dept}`;
+                    div.innerHTML = `
+                        <strong>${c.title}</strong>
+                        <button class="remove-btn" onclick="removeCourse(${c.id})">&times;</button>
+                    `;
+                    cell.appendChild(div);
+                });
             });
         }
 
         function showDetails(id) {
             const c = courses.find(course => course.id === id);
             document.getElementById('modal-title').innerText = c.title;
-            document.getElementById('modal-meta').innerText = `${getDayName(c.day)} | ${c.period === 'morning' ? 'Manhã' : 'Noite'}`;
+            document.getElementById('modal-meta').innerText = `${formatCourseSchedule(c)} | ${c.format} | ${formatCourseLimit(c.limit)}`;
             document.getElementById('modal-syllabus').innerText = c.syllabus;
             document.getElementById('modal-instructors').innerText = c.instructors;
+            document.getElementById('modal-ppg').innerText = c.ppgLabel;
             document.getElementById('modal-overlay').style.display = 'flex';
         }
 
@@ -765,6 +854,21 @@
         function getDayName(day) {
             return ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta'][day];
         }
+
+        function getPeriodName(period) {
+            return period === 'morning' ? 'Manhã' : 'Noite';
+        }
+
+        function formatCourseSchedule(course) {
+            const days = course.days.map(getDayName).join(', ');
+            const time = course.period === 'morning' ? '8h-12h' : '19h-21h';
+            return `${days} | ${time}`;
+        }
+
+        function formatCourseLimit(limit) {
+            return limit === Infinity ? 'Vagas ilimitadas' : `${limit} vaga${limit > 1 ? 's' : ''}`;
+        }
     </script>
 </body>
 </html>
+
