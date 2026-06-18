@@ -23,7 +23,7 @@ const VAGAS_MINICURSOS = {
   'Otimizando a Bioatividade de Polissacarídeos via Síntese Orgânica': 8,
   'Biologia Sintética: Do design á síntese': 12,
   'Bioinovação: fundamens de inovação, modelagem de negócios e pitch (teoria e prática)': 30,
-  'Cultivo de células tumorais: da teoria a prática': 12,
+  'Metabolismo e viabilidade de células tumorais: modelos In vitro e In vivo no estudo do câncer': 12,
   'Genes e Medicamentos: uma introdução à farmacogenética e farmacogenômica': 20,
   'Cultivo Celular e suas Aplicações': 15,
   'Fungos endofíticos: estratégias de isolamento e prospecção enzimática': 12,
