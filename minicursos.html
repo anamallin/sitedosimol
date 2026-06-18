@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualizar Minicursos - I SIMOL</title>
+    <meta name="description" content="Visualize os minicursos do I SIMOL por programa, com texto de divulgação, horários, vagas, ementa e detalhes.">
+    <link rel="icon" type="image/png" href="Icone_Proteina_Óculos.png">
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <style>
+        body {
+            display: block;
+        }
+
+        .minicursos-page {
+            width: min(1180px, calc(100% - 32px));
+            margin: 0 auto;
+            padding: 34px 0 56px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .minicursos-topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 26px;
+        }
+
+        .minicursos-brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--color-4);
+            text-decoration: none;
+            font-weight: 800;
+        }
+
+        .minicursos-brand img {
+            width: 44px;
+            height: 44px;
+            object-fit: contain;
+            border-radius: 50%;
+            background: #fff;
+            box-shadow: 0 8px 18px rgba(103, 42, 147, 0.12);
+        }
+
+        .home-link {
+            color: var(--color-4);
+            text-decoration: none;
+            font-weight: 800;
+            padding: 10px 14px;
+            background: rgba(255, 255, 255, 0.72);
+            border: 1px solid rgba(103, 42, 147, 0.14);
+            border-radius: 999px;
+        }
+
+        .minicursos-hero {
+            display: grid;
+            grid-template-columns: 1fr 280px;
+            gap: 28px;
+            align-items: end;
+            margin-bottom: 28px;
+            padding: 34px;
+            background: rgba(255, 255, 255, 0.76);
+            border: 1px solid rgba(103, 42, 147, 0.16);
+            border-radius: 24px;
+            box-shadow: 0 22px 55px rgba(103, 42, 147, 0.12);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+        }
+
+        .minicursos-kicker {
+            color: var(--color-1);
+            font-size: 0.78rem;
+            font-weight: 900;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .minicursos-hero h1 {
+            color: var(--color-4);
+            font-size: clamp(2rem, 5vw, 4rem);
+            line-height: 0.98;
+            margin-bottom: 16px;
+        }
+
+        .minicursos-hero p {
+            max-width: 780px;
+            color: #241a30;
+            font-size: 1.05rem;
+            line-height: 1.65;
+        }
+
+        .hero-stat {
+            padding: 22px;
+            background: linear-gradient(135deg, var(--color-3), var(--color-4));
+            color: #fff;
+            border-radius: 18px;
+            box-shadow: 0 18px 32px rgba(103, 42, 147, 0.2);
+        }
+
+        .hero-stat strong {
+            display: block;
+            font-size: 3.2rem;
+            line-height: 1;
+        }
+
+        .hero-stat span {
+            display: block;
+            margin-top: 8px;
+            font-weight: 700;
+            opacity: 0.92;
+        }
+
+        .controls-panel {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 16px;
+            align-items: center;
+            margin-bottom: 22px;
+            padding: 18px;
+            background: rgba(255, 255, 255, 0.78);
+            border: 1px solid rgba(103, 42, 147, 0.12);
+            border-radius: 18px;
+            box-shadow: 0 12px 30px rgba(103, 42, 147, 0.08);
+        }
+
+        .search-wrap input {
+            width: 100%;
+            min-height: 48px;
+            padding: 13px 16px;
+            border: 1.5px solid var(--color-2);
+            border-radius: 12px;
+            color: var(--color-4);
+            background: #fff;
+            font: inherit;
+            font-weight: 650;
+            outline: none;
+        }
+
+        .search-wrap input:focus {
+            border-color: var(--color-1);
+            box-shadow: 0 0 0 4px rgba(103, 42, 147, 0.12);
+        }
+
+        .program-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .program-tab {
+            min-height: 42px;
+            padding: 10px 14px;
+            color: var(--color-4);
+            background: #fff;
+            border: 1.5px solid var(--color-2);
+            border-radius: 999px;
+            cursor: pointer;
+            font: inherit;
+            font-weight: 850;
+            transition: transform 0.18s ease, background 0.18s ease, color 0.18s ease;
+        }
+
+        .program-tab:hover,
+        .program-tab.active {
+            transform: translateY(-1px);
+            color: #fff;
+            background: var(--color-4);
+            border-color: var(--color-4);
+        }
+
+        .course-count {
+            margin: 0 0 18px 4px;
+            color: #4b4058;
+            font-weight: 750;
+        }
+
+        .courses-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
+            gap: 18px;
+        }
+
+        .course-card {
+            position: relative;
+            min-height: 315px;
+            padding: 22px;
+            overflow: hidden;
+            color: #241a30;
+            background: rgba(255, 255, 255, 0.88);
+            border: 1px solid rgba(103, 42, 147, 0.14);
+            border-top: 5px solid var(--program-color, var(--color-1));
+            border-radius: 18px;
+            box-shadow: 0 14px 35px rgba(103, 42, 147, 0.09);
+            cursor: pointer;
+            transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+        }
+
+        .course-card:hover,
+        .course-card.open {
+            transform: translateY(-3px);
+            border-color: rgba(103, 42, 147, 0.28);
+            box-shadow: 0 22px 44px rgba(103, 42, 147, 0.15);
+        }
+
+        .course-card[data-programa="Genetica"] { --program-color: #2f80c0; }
+        .course-card[data-programa="Biocel"] { --program-color: #b88716; }
+        .course-card[data-programa="Bioquimica"] { --program-color: #b64a33; }
+
+        .card-head {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            align-items: flex-start;
+            margin-bottom: 14px;
+        }
+
+        .program-pill {
+            flex: 0 0 auto;
+            padding: 7px 10px;
+            color: #fff;
+            background: var(--program-color, var(--color-1));
+            border-radius: 999px;
+            font-size: 0.72rem;
+            font-weight: 900;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        .course-card h2 {
+            color: var(--color-4);
+            font-size: 1.26rem;
+            line-height: 1.22;
+            margin-bottom: 12px;
+        }
+
+        .course-teaser {
+            color: #372e42;
+            line-height: 1.55;
+            margin-bottom: 18px;
+        }
+
+        .meta-strip {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .meta-chip {
+            padding: 7px 10px;
+            color: #4f3d5f;
+            background: #f5eef9;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            font-weight: 750;
+        }
+
+        .expand-hint {
+            color: var(--color-1);
+            font-size: 0.84rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        .course-details {
+            display: none;
+            margin-top: 18px;
+            padding-top: 18px;
+            border-top: 1px solid rgba(103, 42, 147, 0.14);
+        }
+
+        .course-card.open .course-details {
+            display: block;
+        }
+
+        .detail-block {
+            margin-bottom: 16px;
+        }
+
+        .detail-block h3 {
+            color: var(--color-4);
+            font-size: 0.86rem;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        .detail-block p {
+            color: #241a30;
+            line-height: 1.58;
+        }
+
+        .featured-text {
+            margin-bottom: 18px;
+            color: #241a30;
+            font-size: 1.02rem;
+            font-weight: 650;
+            line-height: 1.62;
+        }
+
+        .loading-state,
+        .empty-state {
+            padding: 30px;
+            text-align: center;
+            color: var(--color-4);
+            background: rgba(255, 255, 255, 0.78);
+            border: 1px solid rgba(103, 42, 147, 0.12);
+            border-radius: 18px;
+        }
+
+        @media (max-width: 760px) {
+            .minicursos-page {
+                width: min(100% - 24px, 1180px);
+                padding-top: 20px;
+            }
+
+            .minicursos-topbar,
+            .controls-panel,
+            .minicursos-hero {
+                grid-template-columns: 1fr;
+            }
+
+            .minicursos-topbar {
+                align-items: flex-start;
+            }
+
+            .minicursos-hero {
+                padding: 24px;
+            }
+
+            .hero-stat {
+                padding: 18px;
+            }
+
+            .program-tabs {
+                justify-content: flex-start;
+            }
+
+            .courses-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .course-card {
+                min-height: 0;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="background-elements">
+        <div class="parallax-layer" data-speed="-2">
+            <div class="shape shape-1"></div>
+        </div>
+        <div class="parallax-layer" data-speed="1.5">
+            <div class="shape shape-2"></div>
+        </div>
+        <div class="parallax-layer" data-speed="3">
+            <div class="shape shape-3"></div>
+        </div>
+    </div>
+
+    <main class="minicursos-page">
+        <nav class="minicursos-topbar" aria-label="Navegação">
+            <a href="index.html" class="minicursos-brand">
+                <img src="icon.png" alt="">
+                <span>I SIMOL</span>
+            </a>
+            <a href="index.html" class="home-link">Voltar para a página inicial</a>
+        </nav>
+
+        <section class="minicursos-hero">
+            <div>
+                <p class="minicursos-kicker">Ementas e detalhes</p>
+                <h1>Visualizar Minicursos</h1>
+                <p>Explore os minicursos por programa de pós-graduação. O título e o texto de divulgação ficam sempre visíveis; clique em qualquer card para abrir objetivo, ementa, metodologia, público-alvo e demais detalhes.</p>
+            </div>
+            <div class="hero-stat" aria-live="polite">
+                <strong id="hero-total">--</strong>
+                <span>minicursos disponíveis</span>
+            </div>
+        </section>
+
+        <section class="controls-panel" aria-label="Filtros dos minicursos">
+            <div class="search-wrap">
+                <input type="search" id="course-search" placeholder="Buscar por título, linha de pesquisa, ministrante ou palavra-chave">
+            </div>
+            <div class="program-tabs" id="program-tabs">
+                <button class="program-tab active" type="button" data-filter="Todos">Todos</button>
+                <button class="program-tab" type="button" data-filter="Genetica">Genética</button>
+                <button class="program-tab" type="button" data-filter="Biocel">Biocel</button>
+                <button class="program-tab" type="button" data-filter="Bioquimica">Bioquímica</button>
+            </div>
+        </section>
+
+        <p class="course-count" id="course-count">Carregando minicursos...</p>
+        <section class="courses-grid" id="courses-grid" aria-live="polite">
+            <div class="loading-state">Carregando a tabela de minicursos...</div>
+        </section>
+    </main>
+
+    <script>
+        const workbookUrl = 'Tabela%20Minicursos%20por%20PPG.xlsx';
+        const hiddenColumns = new Set([
+            'reserva de sala/laboratorio e projetor',
+            'paginas no pdf'
+        ]);
+        const state = {
+            courses: [],
+            filter: 'Todos',
+            query: ''
+        };
+
+        const headerMap = {
+            'programa de pos-graduacao': 'programa',
+            'nome do minicurso': 'titulo',
+            'numero de vagas': 'vagas',
+            'horarios': 'horarios',
+            'formato': 'formato',
+            'infraestrutura': 'infraestrutura',
+            'linhas de pesquisa/ppg': 'linhas',
+            'objetivo': 'objetivo',
+            'ementa': 'ementa',
+            'metodologia': 'metodologia',
+            'carga horaria': 'carga',
+            'publico-alvo': 'publico',
+            'responsavel': 'responsavel',
+            'ministrantes': 'ministrantes',
+            'colaboradores': 'colaboradores',
+            'pre-requisitos': 'preRequisitos',
+            'materiais que os alunos devem trazer': 'materiais',
+            'texto de divulgacao sugerido': 'divulgacao'
+        };
+
+        function normalize(value) {
+            return String(value || '')
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .toLowerCase()
+                .trim();
+        }
+
+        function escapeHTML(value) {
+            return String(value || '').replace(/[&<>"']/g, char => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            }[char]));
+        }
+
+        function programLabel(programa) {
+            if (programa === 'Genetica') return 'Genética';
+            if (programa === 'Bioquimica') return 'Bioquímica';
+            return programa || 'Programa';
+        }
+
+        function teaserText(course) {
+            return course.divulgacao || course.objetivo || 'Detalhes em breve.';
+        }
+
+        function shortText(value, limit = 430) {
+            const text = String(value || '').trim();
+            if (text.length <= limit) return text;
+            return text.slice(0, limit).replace(/\s+\S*$/, '') + '...';
+        }
+
+        function makeDetail(title, value) {
+            if (!String(value || '').trim()) return '';
+            return `
+                <div class="detail-block">
+                    <h3>${escapeHTML(title)}</h3>
+                    <p>${escapeHTML(value)}</p>
+                </div>
+            `;
+        }
+
+        function makeFeaturedText(value) {
+            if (!String(value || '').trim()) return '';
+            return `<p class="featured-text">${escapeHTML(value)}</p>`;
+        }
+
+        function courseMatches(course) {
+            const filterOk = state.filter === 'Todos' || course.programa === state.filter;
+            if (!filterOk) return false;
+
+            const query = normalize(state.query);
+            if (!query) return true;
+
+            const haystack = normalize([
+                course.titulo,
+                course.divulgacao,
+                course.linhas,
+                course.responsavel,
+                course.ministrantes,
+                course.ementa,
+                course.objetivo
+            ].join(' '));
+            return haystack.includes(query);
+        }
+
+        function renderCourses() {
+            const grid = document.getElementById('courses-grid');
+            const count = document.getElementById('course-count');
+            const visible = state.courses.filter(courseMatches);
+
+            count.textContent = `${visible.length} minicurso${visible.length === 1 ? '' : 's'} encontrado${visible.length === 1 ? '' : 's'}`;
+
+            if (!visible.length) {
+                grid.innerHTML = '<div class="empty-state">Nenhum minicurso encontrado com esses filtros.</div>';
+                return;
+            }
+
+            grid.innerHTML = visible.map((course, index) => `
+                <article class="course-card" data-programa="${escapeHTML(course.programa)}" tabindex="0" role="button" aria-expanded="false">
+                    <div class="card-head">
+                        <span class="program-pill">${escapeHTML(programLabel(course.programa))}</span>
+                        <span class="expand-hint">Clique para abrir</span>
+                    </div>
+                    <h2>${escapeHTML(course.titulo)}</h2>
+                    <p class="course-teaser">${escapeHTML(shortText(teaserText(course)))}</p>
+                    <div class="meta-strip">
+                        <span class="meta-chip">${escapeHTML(course.vagas || 'Vagas a confirmar')} vagas</span>
+                        <span class="meta-chip">${escapeHTML(course.formato || 'Formato a confirmar')}</span>
+                        <span class="meta-chip">${escapeHTML(course.carga || course.horarios || 'Carga horária a confirmar')}</span>
+                    </div>
+                    <div class="course-details">
+                        ${makeFeaturedText(course.divulgacao)}
+                        ${makeDetail('Horários', course.horarios)}
+                        ${makeDetail('Linhas de pesquisa/PPG', course.linhas)}
+                        ${makeDetail('Objetivo', course.objetivo)}
+                        ${makeDetail('Ementa', course.ementa)}
+                        ${makeDetail('Metodologia', course.metodologia)}
+                        ${makeDetail('Público-alvo', course.publico)}
+                        ${makeDetail('Responsável', course.responsavel)}
+                        ${makeDetail('Ministrantes', course.ministrantes)}
+                        ${makeDetail('Pré-requisitos', course.preRequisitos)}
+                        ${makeDetail('Materiais que os alunos devem trazer', course.materiais)}
+                        ${makeDetail('Infraestrutura', course.infraestrutura)}
+                    </div>
+                </article>
+            `).join('');
+
+            Array.from(grid.querySelectorAll('.course-card')).forEach(card => {
+                const toggle = () => {
+                    const isOpen = card.classList.toggle('open');
+                    card.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+                    card.querySelector('.expand-hint').textContent = isOpen ? 'Clique para fechar' : 'Clique para abrir';
+                };
+                card.addEventListener('click', toggle);
+                card.addEventListener('keydown', event => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        toggle();
+                    }
+                });
+            });
+        }
+
+        function parseWorkbook(workbook) {
+            const sheet = workbook.Sheets.Todos || workbook.Sheets[workbook.SheetNames[0]];
+            const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
+            const headers = rows[0].map(header => normalize(header));
+
+            return rows.slice(1)
+                .filter(row => row.some(cell => String(cell || '').trim()))
+                .map(row => {
+                    const course = {};
+                    headers.forEach((header, index) => {
+                        if (hiddenColumns.has(header)) return;
+                        const key = headerMap[header];
+                        if (key) course[key] = String(row[index] || '').trim();
+                    });
+                    return course;
+                })
+                .filter(course => course.titulo);
+        }
+
+        function loadCourses() {
+            if (!window.XLSX) {
+                throw new Error('Biblioteca de leitura da planilha indisponível.');
+            }
+
+            return fetch(workbookUrl)
+                .then(response => {
+                    if (!response.ok) throw new Error('Planilha não encontrada.');
+                    return response.arrayBuffer();
+                })
+                .then(buffer => {
+                    const workbook = XLSX.read(buffer, { type: 'array' });
+                    state.courses = parseWorkbook(workbook);
+                    document.getElementById('hero-total').textContent = state.courses.length;
+                    renderCourses();
+                });
+        }
+
+        document.getElementById('program-tabs').addEventListener('click', event => {
+            const button = event.target.closest('.program-tab');
+            if (!button) return;
+
+            state.filter = button.dataset.filter;
+            document.querySelectorAll('.program-tab').forEach(tab => tab.classList.toggle('active', tab === button));
+            renderCourses();
+        });
+
+        document.getElementById('course-search').addEventListener('input', event => {
+            state.query = event.target.value;
+            renderCourses();
+        });
+
+        loadCourses().catch(error => {
+            console.error(error);
+            document.getElementById('course-count').textContent = 'Não foi possível carregar os minicursos.';
+            document.getElementById('courses-grid').innerHTML = `
+                <div class="empty-state">
+                    Não foi possível carregar a tabela agora. Confira se o arquivo <strong>Tabela Minicursos por PPG.xlsx</strong> está na mesma pasta desta página.
+                </div>
+            `;
+        });
+    </script>
+</body>
+</html>

@@ -421,6 +421,68 @@ body {
     margin-bottom: 0;
 }
 
+.minicursos-preview-callout {
+    max-width: 78%;
+    margin: 0 0 46px;
+    padding: 26px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 24px;
+    color: #231b2f;
+    background: rgba(255, 255, 255, 0.72);
+    border: 1px solid rgba(103, 42, 147, 0.16);
+    border-left: 5px solid var(--color-1);
+    border-radius: 18px;
+    box-shadow: 0 18px 45px rgba(103, 42, 147, 0.11);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+.minicursos-preview-callout .callout-kicker {
+    margin-bottom: 8px;
+    color: var(--color-1) !important;
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.minicursos-preview-callout h2 {
+    margin-bottom: 10px;
+    color: var(--color-4);
+    font-size: 1.65rem;
+    line-height: 1.18;
+}
+
+.minicursos-preview-callout p {
+    margin-bottom: 0;
+    color: #231b2f !important;
+    line-height: 1.55;
+}
+
+.callout-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 210px;
+    min-height: 52px;
+    padding: 14px 22px;
+    color: #fff;
+    background: linear-gradient(135deg, var(--color-3), var(--color-4));
+    border-radius: 12px;
+    box-shadow: 0 10px 22px rgba(103, 42, 147, 0.22);
+    font-weight: 800;
+    text-align: center;
+    text-decoration: none;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.callout-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 16px 30px rgba(103, 42, 147, 0.28);
+}
+
 /* Buttons */
 .button-grid {
     display: flex;
@@ -1007,6 +1069,22 @@ body {
     
     .welcome-section h2 {
         font-size: 1.8rem;
+    }
+
+    .minicursos-preview-callout {
+        max-width: 100%;
+        grid-template-columns: 1fr;
+        padding: 22px;
+        margin-bottom: 34px;
+    }
+
+    .minicursos-preview-callout h2 {
+        font-size: 1.35rem;
+    }
+
+    .callout-button {
+        width: 100%;
+        min-width: 0;
     }
 
     /* Ocultar moléculas e formas animadas no celular */
