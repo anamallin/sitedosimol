@@ -62,7 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('registration-form');
     if (form) {
         // URL do Web App Apps Script (deploy fornecido)
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbyAPQuLdKcS-o_L4TtOX-LRZ0pTzFaAWhpCSxriyAzjbZLR4wRFNd2A6GbE3ZycOxho/exec'; 
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbzh9ktCnFlf_snSQtZUYZ3nj340-YTFf4M7ecaXgXQR3wTucR2Zrw54u-A2AjjEf-lPOg/exec'; 
         
         const submitBtn = document.getElementById('submit-btn');
         const spinner = submitBtn.querySelector('.spinner');
@@ -82,6 +82,46 @@ document.addEventListener('DOMContentLoaded', () => {
         const cancelPagamentoBtn = document.getElementById('cancel-pagamento-btn');
         const confirmSpinner = document.getElementById('confirm-spinner');
         const confirmBtnText = confirmPagamentoBtn ? confirmPagamentoBtn.querySelector('span') : null;
+        const pendingRegistrationRaw = localStorage.getItem('simol_registration_data');
+
+        if (pendingRegistrationRaw && formMessage) {
+            try {
+                const pendingRegistration = JSON.parse(pendingRegistrationRaw);
+                if (pendingRegistration && (pendingRegistration.nome || pendingRegistration.NOME) && (pendingRegistration.CPF || pendingRegistration.cpf)) {
+                    const resumeBox = document.createElement('div');
+                    resumeBox.className = 'form-message success';
+                    resumeBox.style.display = 'block';
+                    resumeBox.style.marginBottom = '18px';
+                    resumeBox.innerHTML = `
+                        <strong>Inscricao pendente encontrada.</strong><br>
+                        Voce pode continuar para enviar o comprovante sem preencher tudo novamente.
+                        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
+                            <button type="button" id="resume-registration-btn" class="submit-btn" style="width:auto; margin:0; padding:10px 16px;">Continuar pagamento</button>
+                            <button type="button" id="clear-registration-draft-btn" class="back-btn" style="border:none; background:transparent; cursor:pointer; margin:0; padding:10px 0;">Descartar rascunho</button>
+                        </div>
+                    `;
+                    form.parentNode.insertBefore(resumeBox, form);
+
+                    document.getElementById('resume-registration-btn').addEventListener('click', () => {
+                        window.location.href = 'planos.html';
+                    });
+                    document.getElementById('clear-registration-draft-btn').addEventListener('click', () => {
+                        localStorage.removeItem('simol_registration_data');
+                        localStorage.removeItem('simol_tipo_inscricao');
+                        localStorage.removeItem('simol_programa_pos');
+                        localStorage.removeItem('simol_cpf');
+                        localStorage.removeItem('simol_plus_produtos');
+                        localStorage.removeItem('simol_plus_total');
+                        localStorage.removeItem('simol_is_plus');
+                        localStorage.removeItem('simol_isento');
+                        localStorage.removeItem('simol_tamanho_camiseta');
+                        resumeBox.remove();
+                    });
+                }
+            } catch (err) {
+                console.error('Erro ao recuperar inscricao pendente:', err);
+            }
+        }
 
         // Ao submeter o formulário, mostra o modal de aviso primeiro
         form.addEventListener('submit', e => {
@@ -220,6 +260,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const uploadSpinner = uploadBtn.querySelector('.spinner');
         const uploadBtnText = uploadBtn.querySelector('span');
         const uploadMessage = document.getElementById('upload-message');
+        const REGISTRATION_DATA_KEY = 'simol_registration_data';
         
         // Desabilitar botão por padrão
         uploadBtn.disabled = true;
@@ -228,7 +269,39 @@ document.addEventListener('DOMContentLoaded', () => {
         let uploadCompleted = false; // Rastrear se o upload foi concluído com sucesso
 
         // URL do Web App Apps Script (deploy fornecido) - usado para uploads
-        const uploadScriptURL = 'https://script.google.com/macros/s/AKfycbyAPQuLdKcS-o_L4TtOX-LRZ0pTzFaAWhpCSxriyAzjbZLR4wRFNd2A6GbE3ZycOxho/exec'; 
+        const uploadScriptURL = 'https://script.google.com/macros/s/AKfycbzh9ktCnFlf_snSQtZUYZ3nj340-YTFf4M7ecaXgXQR3wTucR2Zrw54u-A2AjjEf-lPOg/exec'; 
+
+        function getSavedRegistrationData() {
+            try {
+                return JSON.parse(localStorage.getItem(REGISTRATION_DATA_KEY) || '{}') || {};
+            } catch (err) {
+                console.error('Erro ao recuperar dados da inscricao:', err);
+                return {};
+            }
+        }
+
+        function appendSavedRegistrationData(formData) {
+            const savedData = getSavedRegistrationData();
+            Object.keys(savedData).forEach(key => {
+                const value = Array.isArray(savedData[key]) ? savedData[key].join(', ') : savedData[key];
+                if (value !== undefined && value !== null && value !== '') {
+                    formData.append(key, value);
+                }
+            });
+            return savedData;
+        }
+
+        const savedRegistrationData = getSavedRegistrationData();
+        const savedNome = savedRegistrationData.nome || savedRegistrationData.NOME || '';
+        const savedCpf = savedRegistrationData.CPF || savedRegistrationData.cpf || localStorage.getItem('simol_cpf') || '';
+        const nomeInputUpload = document.getElementById('upload-nome');
+        const cpfHiddenUpload = document.getElementById('cpf-hidden');
+        if (nomeInputUpload && savedNome && !nomeInputUpload.value) nomeInputUpload.value = savedNome;
+        if (cpfHiddenUpload && savedCpf && !cpfHiddenUpload.value) cpfHiddenUpload.value = savedCpf.toString().replace(/\D/g, '').padStart(11, '0');
+
+        if (!savedNome || !savedCpf) {
+            showUploadMessage('Nao encontrei os dados da inscricao neste aparelho. Volte ao formulario de inscricao e preencha novamente antes de enviar o comprovante.', 'error');
+        }
 
         // Abrir seletor ao clicar
         dropArea.addEventListener('click', () => fileInput.click());
@@ -282,6 +355,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
+            const pendingRegistrationData = getSavedRegistrationData();
+            const pendingNome = pendingRegistrationData.nome || pendingRegistrationData.NOME || '';
+            const pendingCpf = pendingRegistrationData.CPF || pendingRegistrationData.cpf || localStorage.getItem('simol_cpf') || '';
+            if (!pendingNome || !pendingCpf) {
+                showUploadMessage('Nao foi possivel finalizar porque os dados da inscricao nao foram encontrados neste aparelho. Volte ao formulario de inscricao e preencha novamente; a planilha so sera atualizada depois do comprovante.', 'error');
+                return;
+            }
+
             // UI Loading State
             uploadBtn.disabled = true;
             uploadSpinner.style.display = 'block';
@@ -298,7 +379,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // Montar o formulário que será enviado
                 const formData = new URLSearchParams();
-                formData.append('nome', nome);
+                const savedData = appendSavedRegistrationData(formData);
+                const cpfFromSavedData = savedData.CPF || savedData.cpf || '';
+                const nomeFinal = savedData.nome || savedData.NOME || nome;
+                formData.append('nome', nomeFinal);
                 formData.append('tipo', tipoInscricao);
                 const programaPosInput = document.getElementById('programa-pos');
                 if (programaPosInput && programaPosInput.value) {
@@ -317,6 +401,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 const cpfInput = document.getElementById('cpf-hidden');
                 if (cpfInput && cpfInput.value) {
                     formData.append('cpf', cpfInput.value);
+                } else if (cpfFromSavedData) {
+                    formData.append('cpf', cpfFromSavedData);
                 }
 
                 formData.append('filename', selectedFile.name);
@@ -342,6 +428,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     uploadForm.reset();
                     selectedFile = null;
                     fileNameDisplay.textContent = '';
+                    localStorage.removeItem(REGISTRATION_DATA_KEY);
+                    localStorage.removeItem('simol_tipo_inscricao');
+                    localStorage.removeItem('simol_programa_pos');
+                    localStorage.removeItem('simol_cpf');
+                    localStorage.removeItem('simol_plus_produtos');
+                    localStorage.removeItem('simol_plus_total');
+                    localStorage.removeItem('simol_is_plus');
+                    localStorage.removeItem('simol_isento');
+                    localStorage.removeItem('simol_tamanho_camiseta');
                 })
                 .catch(error => {
                     console.error('Erro!', error.message);
@@ -466,7 +561,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const successModal = document.getElementById('festa-success-modal');
 
         // URL do Google Apps Script (mesmo já usado no projeto)
-        const festaScriptURL = 'https://script.google.com/macros/s/AKfycbyAPQuLdKcS-o_L4TtOX-LRZ0pTzFaAWhpCSxriyAzjbZLR4wRFNd2A6GbE3ZycOxho/exec';
+        const festaScriptURL = 'https://script.google.com/macros/s/AKfycbzh9ktCnFlf_snSQtZUYZ3nj340-YTFf4M7ecaXgXQR3wTucR2Zrw54u-A2AjjEf-lPOg/exec';
 
         let selectedOption = null;
 

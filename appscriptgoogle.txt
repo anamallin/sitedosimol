@@ -357,6 +357,42 @@ function inscricoesEsgotadasResponse_() {
   })).setMimeType(ContentService.MimeType.JSON);
 }
 
+function enviarEmailConfirmacaoInscricao_(email, nome) {
+  const emailValido = isEmailValido_(email);
+  if (!emailValido) return;
+
+  const nomeDestinatario = (nome || '').toString().trim() || 'participante';
+  const subject = 'Confirmação de inscrição - SIMOL 2026';
+  const body =
+    'Prezado(a), ' + nomeDestinatario + '.\n\n' +
+    'Sua inscrição foi realizada com sucesso.\n\n' +
+    'Agradecemos seu interesse e confirmamos o recebimento de seus dados para participação no I Simpósio Integrado de Genética, Biologia Celular e Bioquímica – UFPR (SIMOL 2026).\n\n' +
+    'As informações referentes ao evento serão enviadas para o e-mail informado no ato da inscrição.\n\n' +
+    'Caso tenha alguma dúvida, entre em contato conosco.\n\n' +
+    'Atenciosamente,\n' +
+    'Comissão Organizadora I SIMOL 2026\n' +
+    'I Simpósio Integrado de Genética, Biologia Celular e Bioquímica – UFPR\n' +
+    'simol.simposiointegrado@gmail.com | @simol.ufpr';
+  const htmlBody =
+    '<p>Prezado(a), ' + escapeHtml_(nomeDestinatario) + '.</p>' +
+    '<p>Sua inscrição foi realizada com sucesso.</p>' +
+    '<p>Agradecemos seu interesse e confirmamos o recebimento de seus dados para participação no I Simpósio Integrado de Genética, Biologia Celular e Bioquímica – UFPR (SIMOL 2026).</p>' +
+    '<p>As informações referentes ao evento serão enviadas para o e-mail informado no ato da inscrição.</p>' +
+    '<p>Caso tenha alguma dúvida, entre em contato conosco.</p>' +
+    '<p>Atenciosamente,<br>' +
+    'Comissão Organizadora I SIMOL 2026<br>' +
+    'I Simpósio Integrado de Genética, Biologia Celular e Bioquímica – UFPR<br>' +
+    'simol.simposiointegrado@gmail.com | @simol.ufpr</p>';
+
+  MailApp.sendEmail({
+    to: emailValido,
+    subject: subject,
+    body: body,
+    htmlBody: htmlBody,
+    name: 'SIMOL'
+  });
+}
+
 function initialSetup () {
   scriptProp.setProperty('key', '1Hilxni9Z-Vq7YtHQ2d7u05B7rVRkzJI8e2Upm5P9dQw');
 }
@@ -699,6 +735,7 @@ function doPost(e) {
       let nomeIndex = headers.indexOf('nome');
       let cpfIndex = headers.indexOf('cpf');
       let compIndex = headers.indexOf('comprovante');
+      let emailIndex = headers.indexOf('email');
       
       if (compIndex === -1) { 
           compIndex = headers.length; 
@@ -743,12 +780,26 @@ function doPost(e) {
       }
 
       const folder = DriveApp.getFolderById(FOLDER_ID);
+      if (!e.parameter.fileData || !e.parameter.filename) {
+        throw new Error('Comprovante não enviado.');
+      }
       const fileData = Utilities.base64Decode(e.parameter.fileData);
+      if (!fileData || fileData.length === 0) {
+        throw new Error('O arquivo do comprovante está vazio.');
+      }
       const blob = Utilities.newBlob(fileData, e.parameter.mimeType, e.parameter.nome + " - " + e.parameter.filename);
       const file = folder.createFile(blob);
+      let nomeConfirmacao = e.parameter.nome || '';
+      let emailConfirmacao = e.parameter.email || e.parameter.EMAIL || '';
       
       if (rowToUpdate !== -1) {
           sheet.getRange(rowToUpdate, compIndex + 1).setValue(file.getUrl());
+          if (!nomeConfirmacao && nomeIndex !== -1) {
+              nomeConfirmacao = data[rowToUpdate - 1][nomeIndex] || '';
+          }
+          if (!emailConfirmacao && emailIndex !== -1) {
+              emailConfirmacao = data[rowToUpdate - 1][emailIndex] || '';
+          }
           if (e.parameter.PRODUTOS) {
               sheet.getRange(rowToUpdate, prodIndex + 1).setValue(e.parameter.PRODUTOS);
           }
@@ -771,6 +822,15 @@ function doPost(e) {
             return e.parameter[hOrig] || e.parameter[hLower] || e.parameter[hOrig.toUpperCase()] || '';
           });
           sheet.getRange(nextRow, 1, 1, newRowData.length).setValues([newRowData]);
+          if (!emailConfirmacao) {
+              const originalEmailIndex = originalHeaders.map(function(header) { return header.toString().toLowerCase().trim(); }).indexOf('email');
+              if (originalEmailIndex !== -1) emailConfirmacao = newRowData[originalEmailIndex] || '';
+          }
+      }
+      try {
+        enviarEmailConfirmacaoInscricao_(emailConfirmacao, nomeConfirmacao);
+      } catch (emailError) {
+        console.error('Erro ao enviar confirmação de inscrição para ' + emailConfirmacao + ': ' + emailError.toString());
       }
       return ContentService.createTextOutput(JSON.stringify({ 'result': 'success', 'fileUrl': file.getUrl() })).setMimeType(ContentService.MimeType.JSON);
     }
