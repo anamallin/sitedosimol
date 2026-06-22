@@ -315,11 +315,11 @@
                             <td id="day4-morning"><span class="period-label">Manhã (8h-12h)</span></td>
                         </tr>
                         <tr>
-                            <td id="day0-night"><span class="period-label">Noite (19h-21h)</span></td>
-                            <td id="day1-night"><span class="period-label">Noite (19h-21h)</span></td>
-                            <td id="day2-night"><span class="period-label">Noite (19h-21h)</span></td>
-                            <td id="day3-night"><span class="period-label">Noite (19h-21h)</span></td>
-                            <td id="day4-night"><span class="period-label">Noite (19h-21h)</span></td>
+                            <td id="day0-night"><span class="period-label">Noite (18h30-21h30)</span></td>
+                            <td id="day1-night"><span class="period-label">Noite (18h30-21h30)</span></td>
+                            <td id="day2-night"><span class="period-label">Noite (18h30-21h30)</span></td>
+                            <td id="day3-night"><span class="period-label">Noite (18h30-21h30)</span></td>
+                            <td id="day4-night"><span class="period-label">Noite (18h30-21h30)</span></td>
                         </tr>
                     </tbody>
                 </table>
@@ -932,7 +932,7 @@
 
         function formatCourseSchedule(course) {
             const days = course.days.map(getDayName).join(', ');
-            const time = course.period === 'morning' ? '8h-12h' : '19h-21h';
+            const time = course.period === 'morning' ? '8h-12h' : '18h30-21h30';
             return `${days} | ${time}`;
         }
 
