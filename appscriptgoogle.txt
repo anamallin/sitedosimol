@@ -34,8 +34,7 @@ const VAGAS_MINICURSOS = {
   'Genotoxicidade em Organismos Aquáticos: Fundamentos e Aplicações do Ensaio Cometa': 10,
   'Proteômica baseada em espectrometria de massas': 10,
   'Princípios e Aplicações da Extração de DNA': 10,
-  'Inteligência Artificial e Dados Biológicos': null,
-  '123': 1
+  'Inteligência Artificial e Dados Biológicos': null
 };
 
 function getLimiteMinicurso_(curso) {
@@ -65,8 +64,7 @@ const CRONOGRAMA_MINICURSOS = {
   'Genotoxicidade em Organismos Aquáticos: Fundamentos e Aplicações do Ensaio Cometa': { days: [1, 2], period: 'night' },
   'Proteômica baseada em espectrometria de massas': { days: [2, 3], period: 'morning' },
   'Princípios e Aplicações da Extração de DNA': { days: [1, 2], period: 'morning' },
-  'Inteligência Artificial e Dados Biológicos': { days: [2, 3], period: 'night' },
-  '123': { days: [4], period: 'night' }
+  'Inteligência Artificial e Dados Biológicos': { days: [2, 3], period: 'night' }
 };
 
 function verificarConflitosMinicursos_(minicursosStr) {
