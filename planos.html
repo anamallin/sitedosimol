@@ -151,7 +151,7 @@
             <!-- Plano Padrão -->
             <div class="plano-card">
                 <h2 class="plano-title" id="plano-basico-title">Inscrição Padrão</h2>
-                <div class="plano-price" id="plano-basico-price">R$ 40<span>,00</span></div>
+                <div class="plano-price" id="plano-basico-price">R$ 60<span>,00</span></div>
                 
                 <ul class="plano-features">
                     <li>Acesso a todas as palestras</li>
@@ -290,7 +290,7 @@
             const tipo = localStorage.getItem('simol_tipo_inscricao');
             const programa = localStorage.getItem('simol_programa_pos');
             const specialProgram = tipo === 'Pós-Graduação Participante' && programa === 'Biologia Celular e Molecular';
-            let valorBase = 40.00;
+            let valorBase = 60.00;
 
             if (specialProgram) {
                 document.getElementById('plano-basico-title').textContent = 'Isento';
@@ -308,12 +308,12 @@
                 if (btnVerProdutos) btnVerProdutos.textContent = 'Adicionar Produtos';
             } else if (tipo === 'Pós-Graduação Participante') {
                 document.getElementById('plano-basico-title').textContent = 'Inscrição Pós-Graduação';
-                document.getElementById('plano-basico-price').innerHTML = 'R$ 31<span>,00</span>';
-                valorBase = 31.00;
+                document.getElementById('plano-basico-price').innerHTML = 'R$ 60<span>,00</span>';
+                valorBase = 60.00;
             } else {
                 document.getElementById('plano-basico-title').textContent = 'Inscrição Padrão';
-                document.getElementById('plano-basico-price').innerHTML = 'R$ 40<span>,00</span>';
-                valorBase = 40.00;
+                document.getElementById('plano-basico-price').innerHTML = 'R$ 60<span>,00</span>';
+                valorBase = 60.00;
             }
 
             // Lógica dos Produtos Plus
