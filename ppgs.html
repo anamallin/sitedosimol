@@ -398,7 +398,7 @@
     </div>
 
     <script>
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbzD_evSt1OS_gd_M-VqlD5mX-S1C_V877YYFjgQP-7fpHn2NY9GSkn6lpYoVwcR5J4cHA/exec';
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbxIejfvVd-LOOL3KPf7KjfzrEzFkUemlZf7XyhmHEhVrgpmZG32fW_-tpZQ5ox_VvPLMA/exec';
         const pageParams = new URLSearchParams(window.location.search);
         const isChangeMode = pageParams.get('troca') === '1';
 
@@ -436,6 +436,7 @@
         let currentUserData = { nome: '', cpf: '' };
         let vagasData = {};  // { 'NomeMinicurso': quantidade_inscritos }
         let vagasLimites = {};  // { 'NomeMinicurso': limite_de_vagas }
+        let currentDept = null;
 
         // Lógica de Verificação de Inscrição
         const checkRegBtn = document.getElementById('check-reg-btn');
@@ -824,7 +825,8 @@
         }
 
         // Funções de Interface do Planejador
-        function showCourses(dept) {
+        function showCourses(dept, shouldScroll = true) {
+            currentDept = dept;
             const section = document.getElementById('course-list-section');
             const container = document.getElementById('course-container');
             const cards = document.querySelectorAll('.dept-card');
@@ -843,10 +845,11 @@
                 const item = document.createElement('div');
                 item.className = `course-item item-${c.dept}`;
                 const isSelected = selectedCourses.some(course => course.id === c.id);
-                // Determine if there is a schedule conflict with already selected courses
+                // Determine if there is a schedule conflict with already selected courses (excluding itself)
                 const normPeriod = String(c.period || '').toLowerCase();
                 const normDays = (c.days || []).map(d => Number(d));
                 const hasConflict = selectedCourses.some(sel => {
+                    if (sel.id === c.id) return false;
                     const selPeriod = String(sel.period || '').toLowerCase();
                     const selDays = (sel.days || []).map(d => Number(d));
                     return selPeriod === normPeriod && selDays.some(sd => normDays.includes(sd));
@@ -865,7 +868,9 @@
                 `;
                 container.appendChild(item);
             });
-            section.scrollIntoView({ behavior: 'smooth' });
+            if (shouldScroll) {
+                section.scrollIntoView({ behavior: 'smooth' });
+            }
         }
 
         function addCourse(id) {
@@ -924,6 +929,11 @@
                     cell.appendChild(div);
                 });
             });
+
+            // Refresh the courses list buttons visual state
+            if (currentDept) {
+                showCourses(currentDept, false);
+            }
         }
 
         function showDetails(id) {

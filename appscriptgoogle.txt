@@ -42,6 +42,66 @@ function getLimiteMinicurso_(curso) {
   return Object.prototype.hasOwnProperty.call(VAGAS_MINICURSOS, curso) ? VAGAS_MINICURSOS[curso] : 10;
 }
 
+const CRONOGRAMA_MINICURSOS = {
+  'Expressão e purificação de Proteínas': { days: [1, 2, 3], period: 'morning' },
+  'Toxicologia Celular': { days: [1, 2, 3], period: 'morning' },
+  'Biomarcadores: da teoria à prática experimental': { days: [1, 2, 3], period: 'morning' },
+  'Tópicos básicos em biologia molecular, bioinformática e cultivo celular': { days: [1, 2, 3], period: 'morning' },
+  'Introdução a Biologia da Interação Patógeno-Hospedeiro': { days: [1, 2, 3], period: 'morning' },
+  'Introdução ao cultivo celular': { days: [1, 2, 3], period: 'morning' },
+  'Desvendando os Peixes Antárticos: Ecofisiologia e Biologia Celular e Molecular Aplicada': { days: [1, 2, 3], period: 'morning' },
+  'Explorando a biologia através do nematoide C. elegans: aplicações como modelo animal em estudos biológicos, genéticos e comportamentais.': { days: [1, 2], period: 'morning' },
+  'Nanotecnologia em Saúde: De Nanopartículas a Vacinas': { days: [1, 2], period: 'morning' },
+  'Análise Eletroforética de Proteínas por SDS-PAGE': { days: [1], period: 'morning' },
+  'Otimizando a Bioatividade de Polissacarídeos via Síntese Orgânica': { days: [3], period: 'morning' },
+  'Biologia Sintética: Do design á síntese': { days: [1, 2, 3], period: 'morning' },
+  'Bioinovação: fundamens de inovação, modelagem de negócios e pitch (teoria e prática)': { days: [1, 2], period: 'night' },
+  'Metabolismo e viabilidade de células tumorais: models In vitro e In vivo no estudo do câncer': { days: [2, 3], period: 'morning' },
+  'Genes e Medicamentos: uma introdução à farmacogenética e farmacogenômica': { days: [1], period: 'night' },
+  'Cultivo Celular e suas Aplicações': { days: [2, 3], period: 'morning' },
+  'Fungos endofíticos: estratégias de isolamento e prospecção enzimática': { days: [1, 2, 3], period: 'morning' },
+  'Clinical Interpretation of Genomic Variants: Application of ACMG Criteria in Exome Sequencing Data. (Interpretação Clínica de Variantes Genômicas: Aplicação dos Critérios do ACMG em Dados de Sequenciamento do Exoma.)': { days: [1, 2], period: 'morning' },
+  'Epigenética e Exposoma relacionado ao DOHaD (Developmental origins of health and disease)': { days: [1, 2], period: 'morning' },
+  'Genotoxicidade em Organismos Aquáticos: Fundamentos e Aplicações do Ensaio Cometa': { days: [1, 2], period: 'night' },
+  'Proteômica baseada em espectrometria de massas': { days: [2, 3], period: 'morning' },
+  'Princípios e Aplicações da Extração de DNA': { days: [1, 2], period: 'morning' },
+  'Inteligência Artificial e Dados Biológicos': { days: [2, 3], period: 'night' },
+  '123': { days: [4], period: 'night' }
+};
+
+function verificarConflitosMinicursos_(minicursosStr) {
+  if (!minicursosStr) return null;
+  const listaCursos = minicursosStr.toString().split(',').map(function(c) { return c.trim(); }).filter(function(c) { return c; });
+  
+  for (var i = 0; i < listaCursos.length; i++) {
+    var cursoA = listaCursos[i];
+    var schedA = CRONOGRAMA_MINICURSOS[cursoA];
+    if (!schedA) continue;
+    
+    for (var j = i + 1; j < listaCursos.length; j++) {
+      var cursoB = listaCursos[j];
+      var schedB = CRONOGRAMA_MINICURSOS[cursoB];
+      if (!schedB) continue;
+      
+      if (schedA.period === schedB.period) {
+        // Verifica se há pelo menos um dia em comum
+        for (var k = 0; k < schedA.days.length; k++) {
+          var day = schedA.days[k];
+          if (schedB.days.indexOf(day) !== -1) {
+            return {
+              curso1: cursoA,
+              curso2: cursoB,
+              dia: day,
+              periodo: schedA.period
+            };
+          }
+        }
+      }
+    }
+  }
+  return null;
+}
+
 function normalizarCpf_(cpf) {
   const digits = (cpf || '').toString().replace(/\D/g, '');
   return digits ? digits.padStart(11, '0') : '';
@@ -435,6 +495,15 @@ function doPost(e) {
 
     // ====== 1. INSCRIÇÃO EM MINICURSOS ======
     if (action === 'inscreverMinicursos') {
+      const conflito = verificarConflitosMinicursos_(e.parameter.minicursos);
+      if (conflito) {
+        const diaNome = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta'][conflito.dia];
+        const periodoNome = conflito.periodo === 'morning' ? 'Manhã' : 'Noite';
+        return ContentService.createTextOutput(JSON.stringify({
+          result: 'error',
+          message: 'Conflito de horário detectado: "' + conflito.curso1 + '" e "' + conflito.curso2 + '" ocorrem no mesmo período (' + diaNome + ' - ' + periodoNome + ').'
+        })).setMimeType(ContentService.MimeType.JSON);
+      }
       const cpfBusca = (e.parameter.cpf || '').replace(/\D/g, '').padStart(11, '0');
       const sheetPrincipal = doc.getSheetByName(sheetName);
       const dataPrincipal = sheetPrincipal.getDataRange().getValues();
@@ -519,6 +588,15 @@ function doPost(e) {
 
     // ====== 1.1. TROCAR MINICURSOS QUANDO ESTIVER NA LISTA DE ESPERA ======
     else if (action === 'atualizarMinicursos') {
+      const conflito = verificarConflitosMinicursos_(e.parameter.minicursos);
+      if (conflito) {
+        const diaNome = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta'][conflito.dia];
+        const periodoNome = conflito.periodo === 'morning' ? 'Manhã' : 'Noite';
+        return ContentService.createTextOutput(JSON.stringify({
+          result: 'error',
+          message: 'Conflito de horário detectado: "' + conflito.curso1 + '" e "' + conflito.curso2 + '" ocorrem no mesmo período (' + diaNome + ' - ' + periodoNome + ').'
+        })).setMimeType(ContentService.MimeType.JSON);
+      }
       const cpfBusca = normalizarCpf_(e.parameter.cpf);
       const sheetPrincipal = doc.getSheetByName(sheetName);
       const ssMinicursos = SpreadsheetApp.openById(ID_PLANILHA_MINICURSOS);
@@ -560,6 +638,15 @@ function doPost(e) {
 
     // ====== 1.2. PRÉVIA DE RANKING SEM GRAVAR NA PLANILHA ======
     else if (action === 'previewRankingMinicursos') {
+      const conflito = verificarConflitosMinicursos_(e.parameter.minicursos);
+      if (conflito) {
+        const diaNome = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta'][conflito.dia];
+        const periodoNome = conflito.periodo === 'morning' ? 'Manhã' : 'Noite';
+        return ContentService.createTextOutput(JSON.stringify({
+          result: 'error',
+          message: 'Conflito de horário detectado: "' + conflito.curso1 + '" e "' + conflito.curso2 + '" ocorrem no mesmo período (' + diaNome + ' - ' + periodoNome + ').'
+        })).setMimeType(ContentService.MimeType.JSON);
+      }
       const cpfBusca = normalizarCpf_(e.parameter.cpf);
       const sheetPrincipal = doc.getSheetByName(sheetName);
       const ssMinicursos = SpreadsheetApp.openById(ID_PLANILHA_MINICURSOS);
