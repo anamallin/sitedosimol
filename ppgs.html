@@ -422,7 +422,7 @@
             { id: 15, dept: 'GENETICA', ppgLabel: 'PPG em Genética', title: 'Genes e Medicamentos: uma introdução à farmacogenética e farmacogenômica', days: [1], period: 'night', limit: 20, format: 'Presencial', instructors: 'João Vitor Mello Hortega e Jeferson Machado Batista Sohn', syllabus: 'Bases de genética e farmacologia, com discussão de artigos sobre como características genéticas influenciam a resposta a medicamentos e os fundamentos da farmacogenética e farmacogenômica.' },
             { id: 16, dept: 'GENETICA', ppgLabel: 'PPG em Genética', title: 'Cultivo Celular e suas Aplicações', days: [2, 3], period: 'morning', limit: 15, format: 'Presencial', instructors: 'Vitória Colucci de Oliveira, Hugo Catiano Paes Junior e Milena Rocha Sampaio', syllabus: 'Fundamentos do cultivo celular, linhagens celulares, rotina laboratorial, princípios dos 3Rs e biomarcadores de citotoxicidade, genotoxicidade, estresse oxidativo, expressão gênica e morte celular.' },
             { id: 17, dept: 'GENETICA', ppgLabel: 'PPG em Genética', title: 'Fungos endofíticos: estratégias de isolamento e prospecção enzimática', days: [1, 2, 3], period: 'morning', limit: 12, format: 'Presencial', instructors: 'Vinícius da Luz Redígolo', syllabus: 'Biologia, diversidade e relevância biotecnológica de fungos endofíticos, com coleta e preparo vegetal, desinfestação superficial, isolamento, identificação, preservação e triagem enzimática.' },
-            { id: 18, dept: 'GENETICA', ppgLabel: 'PPG em Genética', title: 'Clinical Interpretation of Genomic Variants: Application of ACMG Criteria in Exome Sequencing Data. (Interpretação Clínica de Variantes Genômicas: Aplicação dos Critérios do ACMG em Dados de Sequenciamento do Exoma.)', days: [1, 2], period: 'night', limit: 12, format: 'Remota', instructors: 'Dr. Tiago Fernando Chaves (UFSC)', syllabus: 'Fundamentos do sequenciamento de exoma, fluxo FASTQ-VCF, critérios ACMG/AMP e refinamentos ClinGen, bases de referência, preditores in silico, modos de herança e uso prático da plataforma Franklin by Genoox.' },
+            { id: 18, dept: 'GENETICA', ppgLabel: 'PPG em Genética', title: 'Clinical Interpretation of Genomic Variants: Application of ACMG Criteria in Exome Sequencing Data. (Interpretação Clínica de Variantes Genômicas: Aplicação dos Critérios do ACMG em Dados de Sequenciamento do Exoma.)', days: [1, 2], period: 'morning', limit: 12, format: 'Remota', instructors: 'Dr. Tiago Fernando Chaves (UFSC)', syllabus: 'Fundamentos do sequenciamento de exoma, fluxo FASTQ-VCF, critérios ACMG/AMP e refinamentos ClinGen, bases de referência, preditores in silico, modos de herança e uso prático da plataforma Franklin by Genoox.' },
             { id: 19, dept: 'GENETICA', ppgLabel: 'PPG em Genética', title: 'Epigenética e Exposoma relacionado ao DOHaD (Developmental origins of health and disease)', days: [1, 2], period: 'morning', limit: Infinity, format: 'Remoto', instructors: 'Profa. Dra. Stephanie Rubianne Silva Carvalhal, Profa. MSc. Ana Cláudia Thomaz, Profa. MSc. Ana Paolla Protachevicz, MSc. Fernanda Vitório da Silva e Raphaela Ohana Rios', syllabus: 'Epigenética e exposoma aplicados ao DOHaD, incluindo dieta, microbiota, exercício, estresse, marcas epigenéticas nos primeiros ciclos de vida e resolução de caso por aprendizagem baseada em problemas.' },
             { id: 20, dept: 'GENETICA', ppgLabel: 'PPG em Genética', title: 'Genotoxicidade em Organismos Aquáticos: Fundamentos e Aplicações do Ensaio Cometa', days: [1, 2], period: 'night', limit: 10, format: 'Presencial', instructors: 'Luis Phelipe de Souza Miranda, Gabriel da Silva e Gustavo Martello Wiener', syllabus: 'Ecotoxicologia, genotoxicidade, dano ao DNA, princípios e aplicações do ensaio cometa, modificações do método, preparo de lâminas, eletroforese, coloração e análise visual dos resultados.' },
             { id: 21, dept: 'GENETICA', ppgLabel: 'PPG em Genética', title: 'Proteômica baseada em espectrometria de massas', days: [2, 3], period: 'morning', limit: 10, format: 'Presencial', instructors: 'Ana Carolina Mallin, João Vitor Mello Hortega, Talita Helen Bombardelli Gomig, Isadora Fantaloche, Ana Júlia P. de Lima e Juliana da Costa Moraes', syllabus: 'Conceitos de proteômica, princípios de espectrometria de massas, aplicações em pesquisa, processamento de amostras e simulação/análise de dados proteômicos em softwares como Perseus e R.' },
@@ -843,6 +843,15 @@
                 const item = document.createElement('div');
                 item.className = `course-item item-${c.dept}`;
                 const isSelected = selectedCourses.some(course => course.id === c.id);
+                // Determine if there is a schedule conflict with already selected courses
+                const normPeriod = String(c.period || '').toLowerCase();
+                const normDays = (c.days || []).map(d => Number(d));
+                const hasConflict = selectedCourses.some(sel => {
+                    const selPeriod = String(sel.period || '').toLowerCase();
+                    const selDays = (sel.days || []).map(d => Number(d));
+                    return selPeriod === normPeriod && selDays.some(sd => normDays.includes(sd));
+                });
+
                 item.innerHTML = `
                     <div class="course-info">
                         <h4>${c.title}</h4>
@@ -851,7 +860,7 @@
                     </div>
                     <div class="course-actions">
                         <button class="btn-details" onclick="showDetails(${c.id})">Ementa</button>
-                        <button class="btn-add" onclick="addCourse(${c.id})">${isSelected ? 'Selecionado' : 'Adicionar'}</button>
+                        <button class="btn-add" ${isSelected ? 'disabled' : (hasConflict ? 'disabled title="Conflito de horário"' : '')} onclick="addCourse(${c.id})">${isSelected ? 'Selecionado' : (hasConflict ? 'Conflito' : 'Adicionar')}</button>
                     </div>
                 `;
                 container.appendChild(item);
@@ -867,11 +876,20 @@
                 alert('Este minicurso já está no seu quadro semanal.');
                 return;
             }
-            
-            const conflict = selectedCourses.find(c => c.period === course.period && c.days.some(day => course.days.includes(day)));
-            
+
+            // Normalizar período e dias
+            const normPeriod = String(course.period || '').toLowerCase();
+            const normDays = (course.days || []).map(d => Number(d));
+
+            // Verificação robusta de conflito: mesmo período e pelo menos um dia em comum
+            const conflict = selectedCourses.find(sel => {
+                const selPeriod = String(sel.period || '').toLowerCase();
+                const selDays = (sel.days || []).map(d => Number(d));
+                return selPeriod === normPeriod && selDays.some(sd => normDays.includes(sd));
+            });
+
             if (conflict) {
-                const overlapDays = conflict.days.filter(day => course.days.includes(day)).map(getDayName).join(', ');
+                const overlapDays = (conflict.days || []).filter(day => normDays.includes(day)).map(getDayName).join(', ');
                 alert(`⚠️ CONFLITO DE HORÁRIO!\n\nVocê já selecionou o minicurso "${conflict.title}" neste mesmo período (${overlapDays} - ${getPeriodName(course.period)}).`);
                 return;
             }
