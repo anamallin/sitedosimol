@@ -69,13 +69,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const btnText = submitBtn.querySelector('span');
         const formMessage = document.getElementById('form-message');
         const SOLD_OUT_MESSAGE = 'inscrições esgotadas';
-        const OPEN_POS_PROGRAM = 'Biologia Celular e Molecular';
-
-        function isRegistrationAllowed(formData) {
-            return formData.get('TIPO_INSCRICAO') === 'Pós-Graduação Participante' &&
-                formData.get('PROGRAMA_POS') === OPEN_POS_PROGRAM;
-        }
-
         // Modal de aviso pré-pagamento
         const avisoPagamentoModal = document.getElementById('aviso-pagamento-modal');
         const confirmPagamentoBtn = document.getElementById('confirm-pagamento-btn');
@@ -139,10 +132,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const formData = new FormData(form);
-            if (!isRegistrationAllowed(formData)) {
-                showMessage(SOLD_OUT_MESSAGE, 'error');
-                return;
-            }
 
             // Abre o modal de aviso
             avisoPagamentoModal.style.display = 'flex';
@@ -174,15 +163,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // Coletar dados via FormData
                 const formData = new FormData(form);
-                if (!isRegistrationAllowed(formData)) {
-                    avisoPagamentoModal.style.display = 'none';
-                    showMessage(SOLD_OUT_MESSAGE, 'error');
-                    confirmPagamentoBtn.disabled = false;
-                    confirmSpinner.style.display = 'none';
-                    confirmBtnText.textContent = 'Entendi, prosseguir para pagamento';
-                    return;
-                }
-
                 const cpfValue = formData.get('CPF') ? formData.get('CPF').replace(/\D/g, '').padStart(11, '0') : '';
 
                 if (!cpfValue) {
@@ -201,6 +181,12 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (result.encontrado) {
                             avisoPagamentoModal.style.display = 'none';
                             showMessage('Este CPF já possui uma inscrição cadastrada.', 'error');
+                            confirmPagamentoBtn.disabled = false;
+                            confirmSpinner.style.display = 'none';
+                            confirmBtnText.textContent = 'Entendi, prosseguir para pagamento';
+                        } else if (result.inscricoesAbertas === false) {
+                            avisoPagamentoModal.style.display = 'none';
+                            showMessage(SOLD_OUT_MESSAGE, 'error');
                             confirmPagamentoBtn.disabled = false;
                             confirmSpinner.style.display = 'none';
                             confirmBtnText.textContent = 'Entendi, prosseguir para pagamento';

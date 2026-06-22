@@ -8,6 +8,8 @@ const FOLDER_ID_SUBMISSOES = '17eSmJzlW9EFekcDinmRwM8LRgk3Xagd4'; // Pasta de ar
 const scriptProp = PropertiesService.getScriptProperties();
 const INSCRICOES_ESGOTADAS_MESSAGE = 'inscrições esgotadas';
 const PROGRAMA_POS_LIBERADO = 'Biologia Celular e Molecular';
+const LIMITE_INSCRICOES_NORMAIS_REABERTAS = 100;
+const PROP_INSCRICOES_NORMAIS_REABERTAS_USADAS = 'inscricoes_normais_reabertas_usadas';
 const AREA_INSCRITO_URL = 'https://www.simol2026.com.br/area-inscrito.html';
 const VAGAS_MINICURSOS = {
   'Expressão e purificação de Proteínas': 6,
@@ -350,6 +352,25 @@ function isInscricaoLiberada_(params) {
   ) || params.tipo === 'Pós-Graduação Biologia Celular e Molecular';
 }
 
+function getInscricoesNormaisReabertasUsadas_() {
+  const usadas = parseInt(scriptProp.getProperty(PROP_INSCRICOES_NORMAIS_REABERTAS_USADAS) || '0', 10);
+  return isNaN(usadas) ? 0 : usadas;
+}
+
+function getVagasInscricoesNormaisReabertasRestantes_() {
+  return Math.max(0, LIMITE_INSCRICOES_NORMAIS_REABERTAS - getInscricoesNormaisReabertasUsadas_());
+}
+
+function isInscricaoNormalReabertaDisponivel_() {
+  return getVagasInscricoesNormaisReabertasRestantes_() > 0;
+}
+
+function registrarUsoInscricaoNormalReaberta_() {
+  const usadas = getInscricoesNormaisReabertasUsadas_() + 1;
+  scriptProp.setProperty(PROP_INSCRICOES_NORMAIS_REABERTAS_USADAS, String(usadas));
+  return usadas;
+}
+
 function inscricoesEsgotadasResponse_() {
   return ContentService.createTextOutput(JSON.stringify({
     result: 'error',
@@ -403,9 +424,11 @@ function doGet(e) {
 
 function doPost(e) {
   const lock = LockService.getScriptLock();
-  lock.tryLock(10000);
+  let lockAcquired = false;
 
   try {
+    lock.waitLock(30000);
+    lockAcquired = true;
     const action = e.parameter.action;
     const spreadsheetId = scriptProp.getProperty('key') || SpreadsheetApp.getActiveSpreadsheet().getId();
     const doc = SpreadsheetApp.openById(spreadsheetId);
@@ -805,7 +828,7 @@ function doPost(e) {
           headers.push('tamanho_camiseta');
       }
 
-      if (rowToUpdate === -1 && !isInscricaoLiberada_(e.parameter)) {
+      if (rowToUpdate === -1 && !isInscricaoNormalReabertaDisponivel_()) {
         return inscricoesEsgotadasResponse_();
       }
 
@@ -852,6 +875,7 @@ function doPost(e) {
             return e.parameter[hOrig] || e.parameter[hLower] || e.parameter[hOrig.toUpperCase()] || '';
           });
           sheet.getRange(nextRow, 1, 1, newRowData.length).setValues([newRowData]);
+          registrarUsoInscricaoNormalReaberta_();
           if (!emailConfirmacao) {
               const originalEmailIndex = originalHeaders.map(function(header) { return header.toString().toLowerCase().trim(); }).indexOf('email');
               if (originalEmailIndex !== -1) emailConfirmacao = newRowData[originalEmailIndex] || '';
@@ -903,7 +927,11 @@ function doPost(e) {
           if (cpfSheet === cpfBusca) { encontrado = true; break; }
         }
       }
-      return ContentService.createTextOutput(JSON.stringify({ encontrado: encontrado })).setMimeType(ContentService.MimeType.JSON);
+      return ContentService.createTextOutput(JSON.stringify({
+        encontrado: encontrado,
+        inscricoesAbertas: isInscricaoNormalReabertaDisponivel_(),
+        vagasRestantes: getVagasInscricoesNormaisReabertasRestantes_()
+      })).setMimeType(ContentService.MimeType.JSON);
     }
 
     // ====== 6. BUSCAR DADOS COMPLETOS DO PARTICIPANTE (DASHBOARD) ======
@@ -1067,43 +1095,15 @@ function doPost(e) {
 
     // ====== 7. INSCRIÇÃO NORMAL (Dados do Formulário) ======
     else {
-      if (!isInscricaoLiberada_(e.parameter)) {
-        return inscricoesEsgotadasResponse_();
-      }
-
-      const sheetBase = doc.getSheetByName(sheetName);
-      const dataBase = sheetBase.getDataRange().getValues();
-      const headersBase = dataBase[0];
-      
-      // Busca o índice da coluna CPF para verificar duplicatas
-      const cpfColIndex = headersBase.findIndex(h => h.toString().toUpperCase() === 'CPF');
-      const newCpf = (e.parameter['CPF'] || '').replace(/\D/g, '').padStart(11, '0');
-
-      if (cpfColIndex !== -1) {
-        for (let i = 1; i < dataBase.length; i++) {
-          let sheetCpf = (dataBase[i][cpfColIndex] || '').toString().replace(/\D/g, '').padStart(11, '0');
-          if (sheetCpf === newCpf) {
-            return ContentService.createTextOutput(JSON.stringify({ 
-              'result': 'error', 
-              'message': 'Este CPF já possui uma inscrição cadastrada.' 
-            })).setMimeType(ContentService.MimeType.JSON);
-          }
-        }
-      }
-
-      const nextRow = sheetBase.getLastRow() + 1;
-      const newRowData = headersBase.map(function(header) {
-        if (header === 'Data') return new Date();
-        if (header === 'CPF') return "'" + (e.parameter['CPF'] || '');
-        return e.parameter[header] || '';
-      });
-      sheetBase.getRange(nextRow, 1, 1, newRowData.length).setValues([newRowData]);
-      return ContentService.createTextOutput(JSON.stringify({ 'result': 'success' })).setMimeType(ContentService.MimeType.JSON);
+      return ContentService.createTextOutput(JSON.stringify({
+        result: 'error',
+        message: 'A inscrição só é gravada após o envio do comprovante.'
+      })).setMimeType(ContentService.MimeType.JSON);
     }
 
   } catch (error) {
     return ContentService.createTextOutput(JSON.stringify({ 'result': 'error', 'error': error.toString() })).setMimeType(ContentService.MimeType.JSON);
   } finally {
-    lock.releaseLock();
+    if (lockAcquired) lock.releaseLock();
   }
 }
