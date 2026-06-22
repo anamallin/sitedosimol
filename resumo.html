@@ -478,11 +478,20 @@
             </div>
 
             <div class="form-section">
-                <label>Arquivo da submissão</label>
-                <label class="file-upload-box" id="sub-file-box">
-                    <input type="file" id="sub-arquivo" required accept=".pdf,application/pdf">
-                    <strong>Clique para selecionar o PDF</strong>
-                    <span id="sub-file-name">Formato aceito: PDF.</span>
+                <label>Arquivo identificado</label>
+                <label class="file-upload-box" id="sub-file-identificado-box">
+                    <input type="file" id="sub-arquivo-identificado" required accept=".pdf,application/pdf">
+                    <strong>Clique para selecionar o PDF identificado</strong>
+                    <span id="sub-file-identificado-name">Formato aceito: PDF.</span>
+                </label>
+            </div>
+
+            <div class="form-section">
+                <label>Arquivo sem identificação</label>
+                <label class="file-upload-box" id="sub-file-sem-identificacao-box">
+                    <input type="file" id="sub-arquivo-sem-identificacao" required accept=".pdf,application/pdf">
+                    <strong>Clique para selecionar o PDF sem identificação</strong>
+                    <span id="sub-file-sem-identificacao-name">Formato aceito: PDF.</span>
                 </label>
             </div>
 
@@ -518,7 +527,7 @@
     </div>
 
     <script>
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbzh9ktCnFlf_snSQtZUYZ3nj340-YTFf4M7ecaXgXQR3wTucR2Zrw54u-A2AjjEf-lPOg/exec';
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbxoZd2d8mD8Y97TA3p_GQ8F-Rv7UZzp9Sw-ZMz0y1pPQ-mz03OrzuvUp6r7nCvsw3FqSA/exec';
         const roleSelectionScreen = document.getElementById('role-selection-screen');
         const reviewerScreen = document.getElementById('reviewer-screen');
         const verifScreen = document.getElementById('verification-screen');
@@ -630,18 +639,43 @@
             if (!exigeProtocolo) protocoloEticaInput.value = '';
         });
 
-        const arquivoInput = document.getElementById('sub-arquivo');
-        const fileBox = document.getElementById('sub-file-box');
-        const fileName = document.getElementById('sub-file-name');
-        let selectedSubmissionFile = null;
+        function setupSubmissionFileInput(inputId, boxId, nameId) {
+            const input = document.getElementById(inputId);
+            const box = document.getElementById(boxId);
+            const name = document.getElementById(nameId);
+            let selectedFile = null;
 
-        arquivoInput.addEventListener('change', () => {
-            selectedSubmissionFile = arquivoInput.files[0] || null;
-            fileBox.classList.toggle('has-file', !!selectedSubmissionFile);
-            fileName.textContent = selectedSubmissionFile
-                ? `Arquivo selecionado: ${selectedSubmissionFile.name}`
-                : 'Formato aceito: PDF.';
-        });
+            input.addEventListener('change', () => {
+                selectedFile = input.files[0] || null;
+                box.classList.toggle('has-file', !!selectedFile);
+                name.textContent = selectedFile
+                    ? `Arquivo selecionado: ${selectedFile.name}`
+                    : 'Formato aceito: PDF.';
+            });
+
+            return {
+                getFile: () => selectedFile
+            };
+        }
+
+        function readFileAsBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const base64Data = event.target.result.split(',')[1];
+                    if (!base64Data) {
+                        reject(new Error('Não foi possível ler o arquivo anexado.'));
+                        return;
+                    }
+                    resolve(base64Data);
+                };
+                reader.onerror = () => reject(new Error('Erro ao ler o arquivo.'));
+                reader.readAsDataURL(file);
+            });
+        }
+
+        const arquivoIdentificado = setupSubmissionFileInput('sub-arquivo-identificado', 'sub-file-identificado-box', 'sub-file-identificado-name');
+        const arquivoSemIdentificacao = setupSubmissionFileInput('sub-arquivo-sem-identificacao', 'sub-file-sem-identificacao-box', 'sub-file-sem-identificacao-name');
 
         document.getElementById('submit-btn').addEventListener('click', () => {
             const nomeSubmissao = document.getElementById('sub-nome').value.trim();
@@ -669,23 +703,21 @@
             if (!aprovacaoEtica) return;
             if (aprovacaoEticaSelecionada !== 'Não aplicável' && !protocoloEtica) return alert('Informe o número do protocolo de aprovação ética.');
             if (!declaraModelo || !declaraRegulamento) return alert('Marque as declarações obrigatórias.');
-            if (!selectedSubmissionFile) return alert('Anexe o arquivo PDF da submissão.');
-            if (selectedSubmissionFile.size === 0) return alert('O arquivo selecionado está vazio. Anexe um arquivo válido.');
-            if (!/\.pdf$/i.test(selectedSubmissionFile.name)) return alert('A submissão deve ser enviada em PDF.');
+            const selectedIdentificadoFile = arquivoIdentificado.getFile();
+            const selectedSemIdentificacaoFile = arquivoSemIdentificacao.getFile();
+            if (!selectedIdentificadoFile) return alert('Anexe o PDF identificado da submissão.');
+            if (!selectedSemIdentificacaoFile) return alert('Anexe o PDF sem identificação da submissão.');
+            if (selectedIdentificadoFile.size === 0 || selectedSemIdentificacaoFile.size === 0) return alert('Um dos arquivos selecionados está vazio. Anexe arquivos válidos.');
+            if (!/\.pdf$/i.test(selectedIdentificadoFile.name) || !/\.pdf$/i.test(selectedSemIdentificacaoFile.name)) return alert('Os dois arquivos da submissão devem ser enviados em PDF.');
 
             const btn = document.getElementById('submit-btn');
             btn.innerText = 'Enviando...';
             btn.disabled = true;
 
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                const base64Data = event.target.result.split(',')[1];
-                if (!base64Data) {
-                    alert('Não foi possível ler o arquivo anexado.');
-                    btn.innerText = 'Finalizar Submissão';
-                    btn.disabled = false;
-                    return;
-                }
+            Promise.all([
+                readFileAsBase64(selectedIdentificadoFile),
+                readFileAsBase64(selectedSemIdentificacaoFile)
+            ]).then(([base64Identificado, base64SemIdentificacao]) => {
                 const formData = new URLSearchParams();
                 formData.append('action', 'submeterResumo');
                 formData.append('nome', nomeSubmissao);
@@ -702,9 +734,12 @@
                 formData.append('declara_modelo_oficial', declaraModelo ? 'Sim' : '');
                 formData.append('declara_regulamento_dados', declaraRegulamento ? 'Sim' : '');
                 formData.append('origem', currentUser.isExternal ? 'Aluno externo' : 'Inscrito SIMOL');
-                formData.append('filename', selectedSubmissionFile.name);
-                formData.append('mimeType', selectedSubmissionFile.type);
-                formData.append('fileData', base64Data);
+                formData.append('filename_identificado', selectedIdentificadoFile.name);
+                formData.append('mimeType_identificado', selectedIdentificadoFile.type);
+                formData.append('fileData_identificado', base64Identificado);
+                formData.append('filename_sem_identificacao', selectedSemIdentificacaoFile.name);
+                formData.append('mimeType_sem_identificacao', selectedSemIdentificacaoFile.type);
+                formData.append('fileData_sem_identificacao', base64SemIdentificacao);
 
                 fetch(scriptURL, { method: 'POST', body: formData })
                     .then(r => r.json())
@@ -721,13 +756,11 @@
                         btn.innerText = 'Finalizar Submissão';
                         btn.disabled = false;
                     });
-            };
-            reader.onerror = function() {
-                alert('Erro ao ler o arquivo.');
+            }).catch(err => {
+                alert(err.message || 'Erro ao ler os arquivos.');
                 btn.innerText = 'Finalizar Submissão';
                 btn.disabled = false;
-            };
-            reader.readAsDataURL(selectedSubmissionFile);
+            });
         });
 
         document.getElementById('back-to-verify').addEventListener('click', () => {

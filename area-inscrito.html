@@ -355,7 +355,7 @@
     </div>
 
     <script>
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbzh9ktCnFlf_snSQtZUYZ3nj340-YTFf4M7ecaXgXQR3wTucR2Zrw54u-A2AjjEf-lPOg/exec';
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbxoZd2d8mD8Y97TA3p_GQ8F-Rv7UZzp9Sw-ZMz0y1pPQ-mz03OrzuvUp6r7nCvsw3FqSA/exec';
 
         function switchTab(tab) {
             document.getElementById('dashboard-tab').style.display = tab === 'dashboard' ? 'block' : 'none';
@@ -506,7 +506,9 @@
                             ${s.protocolo_etica ? `<div><strong>Protocolo:</strong> ${escapeHTML(s.protocolo_etica)}</div>` : ''}
                             ${s.autor_correspondente ? `<div><strong>Autor correspondente:</strong> ${escapeHTML(s.autor_correspondente)}</div>` : ''}
                             ${s.origem ? `<div><strong>Origem:</strong> ${escapeHTML(s.origem)}</div>` : ''}
-                            ${s.arquivo_url ? `<div><strong>Arquivo:</strong> <a href="${escapeHTML(s.arquivo_url)}" target="_blank" rel="noopener">${escapeHTML(s.arquivo_nome || 'Abrir arquivo')}</a></div>` : ''}
+                            ${s.arquivo_identificado_url ? `<div><strong>Arquivo identificado:</strong> <a href="${escapeHTML(s.arquivo_identificado_url)}" target="_blank" rel="noopener">${escapeHTML(s.arquivo_identificado_nome || 'Abrir arquivo')}</a></div>` : ''}
+                            ${s.arquivo_sem_identificacao_url ? `<div><strong>Arquivo sem identificação:</strong> <a href="${escapeHTML(s.arquivo_sem_identificacao_url)}" target="_blank" rel="noopener">${escapeHTML(s.arquivo_sem_identificacao_nome || 'Abrir arquivo')}</a></div>` : ''}
+                            ${!s.arquivo_identificado_url && s.arquivo_url ? `<div><strong>Arquivo:</strong> <a href="${escapeHTML(s.arquivo_url)}" target="_blank" rel="noopener">${escapeHTML(s.arquivo_nome || 'Abrir arquivo')}</a></div>` : ''}
                         </div>
                         <span class="badge ${s.status === 'Aprovado' ? 'badge-success' : (s.status === 'Não aprovado' ? 'badge-pending' : 'badge-neutral')}">${escapeHTML(s.status)}</span>
                     </div>

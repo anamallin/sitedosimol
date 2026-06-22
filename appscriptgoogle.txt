@@ -614,7 +614,11 @@ function doPost(e) {
         'origem',
         'aceite_revisor1',
         'aceite_revisor2',
-        'status'
+        'status',
+        'arquivo_identificado_nome',
+        'arquivo_identificado_url',
+        'arquivo_sem_identificacao_nome',
+        'arquivo_sem_identificacao_url'
       ];
       const nomeSubmissao = (e.parameter.nome || '').trim();
       const cpfFormatado = "'" + (e.parameter.cpf || '').replace(/\D/g, '').padStart(11, '0');
@@ -630,8 +634,12 @@ function doPost(e) {
       const protocoloEtica = (e.parameter.protocolo_etica || '').trim();
       const declaraModeloOficial = e.parameter.declara_modelo_oficial === 'Sim' ? 'Sim' : '';
       const declaraRegulamentoDados = e.parameter.declara_regulamento_dados === 'Sim' ? 'Sim' : '';
-      const filename = (e.parameter.filename || '').trim();
-      const fileDataBase64 = (e.parameter.fileData || '').trim();
+      const filenameIdentificado = (e.parameter.filename_identificado || e.parameter.filename || '').trim();
+      const fileDataIdentificadoBase64 = (e.parameter.fileData_identificado || e.parameter.fileData || '').trim();
+      const mimeTypeIdentificado = e.parameter.mimeType_identificado || e.parameter.mimeType || 'application/octet-stream';
+      const filenameSemIdentificacao = (e.parameter.filename_sem_identificacao || '').trim();
+      const fileDataSemIdentificacaoBase64 = (e.parameter.fileData_sem_identificacao || '').trim();
+      const mimeTypeSemIdentificacao = e.parameter.mimeType_sem_identificacao || 'application/octet-stream';
 
       if (!nomeSubmissao || !cpfLimpo || !tituloSubmissao || !areaTematica || !autoresAfiliacoes || !autorCorrespondente || !categoriaAutor || !tipoEstudo || !aprovacaoEtica || !declaraModeloOficial || !declaraRegulamentoDados) {
         throw new Error('Dados obrigatórios da submissão não enviados.');
@@ -642,27 +650,41 @@ function doPost(e) {
       if (aprovacaoEtica !== 'Não aplicável' && !protocoloEtica) {
         throw new Error('Informe o número do protocolo de aprovação ética.');
       }
-      if (!fileDataBase64 || !filename) {
-        throw new Error('Arquivo da submissão não enviado.');
+      if (!fileDataIdentificadoBase64 || !filenameIdentificado) {
+        throw new Error('Arquivo identificado da submissão não enviado.');
       }
-      if (!/\.pdf$/i.test(filename)) {
-        throw new Error('A submissão deve ser enviada em PDF.');
+      if (!fileDataSemIdentificacaoBase64 || !filenameSemIdentificacao) {
+        throw new Error('Arquivo sem identificação da submissão não enviado.');
+      }
+      if (!/\.pdf$/i.test(filenameIdentificado) || !/\.pdf$/i.test(filenameSemIdentificacao)) {
+        throw new Error('Os arquivos da submissão devem ser enviados em PDF.');
       }
 
       const folderSubmissoes = DriveApp.getFolderById(FOLDER_ID_SUBMISSOES);
-      const fileData = Utilities.base64Decode(fileDataBase64);
-      if (!fileData || fileData.length === 0) {
-        throw new Error('Arquivo da submissão está vazio.');
+      const fileDataIdentificado = Utilities.base64Decode(fileDataIdentificadoBase64);
+      const fileDataSemIdentificacao = Utilities.base64Decode(fileDataSemIdentificacaoBase64);
+      if (!fileDataIdentificado || fileDataIdentificado.length === 0) {
+        throw new Error('Arquivo identificado da submissão está vazio.');
+      }
+      if (!fileDataSemIdentificacao || fileDataSemIdentificacao.length === 0) {
+        throw new Error('Arquivo sem identificação da submissão está vazio.');
       }
 
       const safeTitulo = tituloSubmissao.replace(/[\\/:*?"<>|]/g, '-');
-      const blob = Utilities.newBlob(
-        fileData,
-        e.parameter.mimeType || 'application/octet-stream',
-        'SUBMISSAO - ' + nomeSubmissao + ' - ' + safeTitulo + ' - ' + filename
+      const blobIdentificado = Utilities.newBlob(
+        fileDataIdentificado,
+        mimeTypeIdentificado,
+        'SUBMISSAO IDENTIFICADA - ' + nomeSubmissao + ' - ' + safeTitulo + ' - ' + filenameIdentificado
       );
-      const arquivo = folderSubmissoes.createFile(blob);
-      const arquivoUrl = arquivo.getUrl();
+      const arquivoIdentificado = folderSubmissoes.createFile(blobIdentificado);
+      const arquivoIdentificadoUrl = arquivoIdentificado.getUrl();
+      const blobSemIdentificacao = Utilities.newBlob(
+        fileDataSemIdentificacao,
+        mimeTypeSemIdentificacao,
+        'SUBMISSAO SEM IDENTIFICACAO - ' + nomeSubmissao + ' - ' + safeTitulo + ' - ' + filenameSemIdentificacao
+      );
+      const arquivoSemIdentificacao = folderSubmissoes.createFile(blobSemIdentificacao);
+      const arquivoSemIdentificacaoUrl = arquivoSemIdentificacao.getUrl();
 
       let sheetSubmissoes = doc.getSheetByName('submissoes');
       if (!sheetSubmissoes) {
@@ -691,15 +713,23 @@ function doPost(e) {
         protocoloEtica,
         declaraModeloOficial,
         declaraRegulamentoDados,
-        arquivo.getName(),
-        arquivoUrl,
+        arquivoIdentificado.getName(),
+        arquivoIdentificadoUrl,
         e.parameter.origem || 'Inscrito SIMOL',
         '', // aceite_revisor1
         '', // aceite_revisor2
-        'Enviado'
+        'Enviado',
+        arquivoIdentificado.getName(),
+        arquivoIdentificadoUrl,
+        arquivoSemIdentificacao.getName(),
+        arquivoSemIdentificacaoUrl
       ]);
 
-      return ContentService.createTextOutput(JSON.stringify({ result: 'success', fileUrl: arquivoUrl })).setMimeType(ContentService.MimeType.JSON);
+      return ContentService.createTextOutput(JSON.stringify({
+        result: 'success',
+        fileUrlIdentificado: arquivoIdentificadoUrl,
+        fileUrlSemIdentificacao: arquivoSemIdentificacaoUrl
+      })).setMimeType(ContentService.MimeType.JSON);
     }
 
     // ====== 3. UPLOAD DE COMPROVANTE (MINICURSOS) ======
@@ -965,6 +995,10 @@ function doPost(e) {
         const protocoloEticaColS = headersSub.indexOf('protocolo_etica');
         const arquivoNomeColS = headersSub.indexOf('arquivo_nome');
         const arquivoUrlColS = headersSub.indexOf('arquivo_url');
+        const arquivoIdentificadoNomeColS = headersSub.indexOf('arquivo_identificado_nome');
+        const arquivoIdentificadoUrlColS = headersSub.indexOf('arquivo_identificado_url');
+        const arquivoSemIdentificacaoNomeColS = headersSub.indexOf('arquivo_sem_identificacao_nome');
+        const arquivoSemIdentificacaoUrlColS = headersSub.indexOf('arquivo_sem_identificacao_url');
         const origemColS = headersSub.indexOf('origem');
         const revisor1ColS = headersSub.indexOf('aceite_revisor1');
         const revisor2ColS = headersSub.indexOf('aceite_revisor2');
@@ -993,6 +1027,10 @@ function doPost(e) {
               protocolo_etica: protocoloEticaColS !== -1 ? dataSub[l][protocoloEticaColS] : '',
               arquivo_nome: arquivoNomeColS !== -1 ? dataSub[l][arquivoNomeColS] : '',
               arquivo_url: arquivoUrlColS !== -1 ? dataSub[l][arquivoUrlColS] : '',
+              arquivo_identificado_nome: arquivoIdentificadoNomeColS !== -1 ? dataSub[l][arquivoIdentificadoNomeColS] : '',
+              arquivo_identificado_url: arquivoIdentificadoUrlColS !== -1 ? dataSub[l][arquivoIdentificadoUrlColS] : '',
+              arquivo_sem_identificacao_nome: arquivoSemIdentificacaoNomeColS !== -1 ? dataSub[l][arquivoSemIdentificacaoNomeColS] : '',
+              arquivo_sem_identificacao_url: arquivoSemIdentificacaoUrlColS !== -1 ? dataSub[l][arquivoSemIdentificacaoUrlColS] : '',
               origem: origemColS !== -1 ? dataSub[l][origemColS] : '',
               status: statusSub
             });
