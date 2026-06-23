@@ -12,22 +12,23 @@
         }
 
         .store-shell {
-            max-width: 1120px;
+            max-width: 1520px;
             margin: 0 auto;
-            padding: 72px 18px 48px;
+            padding: 64px 14px 48px;
         }
 
         .store-header {
             display: grid;
-            grid-template-columns: minmax(0, 1.15fr) minmax(280px, 0.85fr);
+            grid-template-columns: minmax(0, 1fr) minmax(220px, 340px);
             gap: 28px;
             align-items: center;
-            margin-bottom: 28px;
+            margin-bottom: 22px;
         }
 
         .store-kicker {
             color: var(--color-3);
             font-weight: 800;
+            letter-spacing: 0;
             margin-bottom: 8px;
             text-transform: uppercase;
             font-size: 0.82rem;
@@ -35,49 +36,38 @@
 
         .store-title {
             color: var(--color-4);
-            font-size: clamp(2rem, 5vw, 3.4rem);
-            line-height: 1.02;
-            margin: 0 0 14px;
-        }
-
-        .store-copy {
-            color: #555;
-            line-height: 1.65;
-            max-width: 650px;
+            font-size: clamp(2rem, 5vw, 3.35rem);
+            line-height: 1.03;
             margin: 0;
         }
 
         .store-hero-image {
             width: 100%;
-            min-height: 220px;
+            min-height: 190px;
             aspect-ratio: 4 / 3;
             object-fit: contain;
-            filter: drop-shadow(0 20px 35px rgba(59, 40, 160, 0.16));
+            filter: drop-shadow(0 18px 32px rgba(59, 40, 160, 0.16));
         }
 
-        .store-layout {
-            display: grid;
-            grid-template-columns: minmax(0, 1.35fr) 360px;
-            gap: 24px;
-            align-items: start;
-        }
-
-        .store-layout.is-locked {
-            display: none;
+        .entry-panel,
+        .cart-panel {
+            background: rgba(255, 255, 255, 0.76);
+            border: 1px solid rgba(138, 87, 181, 0.24);
+            border-radius: 8px;
+            box-shadow: 0 18px 44px rgba(59, 40, 160, 0.12);
+            backdrop-filter: blur(14px);
         }
 
         .entry-panel {
-            background: rgba(255, 255, 255, 0.94);
-            border: 1px solid rgba(138, 87, 181, 0.18);
-            border-radius: 8px;
+            max-width: 760px;
             padding: 22px;
-            margin-bottom: 24px;
-            box-shadow: 0 14px 32px rgba(59, 40, 160, 0.1);
+            margin: 0 auto 24px;
         }
 
-        .entry-panel h2 {
+        .entry-panel h2,
+        .cart-panel h2 {
             color: var(--color-4);
-            margin: 0 0 8px;
+            margin: 0 0 10px;
             font-size: 1.35rem;
         }
 
@@ -90,27 +80,82 @@
         .entry-actions {
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 12px;
+            gap: 14px;
         }
 
         .entry-choice {
-            border: 2px solid rgba(138, 87, 181, 0.22);
+            position: relative;
+            display: grid;
+            grid-template-columns: 54px minmax(0, 1fr);
+            gap: 12px;
+            align-items: center;
+            text-align: left;
+            min-height: 96px;
+            border: 1px solid rgba(138, 87, 181, 0.24);
             border-radius: 8px;
-            background: #fff;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(246, 241, 252, 0.92));
             color: var(--color-4);
-            padding: 14px;
+            padding: 16px;
             font-family: inherit;
-            font-size: 1rem;
-            font-weight: 800;
             cursor: pointer;
-            transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 10px 24px rgba(59, 40, 160, 0.08);
+            overflow: hidden;
+            transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+        }
+
+        .entry-choice::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(120deg, transparent 0%, rgba(255, 255, 255, 0.78) 45%, transparent 70%);
+            transform: translateX(-120%);
+            transition: transform 0.38s ease;
+            pointer-events: none;
         }
 
         .entry-choice:hover,
         .entry-choice.selected {
             border-color: var(--color-3);
-            transform: translateY(-2px);
-            box-shadow: 0 10px 24px rgba(59, 40, 160, 0.12);
+            transform: translateY(-3px);
+            box-shadow: 0 18px 34px rgba(59, 40, 160, 0.16);
+            background: linear-gradient(135deg, #fff, rgba(238, 229, 250, 0.96));
+        }
+
+        .entry-choice:hover::before,
+        .entry-choice.selected::before {
+            transform: translateX(120%);
+        }
+
+        .entry-choice-icon {
+            display: inline-grid;
+            place-items: center;
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--color-3), var(--color-4));
+            color: #fff;
+            font-size: 0.78rem;
+            font-weight: 900;
+            letter-spacing: 0;
+            box-shadow: 0 10px 20px rgba(59, 40, 160, 0.18);
+            text-transform: uppercase;
+        }
+
+        .entry-choice-title {
+            display: block;
+            color: var(--color-4);
+            font-size: 1.02rem;
+            font-weight: 900;
+            line-height: 1.2;
+        }
+
+        .entry-choice-subtitle {
+            display: block;
+            color: #665b79;
+            font-size: 0.86rem;
+            font-weight: 600;
+            line-height: 1.35;
+            margin-top: 4px;
         }
 
         .entry-check {
@@ -125,7 +170,8 @@
             display: grid;
         }
 
-        .entry-check label {
+        .entry-check label,
+        .checkout-form label {
             display: block;
             color: var(--color-4);
             font-weight: 700;
@@ -133,53 +179,117 @@
             font-size: 0.94rem;
         }
 
-        .entry-check input {
+        .entry-check input,
+        .checkout-form input {
             width: 100%;
             box-sizing: border-box;
             padding: 13px;
-            border: 1px solid #ccc;
+            border: 1px solid rgba(138, 87, 181, 0.34);
             border-radius: 8px;
             font-family: inherit;
             font-size: 1rem;
             background: #fff;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .entry-check input:focus,
+        .checkout-form input:focus {
+            outline: none;
+            border-color: var(--color-3);
+            box-shadow: 0 0 0 4px rgba(138, 87, 181, 0.14);
+        }
+
+        .store-layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 330px;
+            gap: 24px;
+            align-items: start;
+        }
+
+        .store-layout.is-locked {
+            display: none;
+        }
+
+        .filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .filter-tab {
+            border: 1px solid rgba(138, 87, 181, 0.3);
+            background: rgba(255, 255, 255, 0.82);
+            color: var(--color-4);
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-family: inherit;
+            font-weight: 800;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+        }
+
+        .filter-tab:hover,
+        .filter-tab.active {
+            background: #fff;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 24px rgba(59, 40, 160, 0.12);
         }
 
         .product-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-            gap: 16px;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 14px;
         }
 
         .product-card {
-            border: 2px solid rgba(138, 87, 181, 0.18);
-            background: rgba(255, 255, 255, 0.92);
+            border: 1px solid rgba(138, 87, 181, 0.18);
+            background: rgba(255, 255, 255, 0.94);
             border-radius: 8px;
             overflow: hidden;
-            cursor: pointer;
-            transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
             min-width: 0;
+            opacity: 0;
+            transform: translateY(12px) scale(0.98);
+            animation: productIn 0.28s ease forwards;
+            box-shadow: 0 12px 28px rgba(59, 40, 160, 0.08);
         }
 
-        .product-card:hover,
-        .product-card.selected {
-            transform: translateY(-3px);
-            border-color: var(--color-3);
-            box-shadow: 0 16px 35px rgba(59, 40, 160, 0.13);
+        @keyframes productIn {
+            to { opacity: 1; transform: translateY(0) scale(1); }
         }
 
         .product-image-wrap {
+            position: relative;
             background: #fff;
             aspect-ratio: 1 / 1;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 12px;
+            padding: 14px;
+            overflow: hidden;
         }
 
-        .product-card img {
+        .product-image-wrap img {
             width: 100%;
             height: 100%;
             object-fit: contain;
+            transition: transform 0.25s ease;
+        }
+
+        .product-card:hover .product-image-wrap img {
+            transform: scale(1.08);
+        }
+
+        .product-badge {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(59, 40, 160, 0.9);
+            color: #fff;
+            border-radius: 8px;
+            padding: 5px 8px;
+            font-size: 0.74rem;
+            font-weight: 800;
         }
 
         .product-card-body {
@@ -188,114 +298,163 @@
 
         .product-name {
             color: var(--color-4);
-            font-size: 1.1rem;
-            margin: 0 0 6px;
+            font-size: 1.06rem;
+            margin: 0 0 5px;
         }
 
         .product-note {
             color: #666;
             min-height: 38px;
             margin: 0 0 12px;
-            font-size: 0.92rem;
-            line-height: 1.45;
+            font-size: 0.9rem;
+            line-height: 1.42;
+        }
+
+        .product-footer {
+            display: grid;
+            gap: 10px;
         }
 
         .product-price {
             color: var(--color-3);
-            font-size: 1.35rem;
-            font-weight: 800;
+            font-size: 1.24rem;
+            font-weight: 900;
         }
 
-        .order-panel {
-            position: sticky;
-            top: 18px;
-            background: rgba(255, 255, 255, 0.94);
-            border: 1px solid rgba(138, 87, 181, 0.18);
-            border-radius: 8px;
-            padding: 22px;
-            box-shadow: 0 16px 38px rgba(59, 40, 160, 0.11);
-        }
-
-        .order-panel h2 {
-            color: var(--color-4);
-            font-size: 1.35rem;
-            margin: 0 0 16px;
-        }
-
-        .summary-box {
-            background: rgba(138, 87, 181, 0.08);
-            border-radius: 8px;
-            padding: 14px;
-            margin-bottom: 18px;
-            color: #4b3d60;
-        }
-
-        .summary-row {
-            display: flex;
-            justify-content: space-between;
-            gap: 12px;
-            margin-bottom: 8px;
-        }
-
-        .summary-row:last-child {
-            margin-bottom: 0;
-            font-weight: 800;
-            color: var(--color-4);
-        }
-
-        .store-form .form-group {
-            margin-bottom: 14px;
-        }
-
-        .store-form label {
-            display: block;
-            color: var(--color-4);
-            font-weight: 700;
-            margin-bottom: 7px;
-            font-size: 0.94rem;
-        }
-
-        .store-form input,
-        .store-form textarea {
-            width: 100%;
-            box-sizing: border-box;
-            padding: 13px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
+        .add-cart-btn,
+        .copy-pix-btn,
+        .remove-file-btn,
+        .icon-btn {
             font-family: inherit;
-            font-size: 1rem;
-            background: #fff;
-        }
-
-        .store-form textarea {
-            resize: vertical;
-            min-height: 72px;
-        }
-
-        .quantity-control {
-            display: grid;
-            grid-template-columns: 42px 1fr 42px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            overflow: hidden;
-            background: #fff;
-        }
-
-        .quantity-control button {
-            border: 0;
-            background: #f3eff8;
-            color: var(--color-4);
-            font-size: 1.25rem;
-            font-weight: 800;
             cursor: pointer;
         }
 
-        .quantity-control input {
-            border: 0;
-            border-left: 1px solid #ddd;
-            border-right: 1px solid #ddd;
+        .add-cart-btn {
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--color-3), var(--color-4));
+            color: #fff;
+            padding: 10px 12px;
+            font-weight: 800;
+            transition: transform 0.18s ease, box-shadow 0.18s ease;
+        }
+
+        .add-cart-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(59, 40, 160, 0.22);
+        }
+
+        .add-cart-btn.just-added {
+            animation: addPulse 0.34s ease;
+        }
+
+        @keyframes addPulse {
+            50% { transform: scale(1.05); }
+        }
+
+        .cart-panel {
+            position: sticky;
+            top: 18px;
+            padding: 20px;
+        }
+
+        .cart-empty {
+            background: rgba(138, 87, 181, 0.08);
+            border-radius: 8px;
+            padding: 16px;
+            color: #5d5470;
+            line-height: 1.45;
+        }
+
+        .cart-items {
+            display: grid;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .cart-item {
+            display: grid;
+            grid-template-columns: 58px minmax(0, 1fr);
+            gap: 10px;
+            align-items: center;
+            border: 1px solid rgba(138, 87, 181, 0.16);
+            border-radius: 8px;
+            padding: 10px;
+            background: #fff;
+        }
+
+        .cart-thumb {
+            width: 58px;
+            height: 58px;
+            object-fit: contain;
+            border-radius: 8px;
+            background: #fafafa;
+        }
+
+        .cart-item h3 {
+            margin: 0 0 2px;
+            color: var(--color-4);
+            font-size: 0.95rem;
+        }
+
+        .cart-item p {
+            margin: 0 0 8px;
+            color: #666;
+            font-size: 0.82rem;
+        }
+
+        .cart-line {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .cart-qty {
+            display: inline-grid;
+            grid-template-columns: 30px 34px 30px;
+            align-items: center;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
             text-align: center;
-            border-radius: 0;
+            background: #fff;
+        }
+
+        .cart-qty button,
+        .icon-btn {
+            border: none;
+            background: #f3eff8;
+            color: var(--color-4);
+            font-weight: 900;
+            min-height: 30px;
+        }
+
+        .cart-qty span {
+            font-weight: 800;
+        }
+
+        .icon-btn {
+            width: 32px;
+            border-radius: 8px;
+        }
+
+        .cart-total {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            gap: 14px;
+            padding: 14px 0;
+            border-top: 1px solid rgba(138, 87, 181, 0.18);
+            border-bottom: 1px solid rgba(138, 87, 181, 0.18);
+            margin-bottom: 16px;
+            color: var(--color-4);
+            font-weight: 900;
+        }
+
+        .cart-total strong {
+            color: var(--color-3);
+            font-size: 1.42rem;
         }
 
         .pix-box {
@@ -303,10 +462,37 @@
             background: #f8f9fa;
             padding: 14px;
             border-radius: 6px;
-            margin: 16px 0;
+            margin: 12px 0 16px;
             color: #555;
             font-size: 0.9rem;
             line-height: 1.5;
+        }
+
+        .pix-qr {
+            width: min(170px, 100%);
+            aspect-ratio: 1 / 1;
+            margin: 10px auto 12px;
+            padding: 8px;
+            border-radius: 8px;
+            background: #fff;
+            border: 1px solid #ddd;
+            box-shadow: 0 8px 18px rgba(59, 40, 160, 0.08);
+        }
+
+        .pix-qr img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+            border-radius: 6px;
+        }
+
+        .pix-row {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            gap: 8px;
+            align-items: center;
+            margin-top: 8px;
         }
 
         .pix-key {
@@ -314,23 +500,101 @@
             border: 1px solid #ddd;
             border-radius: 6px;
             padding: 10px;
-            margin-top: 8px;
             word-break: break-word;
             font-weight: 700;
             color: var(--color-4);
         }
 
+        .copy-pix-btn,
+        .remove-file-btn {
+            border: 1px solid rgba(138, 87, 181, 0.24);
+            border-radius: 8px;
+            background: #fff;
+            color: var(--color-4);
+            padding: 10px 12px;
+            font-weight: 800;
+        }
+
+        .copy-toast {
+            opacity: 0;
+            transform: translateY(6px);
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            color: #155724;
+            font-size: 0.86rem;
+            font-weight: 800;
+            margin-top: 6px;
+        }
+
+        .copy-toast.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .checkout-form {
+            display: grid;
+            gap: 12px;
+        }
+
         .drop-area {
-            min-height: 94px;
+            min-height: 104px;
+            border-style: dashed;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+        }
+
+        .drop-area.highlight {
+            border-color: var(--color-3);
+            background: rgba(138, 87, 181, 0.08);
+            box-shadow: 0 0 0 4px rgba(138, 87, 181, 0.12);
+        }
+
+        .file-preview {
+            display: none;
+            grid-template-columns: 56px minmax(0, 1fr) auto;
+            gap: 10px;
+            align-items: center;
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 8px;
+            background: #fff;
+            border: 1px solid rgba(138, 87, 181, 0.16);
+        }
+
+        .file-preview.visible {
+            display: grid;
+        }
+
+        .file-preview img {
+            width: 56px;
+            height: 56px;
+            object-fit: cover;
+            border-radius: 8px;
+            background: #f4f4f4;
+        }
+
+        .file-preview strong,
+        .file-preview span {
+            display: block;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .file-preview span {
+            color: #666;
+            font-size: 0.84rem;
+        }
+
+        .store-message,
+        .entry-message {
+            display: none;
         }
 
         .store-message {
-            display: none;
             margin: 12px 0;
         }
 
         .entry-message {
-            display: none;
             margin-top: 12px;
         }
 
@@ -344,34 +608,78 @@
             align-items: center;
             justify-content: center;
             padding: 18px;
+            overflow: hidden;
         }
 
         .store-modal-content {
+            position: relative;
             background: #fff;
             width: min(460px, 100%);
             border-radius: 8px;
-            padding: 32px;
+            padding: 34px 32px;
             text-align: center;
             box-shadow: 0 18px 44px rgba(0, 0, 0, 0.22);
+            z-index: 2;
         }
 
-        .store-modal-content h2 {
+        .checkmark {
+            width: 66px;
+            height: 66px;
+            border-radius: 50%;
+            border: 4px solid #2bb673;
+            margin: 0 auto 16px;
+            position: relative;
+        }
+
+        .checkmark::after {
+            content: "";
+            position: absolute;
+            width: 18px;
+            height: 34px;
+            border-right: 5px solid #2bb673;
+            border-bottom: 5px solid #2bb673;
+            left: 22px;
+            top: 9px;
+            transform: rotate(42deg) scale(0);
+            transform-origin: center;
+            animation: checkDraw 0.38s ease 0.18s forwards;
+        }
+
+        @keyframes checkDraw {
+            to { transform: rotate(42deg) scale(1); }
+        }
+
+        .confetti {
+            position: absolute;
+            width: 9px;
+            height: 14px;
+            top: -20px;
+            opacity: 0.9;
+            animation: confettiFall 2.4s ease-in forwards;
+        }
+
+        @keyframes confettiFall {
+            to {
+                transform: translateY(110vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        .back-home {
+            display: inline-block;
             color: var(--color-4);
-            margin: 0 0 10px;
+            font-weight: 800;
+            text-decoration: none;
+            margin-top: 18px;
         }
 
-        .store-modal-content p {
-            color: #555;
-            line-height: 1.55;
-        }
-
-        @media (max-width: 880px) {
+        @media (max-width: 940px) {
             .store-header,
             .store-layout {
                 grid-template-columns: 1fr;
             }
 
-            .order-panel {
+            .cart-panel {
                 position: static;
             }
         }
@@ -382,16 +690,23 @@
             }
 
             .entry-actions,
-            .entry-check {
+            .entry-check,
+            .pix-row {
                 grid-template-columns: 1fr;
             }
 
             .product-grid {
-                grid-template-columns: 1fr;
+                grid-template-columns: repeat(3, minmax(0, 1fr));
             }
 
             .store-hero-image {
-                min-height: 160px;
+                min-height: 150px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .product-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
             }
         }
     </style>
@@ -412,20 +727,31 @@
                 <div class="store-kicker">Produtos oficiais</div>
                 <h1 class="store-title">Loja SIMOL</h1>
             </div>
-            <img class="store-hero-image" src="assets/produtos/adesivo9.png" alt="Produtos oficiais do SIMOL">
+            <img class="store-hero-image" src="Icone_Proteina_Óculos.png" alt="Proteina mascote do SIMOL">
         </section>
 
         <section class="entry-panel" id="entry-panel">
             <h2>Antes de comprar</h2>
-            <p>Verifique se você já está inscrito no SIMOL para preenchermos seus dados automaticamente. Quem não está inscrito pode comprar normalmente, sem informar CPF.</p>
             <div class="entry-actions">
-                <button type="button" class="entry-choice" id="entry-registered-btn">Sou inscrito no SIMOL</button>
-                <button type="button" class="entry-choice" id="entry-external-btn">Não sou inscrito</button>
+                <button type="button" class="entry-choice" id="entry-registered-btn">
+                    <span class="entry-choice-icon">ID</span>
+                    <span>
+                        <span class="entry-choice-title">Sou inscrito no SIMOL</span>
+                        <span class="entry-choice-subtitle">Buscar meus dados pelo CPF</span>
+                    </span>
+                </button>
+                <button type="button" class="entry-choice" id="entry-external-btn">
+                    <span class="entry-choice-icon">PIX</span>
+                    <span>
+                        <span class="entry-choice-title">Nao sou inscrito</span>
+                        <span class="entry-choice-subtitle">Comprar sem informar CPF</span>
+                    </span>
+                </button>
             </div>
             <div class="entry-check" id="entry-check">
                 <div>
-                    <label for="entry-cpf">CPF usado na inscrição *</label>
-                    <input id="entry-cpf" type="text" maxlength="11" inputmode="numeric" placeholder="Somente números">
+                    <label for="entry-cpf">CPF usado na inscricao *</label>
+                    <input id="entry-cpf" type="text" maxlength="11" inputmode="numeric" placeholder="Somente numeros">
                 </div>
                 <button type="button" class="submit-btn" id="entry-verify-btn" style="margin: 0; min-width: 150px;">
                     <span>Verificar</span>
@@ -436,270 +762,69 @@
         </section>
 
         <section class="store-layout is-locked" id="store-layout">
-            <div class="product-grid" id="product-grid">
-                <button class="product-card selected" type="button" data-type="Adesivo - tubo de ensaio" data-price="0.75">
-                    <div class="product-image-wrap">
-                        <img src="assets/produtos/adesivo1.png" alt="Adesivo tubo de ensaio">
-                    </div>
-                    <div class="product-card-body">
-                        <h2 class="product-name">Adesivo</h2>
-                        <p class="product-note">Tubo de ensaio</p>
-                        <div class="product-price">R$ 0,75</div>
-                    </div>
-                </button>
-
-                <button class="product-card" type="button" data-type="Adesivo - ATP" data-price="0.75">
-                    <div class="product-image-wrap">
-                        <img src="assets/produtos/adesivo2.png" alt="Adesivo ATP">
-                    </div>
-                    <div class="product-card-body">
-                        <h2 class="product-name">Adesivo</h2>
-                        <p class="product-note">ATP</p>
-                        <div class="product-price">R$ 0,75</div>
-                    </div>
-                </button>
-
-                <button class="product-card" type="button" data-type="Adesivo - cromossomo" data-price="0.75">
-                    <div class="product-image-wrap">
-                        <img src="assets/produtos/adesivo3.png" alt="Adesivo cromossomo">
-                    </div>
-                    <div class="product-card-body">
-                        <h2 class="product-name">Adesivo</h2>
-                        <p class="product-note">Cromossomo</p>
-                        <div class="product-price">R$ 0,75</div>
-                    </div>
-                </button>
-
-                <button class="product-card" type="button" data-type="Adesivo - tubos coloridos" data-price="0.75">
-                    <div class="product-image-wrap">
-                        <img src="assets/produtos/adesivo4.png" alt="Adesivo tubos coloridos">
-                    </div>
-                    <div class="product-card-body">
-                        <h2 class="product-name">Adesivo</h2>
-                        <p class="product-note">Tubos coloridos</p>
-                        <div class="product-price">R$ 0,75</div>
-                    </div>
-                </button>
-
-                <button class="product-card" type="button" data-type="Adesivo - béquer" data-price="0.75">
-                    <div class="product-image-wrap">
-                        <img src="assets/produtos/adesivo5.png" alt="Adesivo béquer">
-                    </div>
-                    <div class="product-card-body">
-                        <h2 class="product-name">Adesivo</h2>
-                        <p class="product-note">Béquer</p>
-                        <div class="product-price">R$ 0,75</div>
-                    </div>
-                </button>
-
-                <button class="product-card" type="button" data-type="Adesivo - membrana" data-price="0.75">
-                    <div class="product-image-wrap">
-                        <img src="assets/produtos/adesivo6.png" alt="Adesivo membrana">
-                    </div>
-                    <div class="product-card-body">
-                        <h2 class="product-name">Adesivo</h2>
-                        <p class="product-note">Membrana</p>
-                        <div class="product-price">R$ 0,75</div>
-                    </div>
-                </button>
-
-                <button class="product-card" type="button" data-type="Adesivo - equipamento" data-price="0.75">
-                    <div class="product-image-wrap">
-                        <img src="assets/produtos/adesivo7.png" alt="Adesivo equipamento">
-                    </div>
-                    <div class="product-card-body">
-                        <h2 class="product-name">Adesivo</h2>
-                        <p class="product-note">Equipamento</p>
-                        <div class="product-price">R$ 0,75</div>
-                    </div>
-                </button>
-
-                <button class="product-card" type="button" data-type="Adesivo - eletroforese" data-price="0.75">
-                    <div class="product-image-wrap">
-                        <img src="assets/produtos/adesivo8.png" alt="Adesivo eletroforese">
-                    </div>
-                    <div class="product-card-body">
-                        <h2 class="product-name">Adesivo</h2>
-                        <p class="product-note">Eletroforese</p>
-                        <div class="product-price">R$ 0,75</div>
-                    </div>
-                </button>
-
-                <button class="product-card" type="button" data-type="Adesivo - I SIMOL UFPR" data-price="0.75">
-                    <div class="product-image-wrap">
-                        <img src="assets/produtos/adesivo9.png" alt="Adesivo I SIMOL UFPR">
-                    </div>
-                    <div class="product-card-body">
-                        <h2 class="product-name">Adesivo</h2>
-                        <p class="product-note">I SIMOL UFPR</p>
-                        <div class="product-price">R$ 0,75</div>
-                    </div>
-                </button>
-
-                <button class="product-card" type="button" data-type="Botton - Biologia Celular e Molecular" data-price="5">
-                    <div class="product-image-wrap">
-                        <img src="assets/produtos/botton1.png" alt="Botton Biologia Celular e Molecular">
-                    </div>
-                    <div class="product-card-body">
-                        <h2 class="product-name">Botton</h2>
-                        <p class="product-note">Biologia Celular e Molecular</p>
-                        <div class="product-price">R$ 5,00</div>
-                    </div>
-                </button>
-
-                <button class="product-card" type="button" data-type="Botton - Bioquímica" data-price="5">
-                    <div class="product-image-wrap">
-                        <img src="assets/produtos/botton2.png" alt="Botton Bioquímica">
-                    </div>
-                    <div class="product-card-body">
-                        <h2 class="product-name">Botton</h2>
-                        <p class="product-note">Bioquímica</p>
-                        <div class="product-price">R$ 5,00</div>
-                    </div>
-                </button>
-
-                <button class="product-card" type="button" data-type="Botton - Genética" data-price="5">
-                    <div class="product-image-wrap">
-                        <img src="assets/produtos/botton3.png" alt="Botton Genética">
-                    </div>
-                    <div class="product-card-body">
-                        <h2 class="product-name">Botton</h2>
-                        <p class="product-note">Genética</p>
-                        <div class="product-price">R$ 5,00</div>
-                    </div>
-                </button>
-
-                <button class="product-card" type="button" data-type="Chaveiro - entre genes, moléculas e células" data-price="6">
-                    <div class="product-image-wrap">
-                        <img src="assets/produtos/chaveiroarte1.png" alt="Chaveiro entre genes moléculas e células">
-                    </div>
-                    <div class="product-card-body">
-                        <h2 class="product-name">Chaveiro</h2>
-                        <p class="product-note">Genes, moléculas e células</p>
-                        <div class="product-price">R$ 6,00</div>
-                    </div>
-                </button>
-
-                <button class="product-card" type="button" data-type="Chaveiro - DNA" data-price="6">
-                    <div class="product-image-wrap">
-                        <img src="assets/produtos/chaveiroarte2.png" alt="Chaveiro DNA">
-                    </div>
-                    <div class="product-card-body">
-                        <h2 class="product-name">Chaveiro</h2>
-                        <p class="product-note">DNA</p>
-                        <div class="product-price">R$ 6,00</div>
-                    </div>
-                </button>
-
-                <button class="product-card" type="button" data-type="Chaveiro - genética" data-price="6">
-                    <div class="product-image-wrap">
-                        <img src="assets/produtos/chaveiroarte3.png" alt="Chaveiro genética">
-                    </div>
-                    <div class="product-card-body">
-                        <h2 class="product-name">Chaveiro</h2>
-                        <p class="product-note">Genética</p>
-                        <div class="product-price">R$ 6,00</div>
-                    </div>
-                </button>
-
-                <button class="product-card" type="button" data-type="Chaveiro - PPGBq" data-price="6">
-                    <div class="product-image-wrap">
-                        <img src="assets/produtos/chaveiroppg1.png" alt="Chaveiro PPGBq">
-                    </div>
-                    <div class="product-card-body">
-                        <h2 class="product-name">Chaveiro</h2>
-                        <p class="product-note">PPGBq</p>
-                        <div class="product-price">R$ 6,00</div>
-                    </div>
-                </button>
-
-                <button class="product-card" type="button" data-type="Chaveiro - PPGBioCelMol" data-price="6">
-                    <div class="product-image-wrap">
-                        <img src="assets/produtos/chaveiroppg2.png" alt="Chaveiro PPGBioCelMol">
-                    </div>
-                    <div class="product-card-body">
-                        <h2 class="product-name">Chaveiro</h2>
-                        <p class="product-note">PPGBioCelMol</p>
-                        <div class="product-price">R$ 6,00</div>
-                    </div>
-                </button>
-
-                <button class="product-card" type="button" data-type="Chaveiro - PPGen" data-price="6">
-                    <div class="product-image-wrap">
-                        <img src="assets/produtos/chaveiroppg3.png" alt="Chaveiro PPGen">
-                    </div>
-                    <div class="product-card-body">
-                        <h2 class="product-name">Chaveiro</h2>
-                        <p class="product-note">PPGen</p>
-                        <div class="product-price">R$ 6,00</div>
-                    </div>
-                </button>
+            <div>
+                <div class="filters" id="category-filters" aria-label="Filtros de produtos"></div>
+                <div class="product-grid" id="product-grid"></div>
             </div>
 
-            <aside class="order-panel">
-                <h2>Seu pedido</h2>
-                <div class="summary-box" aria-live="polite">
-                    <div class="summary-row">
-                        <span>Produto</span>
-                        <strong id="summary-product">Adesivo</strong>
-                    </div>
-                    <div class="summary-row">
-                        <span>Quantidade</span>
-                        <strong id="summary-quantity">1</strong>
-                    </div>
-                    <div class="summary-row">
-                        <span>Total</span>
-                        <strong id="summary-total">R$ 0,75</strong>
-                    </div>
+            <aside class="cart-panel">
+                <h2>Carrinho</h2>
+                <div id="cart-items" class="cart-items"></div>
+                <div id="cart-empty" class="cart-empty">Seu carrinho esta vazio 🛒. Escolha produtos ao lado para comecar!</div>
+
+                <div class="cart-total">
+                    <span>Total</span>
+                    <strong id="cart-total">R$ 0,00</strong>
                 </div>
 
-                <form id="product-order-form" class="store-form">
-                    <div class="form-group">
-                        <label for="product-quantity">Quantidade *</label>
-                        <div class="quantity-control">
-                            <button type="button" id="decrease-quantity" aria-label="Diminuir quantidade">-</button>
-                            <input id="product-quantity" type="number" min="1" max="99" value="1" inputmode="numeric" required>
-                            <button type="button" id="increase-quantity" aria-label="Aumentar quantidade">+</button>
-                        </div>
+                <div class="pix-box">
+                    <strong>Pagamento via PIX</strong>
+                    <div class="pix-qr">
+                        <img src="semvalor.png" alt="QR Code PIX sem valor">
                     </div>
+                    <div>Conta Mercado Pago em nome de Ana Carolina Mallin</div>
+                    <div class="pix-row">
+                        <div class="pix-key" id="pix-key">simol.simposiointegrado@gmail.com</div>
+                        <button type="button" class="copy-pix-btn" id="copy-pix-btn">Copiar</button>
+                    </div>
+                    <div class="copy-toast" id="copy-toast">Copiado! ✓</div>
+                </div>
 
-                    <div class="form-group">
+                <form id="product-order-form" class="checkout-form">
+                    <div>
                         <label for="buyer-name">Nome completo *</label>
                         <input id="buyer-name" type="text" autocomplete="name" required>
                     </div>
 
-                    <div class="form-group" id="buyer-cpf-group">
+                    <div id="buyer-cpf-group">
                         <label for="buyer-cpf">CPF *</label>
-                        <input id="buyer-cpf" type="text" maxlength="11" inputmode="numeric" placeholder="Somente números" required>
+                        <input id="buyer-cpf" type="text" maxlength="11" inputmode="numeric" placeholder="Somente numeros" required>
                     </div>
 
-                    <div class="form-group">
+                    <div>
                         <label for="buyer-email">E-mail *</label>
                         <input id="buyer-email" type="email" autocomplete="email" required>
                     </div>
 
-                    <div class="form-group">
+                    <div>
                         <label for="buyer-phone">Telefone *</label>
                         <input id="buyer-phone" type="tel" autocomplete="tel" required>
                     </div>
 
-                    <div class="pix-box">
-                        <strong>Pagamento via PIX</strong>
-                        <div>Conta Mercado Pago em nome de Ana Carolina Mallin</div>
-                        <div class="pix-key">simol.simposiointegrado@gmail.com</div>
-                    </div>
-
-                    <div style="width: 160px; height: 160px; margin: 0 auto 16px;">
-                        <img src="semvalor.png" alt="QR Code PIX sem valor" style="width: 100%; height: 100%; object-fit: contain; border-radius: 8px; box-shadow: 0 0 0 1px #ddd;">
-                    </div>
-
-                    <div class="form-group">
+                    <div>
                         <label>Comprovante (PDF, JPG, PNG) *</label>
                         <div id="product-drop-area" class="drop-area">
                             <p>Arraste e solte seu arquivo aqui<br>ou clique para selecionar</p>
                             <input type="file" id="product-file-input" accept=".pdf,image/png,image/jpeg" required style="display: none;">
                         </div>
-                        <div id="product-file-name" style="margin-top: 10px; font-size: 0.9rem; font-weight: 700; color: var(--color-3);"></div>
+                        <div id="file-preview" class="file-preview">
+                            <img id="file-preview-img" alt="">
+                            <div>
+                                <strong id="file-preview-name"></strong>
+                                <span id="file-preview-size"></span>
+                            </div>
+                            <button type="button" class="remove-file-btn" id="remove-file-btn">Remover</button>
+                        </div>
                     </div>
 
                     <div class="form-message store-message" id="product-message"></div>
@@ -710,23 +835,52 @@
                     </button>
                 </form>
 
-                <a href="index.html" class="back-btn" style="text-decoration: none; margin-top: 18px; display: inline-block; color: var(--color-4); font-weight: 700;">← Voltar para a página inicial</a>
+                <a href="index.html" class="back-home">← Voltar para a pagina inicial</a>
             </aside>
         </section>
     </main>
 
     <div class="store-modal" id="product-success-modal">
         <div class="store-modal-content">
+            <div class="checkmark"></div>
             <h2>Pedido enviado</h2>
-            <p>Seu comprovante foi recebido. A organização vai conferir o pagamento e separar o produto selecionado.</p>
-            <a href="index.html" class="submit-btn" style="display: inline-block; text-decoration: none; margin-top: 12px;">Voltar para o início</a>
+            <p>Seu comprovante foi recebido. A organizacao vai conferir o pagamento e separar os produtos selecionados.</p>
+            <a href="index.html" class="submit-btn" style="display: inline-block; text-decoration: none; margin-top: 12px;">Voltar para o inicio</a>
         </div>
     </div>
 
     <script src="script.js"></script>
     <script>
         const PRODUCT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzzUVW50SFfZ80SqZCEOtwNpVyRMpCV-3EneTutQ8TNh6IF2VoP5u5FZEe3CF6pMyECyQ/exec';
-        const productCards = Array.from(document.querySelectorAll('.product-card'));
+        const PIX_KEY = 'simol.simposiointegrado@gmail.com';
+        const products = [
+            { id: 'adesivo1', category: 'Adesivo', name: 'Adesivo', note: 'Tubo de ensaio', type: 'Adesivo (Tubo de ensaio)', price: 0.75, image: 'assets/produtos/adesivo1.png', alt: 'Adesivo tubo de ensaio' },
+            { id: 'adesivo2', category: 'Adesivo', name: 'Adesivo', note: 'ATP', type: 'Adesivo (ATP)', price: 0.75, image: 'assets/produtos/adesivo2.png', alt: 'Adesivo ATP' },
+            { id: 'adesivo3', category: 'Adesivo', name: 'Adesivo', note: 'Cromossomo', type: 'Adesivo (Cromossomo)', price: 0.75, image: 'assets/produtos/adesivo3.png', alt: 'Adesivo cromossomo' },
+            { id: 'adesivo4', category: 'Adesivo', name: 'Adesivo', note: 'Tubos coloridos', type: 'Adesivo (Tubos coloridos)', price: 0.75, image: 'assets/produtos/adesivo4.png', alt: 'Adesivo tubos coloridos' },
+            { id: 'adesivo5', category: 'Adesivo', name: 'Adesivo', note: 'Bequer', type: 'Adesivo (Bequer)', price: 0.75, image: 'assets/produtos/adesivo5.png', alt: 'Adesivo bequer' },
+            { id: 'adesivo6', category: 'Adesivo', name: 'Adesivo', note: 'Membrana', type: 'Adesivo (Membrana)', price: 0.75, image: 'assets/produtos/adesivo6.png', alt: 'Adesivo membrana' },
+            { id: 'adesivo7', category: 'Adesivo', name: 'Adesivo', note: 'Equipamento', type: 'Adesivo (Equipamento)', price: 0.75, image: 'assets/produtos/adesivo7.png', alt: 'Adesivo equipamento' },
+            { id: 'adesivo8', category: 'Adesivo', name: 'Adesivo', note: 'Eletroforese', type: 'Adesivo (Eletroforese)', price: 0.75, image: 'assets/produtos/adesivo8.png', alt: 'Adesivo eletroforese' },
+            { id: 'adesivo9', category: 'Adesivo', name: 'Adesivo', note: 'I SIMOL UFPR', type: 'Adesivo (I SIMOL UFPR)', price: 0.75, image: 'assets/produtos/adesivo9.png', alt: 'Adesivo I SIMOL UFPR' },
+            { id: 'botton1', category: 'Botton', name: 'Botton', note: 'Biologia Celular e Molecular', type: 'Botton (Biologia Celular e Molecular)', price: 5, image: 'assets/produtos/botton1.png', alt: 'Botton Biologia Celular e Molecular' },
+            { id: 'botton2', category: 'Botton', name: 'Botton', note: 'Bioquimica', type: 'Botton (Bioquimica)', price: 5, image: 'assets/produtos/botton2.png', alt: 'Botton Bioquimica' },
+            { id: 'botton3', category: 'Botton', name: 'Botton', note: 'Genetica', type: 'Botton (Genetica)', price: 5, image: 'assets/produtos/botton3.png', alt: 'Botton Genetica' },
+            { id: 'chaveiroarte1', category: 'Chaveiro', name: 'Chaveiro', note: 'Genes, moleculas e celulas', type: 'Chaveiro (Genes, moleculas e celulas)', price: 6, image: 'assets/produtos/chaveiroarte1.png', alt: 'Chaveiro genes moleculas e celulas' },
+            { id: 'chaveiroarte2', category: 'Chaveiro', name: 'Chaveiro', note: 'DNA', type: 'Chaveiro (DNA)', price: 6, image: 'assets/produtos/chaveiroarte2.png', alt: 'Chaveiro DNA' },
+            { id: 'chaveiroarte3', category: 'Chaveiro', name: 'Chaveiro', note: 'Genetica', type: 'Chaveiro (Genetica)', price: 6, image: 'assets/produtos/chaveiroarte3.png', alt: 'Chaveiro Genetica' },
+            { id: 'chaveiroppg1', category: 'Chaveiro', name: 'Chaveiro', note: 'PPGBq', type: 'Chaveiro (PPGBq)', price: 6, image: 'assets/produtos/chaveiroppg1.png', alt: 'Chaveiro PPGBq' },
+            { id: 'chaveiroppg2', category: 'Chaveiro', name: 'Chaveiro', note: 'PPGBioCelMol', type: 'Chaveiro (PPGBioCelMol)', price: 6, image: 'assets/produtos/chaveiroppg2.png', alt: 'Chaveiro PPGBioCelMol' },
+            { id: 'chaveiroppg3', category: 'Chaveiro', name: 'Chaveiro', note: 'PPGen', type: 'Chaveiro (PPGen)', price: 6, image: 'assets/produtos/chaveiroppg3.png', alt: 'Chaveiro PPGen' }
+        ];
+
+        const categories = [
+            { id: 'Todos', label: 'Todos' },
+            { id: 'Adesivo', label: 'Adesivos' },
+            { id: 'Botton', label: 'Bottons' },
+            { id: 'Chaveiro', label: 'Chaveiros' }
+        ];
+
         const entryPanel = document.getElementById('entry-panel');
         const storeLayout = document.getElementById('store-layout');
         const registeredBtn = document.getElementById('entry-registered-btn');
@@ -737,10 +891,11 @@
         const entryVerifySpinner = entryVerifyBtn.querySelector('.spinner');
         const entryVerifyText = entryVerifyBtn.querySelector('span');
         const entryMessage = document.getElementById('entry-message');
-        const quantityInput = document.getElementById('product-quantity');
-        const summaryProduct = document.getElementById('summary-product');
-        const summaryQuantity = document.getElementById('summary-quantity');
-        const summaryTotal = document.getElementById('summary-total');
+        const filtersEl = document.getElementById('category-filters');
+        const productGrid = document.getElementById('product-grid');
+        const cartItemsEl = document.getElementById('cart-items');
+        const cartEmptyEl = document.getElementById('cart-empty');
+        const cartTotalEl = document.getElementById('cart-total');
         const cpfInput = document.getElementById('buyer-cpf');
         const cpfGroup = document.getElementById('buyer-cpf-group');
         const nameInput = document.getElementById('buyer-name');
@@ -748,15 +903,24 @@
         const phoneInput = document.getElementById('buyer-phone');
         const dropArea = document.getElementById('product-drop-area');
         const fileInput = document.getElementById('product-file-input');
-        const fileName = document.getElementById('product-file-name');
+        const filePreview = document.getElementById('file-preview');
+        const filePreviewImg = document.getElementById('file-preview-img');
+        const filePreviewName = document.getElementById('file-preview-name');
+        const filePreviewSize = document.getElementById('file-preview-size');
+        const removeFileBtn = document.getElementById('remove-file-btn');
         const submitBtn = document.getElementById('product-submit-btn');
         const submitSpinner = submitBtn.querySelector('.spinner');
         const submitText = submitBtn.querySelector('span');
         const messageBox = document.getElementById('product-message');
         const successModal = document.getElementById('product-success-modal');
-        let selectedProduct = productCards[0];
-        let selectedFile = null;
+        const copyPixBtn = document.getElementById('copy-pix-btn');
+        const copyToast = document.getElementById('copy-toast');
+
         let buyerMode = '';
+        let activeCategory = 'Todos';
+        let selectedFile = null;
+        let selectedPreviewUrl = '';
+        let cart = [];
 
         function formatCurrency(value) {
             return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -766,6 +930,12 @@
             entryMessage.textContent = text;
             entryMessage.className = 'form-message entry-message ' + type;
             entryMessage.style.display = 'block';
+        }
+
+        function showMessage(text, type) {
+            messageBox.textContent = text;
+            messageBox.className = 'form-message store-message ' + type;
+            messageBox.style.display = 'block';
         }
 
         function unlockStore(mode) {
@@ -781,10 +951,166 @@
                 cpfInput.readOnly = false;
                 cpfInput.value = '';
             }
-            entryPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
             setTimeout(() => {
                 storeLayout.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }, 180);
+            }, 120);
+        }
+
+        function renderFilters() {
+            filtersEl.innerHTML = categories.map(category => `
+                <button type="button" class="filter-tab ${category.id === activeCategory ? 'active' : ''}" data-category="${category.id}">
+                    ${category.label}
+                </button>
+            `).join('');
+        }
+
+        function renderProducts() {
+            const visibleProducts = activeCategory === 'Todos'
+                ? products
+                : products.filter(product => product.category === activeCategory);
+            productGrid.innerHTML = visibleProducts.map((product, index) => `
+                <article class="product-card" style="animation-delay: ${Math.min(index * 0.025, 0.24)}s">
+                    <div class="product-image-wrap">
+                        <span class="product-badge">${product.category}</span>
+                        <img src="${product.image}" alt="${product.alt}">
+                    </div>
+                    <div class="product-card-body">
+                        <h2 class="product-name">${product.name}</h2>
+                        <p class="product-note">${product.note}</p>
+                        <div class="product-footer">
+                            <div class="product-price">${formatCurrency(product.price)}</div>
+                            <button type="button" class="add-cart-btn" data-product-id="${product.id}">Adicionar ao Carrinho 🛒</button>
+                        </div>
+                    </div>
+                </article>
+            `).join('');
+        }
+
+        function addToCart(productId, button) {
+            const product = products.find(item => item.id === productId);
+            if (!product) return;
+            const existing = cart.find(item => item.id === productId);
+            if (existing) {
+                existing.quantity += 1;
+            } else {
+                cart.push({ ...product, quantity: 1 });
+            }
+            if (button) {
+                button.classList.add('just-added');
+                const originalText = button.textContent;
+                button.textContent = 'Adicionado ✓';
+                setTimeout(() => {
+                    button.classList.remove('just-added');
+                    button.textContent = originalText;
+                }, 700);
+            }
+            renderCart();
+        }
+
+        function updateCartQuantity(productId, delta) {
+            const item = cart.find(cartItem => cartItem.id === productId);
+            if (!item) return;
+            item.quantity += delta;
+            if (item.quantity <= 0) {
+                cart = cart.filter(cartItem => cartItem.id !== productId);
+            }
+            renderCart();
+        }
+
+        function removeFromCart(productId) {
+            cart = cart.filter(cartItem => cartItem.id !== productId);
+            renderCart();
+        }
+
+        function getCartTotal() {
+            return cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+        }
+
+        function renderCart() {
+            cartEmptyEl.style.display = cart.length ? 'none' : 'block';
+            cartItemsEl.innerHTML = cart.map(item => `
+                <div class="cart-item">
+                    <img class="cart-thumb" src="${item.image}" alt="${item.alt}">
+                    <div>
+                        <h3>${item.name}</h3>
+                        <p>${item.note} • ${formatCurrency(item.price)}</p>
+                        <div class="cart-line">
+                            <div class="cart-qty" aria-label="Quantidade de ${item.type}">
+                                <button type="button" data-cart-dec="${item.id}">-</button>
+                                <span>${item.quantity}</span>
+                                <button type="button" data-cart-inc="${item.id}">+</button>
+                            </div>
+                            <button type="button" class="icon-btn" data-cart-remove="${item.id}" aria-label="Remover item">🗑️</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            cartTotalEl.textContent = formatCurrency(getCartTotal());
+            updateSubmitState();
+        }
+
+        function getCartSummary() {
+            return cart.map(item => `${item.quantity}x ${item.type}`).join(', ');
+        }
+
+        function updateSubmitState() {
+            submitBtn.disabled = !cart.length || !selectedFile;
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1).replace('.', ',') + ' KB';
+            return (bytes / (1024 * 1024)).toFixed(1).replace('.', ',') + ' MB';
+        }
+
+        function clearSelectedFile() {
+            selectedFile = null;
+            fileInput.value = '';
+            filePreview.classList.remove('visible');
+            if (selectedPreviewUrl) {
+                URL.revokeObjectURL(selectedPreviewUrl);
+                selectedPreviewUrl = '';
+            }
+            filePreviewImg.removeAttribute('src');
+            filePreviewImg.alt = '';
+            filePreviewName.textContent = '';
+            filePreviewSize.textContent = '';
+            updateSubmitState();
+        }
+
+        function handleFiles(files) {
+            if (!files.length) return;
+            selectedFile = files[0];
+            filePreviewName.textContent = selectedFile.name;
+            filePreviewSize.textContent = formatFileSize(selectedFile.size);
+            if (selectedPreviewUrl) {
+                URL.revokeObjectURL(selectedPreviewUrl);
+                selectedPreviewUrl = '';
+            }
+            if (selectedFile.type && selectedFile.type.startsWith('image/')) {
+                selectedPreviewUrl = URL.createObjectURL(selectedFile);
+                filePreviewImg.src = selectedPreviewUrl;
+                filePreviewImg.alt = 'Preview do comprovante';
+            } else {
+                filePreviewImg.removeAttribute('src');
+                filePreviewImg.alt = '';
+            }
+            filePreview.classList.add('visible');
+            updateSubmitState();
+        }
+
+        function fireConfetti() {
+            successModal.querySelectorAll('.confetti').forEach(item => item.remove());
+            const colors = ['#8a57b5', '#6564ca', '#f0b429', '#2bb673', '#e86aa7'];
+            for (let i = 0; i < 44; i++) {
+                const confetti = document.createElement('span');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.background = colors[i % colors.length];
+                confetti.style.animationDelay = Math.random() * 0.55 + 's';
+                confetti.style.transform = 'rotate(' + (Math.random() * 180) + 'deg)';
+                successModal.appendChild(confetti);
+            }
         }
 
         registeredBtn.addEventListener('click', () => {
@@ -816,10 +1142,14 @@
             this.value = this.value.replace(/\D/g, '').slice(0, 11);
         });
 
+        cpfInput.addEventListener('input', function() {
+            this.value = this.value.replace(/\D/g, '').slice(0, 11);
+        });
+
         entryVerifyBtn.addEventListener('click', () => {
             const cpf = entryCpfInput.value.trim();
             if (cpf.length !== 11) {
-                showEntryMessage('Informe o CPF com 11 números para verificar sua inscrição.', 'error');
+                showEntryMessage('Informe o CPF com 11 numeros para verificar sua inscricao.', 'error');
                 return;
             }
 
@@ -833,7 +1163,7 @@
                 .then(data => {
                     if (!data || !data.encontrado) {
                         storeLayout.classList.add('is-locked');
-                        showEntryMessage('Não encontramos inscrição para esse CPF. Selecione "Não sou inscrito" para comprar sem informar CPF.', 'error');
+                        showEntryMessage('Nao encontramos inscricao para esse CPF. Selecione "Nao sou inscrito" para comprar sem informar CPF.', 'error');
                         return;
                     }
 
@@ -841,12 +1171,12 @@
                     emailInput.value = data.email || '';
                     phoneInput.value = data.telefone || '';
                     cpfInput.value = data.cpf || cpf;
-                    showEntryMessage('Inscrição encontrada. Seus dados foram preenchidos no pedido.', 'success');
+                    showEntryMessage('Inscricao encontrada. Seus dados foram preenchidos no pedido.', 'success');
                     unlockStore('inscrito');
                 })
                 .catch(error => {
-                    console.error('Erro ao verificar inscrição:', error);
-                    showEntryMessage('Erro ao verificar sua inscrição. Tente novamente.', 'error');
+                    console.error('Erro ao verificar inscricao:', error);
+                    showEntryMessage('Erro ao verificar sua inscricao. Tente novamente.', 'error');
                 })
                 .finally(() => {
                     entryVerifyBtn.disabled = false;
@@ -855,45 +1185,48 @@
                 });
         });
 
-        function getQuantity() {
-            const parsed = parseInt(quantityInput.value, 10);
-            if (isNaN(parsed) || parsed < 1) return 1;
-            if (parsed > 99) return 99;
-            return parsed;
-        }
-
-        function updateSummary() {
-            const quantity = getQuantity();
-            quantityInput.value = quantity;
-            const price = Number(selectedProduct.dataset.price);
-            const total = price * quantity;
-            summaryProduct.textContent = selectedProduct.dataset.type;
-            summaryQuantity.textContent = quantity;
-            summaryTotal.textContent = formatCurrency(total);
-        }
-
-        productCards.forEach(card => {
-            card.addEventListener('click', () => {
-                productCards.forEach(item => item.classList.remove('selected'));
-                card.classList.add('selected');
-                selectedProduct = card;
-                updateSummary();
-            });
+        filtersEl.addEventListener('click', event => {
+            const button = event.target.closest('[data-category]');
+            if (!button) return;
+            activeCategory = button.dataset.category;
+            renderFilters();
+            renderProducts();
         });
 
-        document.getElementById('decrease-quantity').addEventListener('click', () => {
-            quantityInput.value = Math.max(1, getQuantity() - 1);
-            updateSummary();
+        productGrid.addEventListener('click', event => {
+            const button = event.target.closest('[data-product-id]');
+            if (!button) return;
+            addToCart(button.dataset.productId, button);
         });
 
-        document.getElementById('increase-quantity').addEventListener('click', () => {
-            quantityInput.value = Math.min(99, getQuantity() + 1);
-            updateSummary();
+        cartItemsEl.addEventListener('click', event => {
+            const dec = event.target.closest('[data-cart-dec]');
+            const inc = event.target.closest('[data-cart-inc]');
+            const remove = event.target.closest('[data-cart-remove]');
+            if (dec) updateCartQuantity(dec.dataset.cartDec, -1);
+            if (inc) updateCartQuantity(inc.dataset.cartInc, 1);
+            if (remove) removeFromCart(remove.dataset.cartRemove);
         });
 
-        quantityInput.addEventListener('input', updateSummary);
-        cpfInput.addEventListener('input', function() {
-            this.value = this.value.replace(/\D/g, '').slice(0, 11);
+        copyPixBtn.addEventListener('click', async () => {
+            try {
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    await navigator.clipboard.writeText(PIX_KEY);
+                } else {
+                    const textArea = document.createElement('textarea');
+                    textArea.value = PIX_KEY;
+                    textArea.style.position = 'fixed';
+                    textArea.style.left = '-9999px';
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    document.execCommand('copy');
+                    textArea.remove();
+                }
+                copyToast.classList.add('visible');
+                setTimeout(() => copyToast.classList.remove('visible'), 1500);
+            } catch (error) {
+                console.error('Erro ao copiar PIX:', error);
+            }
         });
 
         dropArea.addEventListener('click', () => fileInput.click());
@@ -913,45 +1246,33 @@
         fileInput.addEventListener('change', function() {
             handleFiles(this.files);
         });
-
-        function handleFiles(files) {
-            if (!files.length) return;
-            selectedFile = files[0];
-            fileName.textContent = 'Arquivo selecionado: ' + selectedFile.name;
-            submitBtn.disabled = false;
-        }
-
-        function showMessage(text, type) {
-            messageBox.textContent = text;
-            messageBox.className = 'form-message store-message ' + type;
-            messageBox.style.display = 'block';
-        }
+        removeFileBtn.addEventListener('click', clearSelectedFile);
 
         document.getElementById('product-order-form').addEventListener('submit', event => {
             event.preventDefault();
-            const name = document.getElementById('buyer-name').value.trim();
+            const name = nameInput.value.trim();
             const cpf = cpfInput.value.trim();
-            const email = document.getElementById('buyer-email').value.trim();
-            const phone = document.getElementById('buyer-phone').value.trim();
-            const quantity = getQuantity();
-            const productType = selectedProduct.dataset.type;
-            const total = Number(selectedProduct.dataset.price) * quantity;
+            const email = emailInput.value.trim();
+            const phone = phoneInput.value.trim();
+            const total = getCartTotal();
+            const orderSummary = getCartSummary();
 
             if (!buyerMode) {
-                showMessage('Escolha primeiro se você é inscrito no SIMOL ou não.', 'error');
+                showMessage('Escolha primeiro se voce e inscrito no SIMOL ou nao.', 'error');
                 return;
             }
-
+            if (!cart.length) {
+                showMessage('Adicione pelo menos um produto ao carrinho.', 'error');
+                return;
+            }
             if (buyerMode === 'inscrito' && cpf.length !== 11) {
-                showMessage('Verifique sua inscrição pelo CPF antes de enviar.', 'error');
+                showMessage('Verifique sua inscricao pelo CPF antes de enviar.', 'error');
                 return;
             }
-
             if (!name || !email || !phone) {
                 showMessage('Preencha nome, e-mail e telefone antes de enviar.', 'error');
                 return;
             }
-
             if (!selectedFile) {
                 showMessage('Selecione o comprovante de pagamento.', 'error');
                 return;
@@ -968,9 +1289,9 @@
                 formData.append('action', 'uploadFesta');
                 formData.append('nome', name);
                 formData.append('cpf', buyerMode === 'inscrito' ? cpf : '');
-                formData.append('tipo', productType);
+                formData.append('tipo', orderSummary);
                 formData.append('valor', total.toFixed(2).replace('.', ','));
-                formData.append('quantidade', String(quantity));
+                formData.append('quantidade', '1');
                 formData.append('email', email);
                 formData.append('telefone', phone);
                 formData.append('filename', selectedFile.name);
@@ -992,6 +1313,7 @@
                             throw new Error(result.error || result.message || 'Erro ao enviar pedido.');
                         }
                         successModal.style.display = 'flex';
+                        fireConfetti();
                     })
                     .catch(error => {
                         console.error('Erro ao enviar pedido:', error);
@@ -1020,7 +1342,9 @@
             }
         });
 
-        updateSummary();
+        renderFilters();
+        renderProducts();
+        renderCart();
     </script>
 </body>
 </html>

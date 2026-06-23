@@ -1110,3 +1110,10 @@ body {
         display: none !important;
     }
 }
+
+/* Micro-animação para o ícone do carrinho de produtos */
+.action-btn:hover .btn-cart-icon {
+    transform: scale(1.25) rotate(-12deg);
+    color: var(--color-1);
+}
+
