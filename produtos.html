@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Produtos SIMOL</title>
+    <link rel="icon" type="image/png" href="Icone_Proteina_Óculos.png">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            min-height: 100vh;
+        }
+
+        .store-shell {
+            max-width: 1120px;
+            margin: 0 auto;
+            padding: 72px 18px 48px;
+        }
+
+        .store-header {
+            display: grid;
+            grid-template-columns: minmax(0, 1.15fr) minmax(280px, 0.85fr);
+            gap: 28px;
+            align-items: center;
+            margin-bottom: 28px;
+        }
+
+        .store-kicker {
+            color: var(--color-3);
+            font-weight: 800;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            font-size: 0.82rem;
+        }
+
+        .store-title {
+            color: var(--color-4);
+            font-size: clamp(2rem, 5vw, 3.4rem);
+            line-height: 1.02;
+            margin: 0 0 14px;
+        }
+
+        .store-copy {
+            color: #555;
+            line-height: 1.65;
+            max-width: 650px;
+            margin: 0;
+        }
+
+        .store-hero-image {
+            width: 100%;
+            min-height: 220px;
+            aspect-ratio: 4 / 3;
+            object-fit: contain;
+            filter: drop-shadow(0 20px 35px rgba(59, 40, 160, 0.16));
+        }
+
+        .store-layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1.35fr) 360px;
+            gap: 24px;
+            align-items: start;
+        }
+
+        .store-layout.is-locked {
+            display: none;
+        }
+
+        .entry-panel {
+            background: rgba(255, 255, 255, 0.94);
+            border: 1px solid rgba(138, 87, 181, 0.18);
+            border-radius: 8px;
+            padding: 22px;
+            margin-bottom: 24px;
+            box-shadow: 0 14px 32px rgba(59, 40, 160, 0.1);
+        }
+
+        .entry-panel h2 {
+            color: var(--color-4);
+            margin: 0 0 8px;
+            font-size: 1.35rem;
+        }
+
+        .entry-panel p {
+            color: #555;
+            line-height: 1.55;
+            margin: 0 0 16px;
+        }
+
+        .entry-actions {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .entry-choice {
+            border: 2px solid rgba(138, 87, 181, 0.22);
+            border-radius: 8px;
+            background: #fff;
+            color: var(--color-4);
+            padding: 14px;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .entry-choice:hover,
+        .entry-choice.selected {
+            border-color: var(--color-3);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 24px rgba(59, 40, 160, 0.12);
+        }
+
+        .entry-check {
+            display: none;
+            grid-template-columns: minmax(0, 1fr) auto;
+            gap: 10px;
+            margin-top: 16px;
+            align-items: end;
+        }
+
+        .entry-check.visible {
+            display: grid;
+        }
+
+        .entry-check label {
+            display: block;
+            color: var(--color-4);
+            font-weight: 700;
+            margin-bottom: 7px;
+            font-size: 0.94rem;
+        }
+
+        .entry-check input {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 13px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 1rem;
+            background: #fff;
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+            gap: 16px;
+        }
+
+        .product-card {
+            border: 2px solid rgba(138, 87, 181, 0.18);
+            background: rgba(255, 255, 255, 0.92);
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+            min-width: 0;
+        }
+
+        .product-card:hover,
+        .product-card.selected {
+            transform: translateY(-3px);
+            border-color: var(--color-3);
+            box-shadow: 0 16px 35px rgba(59, 40, 160, 0.13);
+        }
+
+        .product-image-wrap {
+            background: #fff;
+            aspect-ratio: 1 / 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px;
+        }
+
+        .product-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .product-card-body {
+            padding: 14px;
+        }
+
+        .product-name {
+            color: var(--color-4);
+            font-size: 1.1rem;
+            margin: 0 0 6px;
+        }
+
+        .product-note {
+            color: #666;
+            min-height: 38px;
+            margin: 0 0 12px;
+            font-size: 0.92rem;
+            line-height: 1.45;
+        }
+
+        .product-price {
+            color: var(--color-3);
+            font-size: 1.35rem;
+            font-weight: 800;
+        }
+
+        .order-panel {
+            position: sticky;
+            top: 18px;
+            background: rgba(255, 255, 255, 0.94);
+            border: 1px solid rgba(138, 87, 181, 0.18);
+            border-radius: 8px;
+            padding: 22px;
+            box-shadow: 0 16px 38px rgba(59, 40, 160, 0.11);
+        }
+
+        .order-panel h2 {
+            color: var(--color-4);
+            font-size: 1.35rem;
+            margin: 0 0 16px;
+        }
+
+        .summary-box {
+            background: rgba(138, 87, 181, 0.08);
+            border-radius: 8px;
+            padding: 14px;
+            margin-bottom: 18px;
+            color: #4b3d60;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+
+        .summary-row:last-child {
+            margin-bottom: 0;
+            font-weight: 800;
+            color: var(--color-4);
+        }
+
+        .store-form .form-group {
+            margin-bottom: 14px;
+        }
+
+        .store-form label {
+            display: block;
+            color: var(--color-4);
+            font-weight: 700;
+            margin-bottom: 7px;
+            font-size: 0.94rem;
+        }
+
+        .store-form input,
+        .store-form textarea {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 13px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 1rem;
+            background: #fff;
+        }
+
+        .store-form textarea {
+            resize: vertical;
+            min-height: 72px;
+        }
+
+        .quantity-control {
+            display: grid;
+            grid-template-columns: 42px 1fr 42px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #fff;
+        }
+
+        .quantity-control button {
+            border: 0;
+            background: #f3eff8;
+            color: var(--color-4);
+            font-size: 1.25rem;
+            font-weight: 800;
+            cursor: pointer;
+        }
+
+        .quantity-control input {
+            border: 0;
+            border-left: 1px solid #ddd;
+            border-right: 1px solid #ddd;
+            text-align: center;
+            border-radius: 0;
+        }
+
+        .pix-box {
+            border-left: 4px solid var(--color-3);
+            background: #f8f9fa;
+            padding: 14px;
+            border-radius: 6px;
+            margin: 16px 0;
+            color: #555;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .pix-key {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 10px;
+            margin-top: 8px;
+            word-break: break-word;
+            font-weight: 700;
+            color: var(--color-4);
+        }
+
+        .drop-area {
+            min-height: 94px;
+        }
+
+        .store-message {
+            display: none;
+            margin: 12px 0;
+        }
+
+        .entry-message {
+            display: none;
+            margin-top: 12px;
+        }
+
+        .store-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.52);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 18px;
+        }
+
+        .store-modal-content {
+            background: #fff;
+            width: min(460px, 100%);
+            border-radius: 8px;
+            padding: 32px;
+            text-align: center;
+            box-shadow: 0 18px 44px rgba(0, 0, 0, 0.22);
+        }
+
+        .store-modal-content h2 {
+            color: var(--color-4);
+            margin: 0 0 10px;
+        }
+
+        .store-modal-content p {
+            color: #555;
+            line-height: 1.55;
+        }
+
+        @media (max-width: 880px) {
+            .store-header,
+            .store-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .order-panel {
+                position: static;
+            }
+        }
+
+        @media (max-width: 620px) {
+            .store-shell {
+                padding-top: 42px;
+            }
+
+            .entry-actions,
+            .entry-check {
+                grid-template-columns: 1fr;
+            }
+
+            .product-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .store-hero-image {
+                min-height: 160px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="background-elements">
+        <div class="parallax-layer" data-speed="-2">
+            <div class="shape shape-1"></div>
+        </div>
+        <div class="parallax-layer" data-speed="1.5">
+            <div class="shape shape-2"></div>
+        </div>
+    </div>
+
+    <main class="store-shell">
+        <section class="store-header">
+            <div>
+                <div class="store-kicker">Produtos oficiais</div>
+                <h1 class="store-title">Loja SIMOL</h1>
+                <p class="store-copy">Escolha seu produto, informe seus dados e envie o comprovante PIX. O pedido será registrado na aba <strong>produtos</strong> da planilha, com a coluna <strong>Tipo_quantidade</strong> preenchida pelo produto e pela quantidade selecionada.</p>
+            </div>
+            <img class="store-hero-image" src="assets/produtos/adesivo9.png" alt="Produtos oficiais do SIMOL">
+        </section>
+
+        <section class="entry-panel" id="entry-panel">
+            <h2>Antes de comprar</h2>
+            <p>Verifique se você já está inscrito no SIMOL para preenchermos seus dados automaticamente. Quem não está inscrito pode comprar normalmente, sem informar CPF.</p>
+            <div class="entry-actions">
+                <button type="button" class="entry-choice" id="entry-registered-btn">Sou inscrito no SIMOL</button>
+                <button type="button" class="entry-choice" id="entry-external-btn">Não sou inscrito</button>
+            </div>
+            <div class="entry-check" id="entry-check">
+                <div>
+                    <label for="entry-cpf">CPF usado na inscrição *</label>
+                    <input id="entry-cpf" type="text" maxlength="11" inputmode="numeric" placeholder="Somente números">
+                </div>
+                <button type="button" class="submit-btn" id="entry-verify-btn" style="margin: 0; min-width: 150px;">
+                    <span>Verificar</span>
+                    <div class="spinner" style="display: none;"></div>
+                </button>
+            </div>
+            <div class="form-message entry-message" id="entry-message"></div>
+        </section>
+
+        <section class="store-layout is-locked" id="store-layout">
+            <div class="product-grid" id="product-grid">
+                <button class="product-card selected" type="button" data-type="Adesivo - tubo de ensaio" data-price="0.75">
+                    <div class="product-image-wrap">
+                        <img src="assets/produtos/adesivo1.png" alt="Adesivo tubo de ensaio">
+                    </div>
+                    <div class="product-card-body">
+                        <h2 class="product-name">Adesivo</h2>
+                        <p class="product-note">Tubo de ensaio</p>
+                        <div class="product-price">R$ 0,75</div>
+                    </div>
+                </button>
+
+                <button class="product-card" type="button" data-type="Adesivo - ATP" data-price="0.75">
+                    <div class="product-image-wrap">
+                        <img src="assets/produtos/adesivo2.png" alt="Adesivo ATP">
+                    </div>
+                    <div class="product-card-body">
+                        <h2 class="product-name">Adesivo</h2>
+                        <p class="product-note">ATP</p>
+                        <div class="product-price">R$ 0,75</div>
+                    </div>
+                </button>
+
+                <button class="product-card" type="button" data-type="Adesivo - cromossomo" data-price="0.75">
+                    <div class="product-image-wrap">
+                        <img src="assets/produtos/adesivo3.png" alt="Adesivo cromossomo">
+                    </div>
+                    <div class="product-card-body">
+                        <h2 class="product-name">Adesivo</h2>
+                        <p class="product-note">Cromossomo</p>
+                        <div class="product-price">R$ 0,75</div>
+                    </div>
+                </button>
+
+                <button class="product-card" type="button" data-type="Adesivo - tubos coloridos" data-price="0.75">
+                    <div class="product-image-wrap">
+                        <img src="assets/produtos/adesivo4.png" alt="Adesivo tubos coloridos">
+                    </div>
+                    <div class="product-card-body">
+                        <h2 class="product-name">Adesivo</h2>
+                        <p class="product-note">Tubos coloridos</p>
+                        <div class="product-price">R$ 0,75</div>
+                    </div>
+                </button>
+
+                <button class="product-card" type="button" data-type="Adesivo - béquer" data-price="0.75">
+                    <div class="product-image-wrap">
+                        <img src="assets/produtos/adesivo5.png" alt="Adesivo béquer">
+                    </div>
+                    <div class="product-card-body">
+                        <h2 class="product-name">Adesivo</h2>
+                        <p class="product-note">Béquer</p>
+                        <div class="product-price">R$ 0,75</div>
+                    </div>
+                </button>
+
+                <button class="product-card" type="button" data-type="Adesivo - membrana" data-price="0.75">
+                    <div class="product-image-wrap">
+                        <img src="assets/produtos/adesivo6.png" alt="Adesivo membrana">
+                    </div>
+                    <div class="product-card-body">
+                        <h2 class="product-name">Adesivo</h2>
+                        <p class="product-note">Membrana</p>
+                        <div class="product-price">R$ 0,75</div>
+                    </div>
+                </button>
+
+                <button class="product-card" type="button" data-type="Adesivo - equipamento" data-price="0.75">
+                    <div class="product-image-wrap">
+                        <img src="assets/produtos/adesivo7.png" alt="Adesivo equipamento">
+                    </div>
+                    <div class="product-card-body">
+                        <h2 class="product-name">Adesivo</h2>
+                        <p class="product-note">Equipamento</p>
+                        <div class="product-price">R$ 0,75</div>
+                    </div>
+                </button>
+
+                <button class="product-card" type="button" data-type="Adesivo - eletroforese" data-price="0.75">
+                    <div class="product-image-wrap">
+                        <img src="assets/produtos/adesivo8.png" alt="Adesivo eletroforese">
+                    </div>
+                    <div class="product-card-body">
+                        <h2 class="product-name">Adesivo</h2>
+                        <p class="product-note">Eletroforese</p>
+                        <div class="product-price">R$ 0,75</div>
+                    </div>
+                </button>
+
+                <button class="product-card" type="button" data-type="Adesivo - I SIMOL UFPR" data-price="0.75">
+                    <div class="product-image-wrap">
+                        <img src="assets/produtos/adesivo9.png" alt="Adesivo I SIMOL UFPR">
+                    </div>
+                    <div class="product-card-body">
+                        <h2 class="product-name">Adesivo</h2>
+                        <p class="product-note">I SIMOL UFPR</p>
+                        <div class="product-price">R$ 0,75</div>
+                    </div>
+                </button>
+
+                <button class="product-card" type="button" data-type="Botton - Biologia Celular e Molecular" data-price="5">
+                    <div class="product-image-wrap">
+                        <img src="assets/produtos/botton1.png" alt="Botton Biologia Celular e Molecular">
+                    </div>
+                    <div class="product-card-body">
+                        <h2 class="product-name">Botton</h2>
+                        <p class="product-note">Biologia Celular e Molecular</p>
+                        <div class="product-price">R$ 5,00</div>
+                    </div>
+                </button>
+
+                <button class="product-card" type="button" data-type="Botton - Bioquímica" data-price="5">
+                    <div class="product-image-wrap">
+                        <img src="assets/produtos/botton2.png" alt="Botton Bioquímica">
+                    </div>
+                    <div class="product-card-body">
+                        <h2 class="product-name">Botton</h2>
+                        <p class="product-note">Bioquímica</p>
+                        <div class="product-price">R$ 5,00</div>
+                    </div>
+                </button>
+
+                <button class="product-card" type="button" data-type="Botton - Genética" data-price="5">
+                    <div class="product-image-wrap">
+                        <img src="assets/produtos/botton3.png" alt="Botton Genética">
+                    </div>
+                    <div class="product-card-body">
+                        <h2 class="product-name">Botton</h2>
+                        <p class="product-note">Genética</p>
+                        <div class="product-price">R$ 5,00</div>
+                    </div>
+                </button>
+
+                <button class="product-card" type="button" data-type="Chaveiro - entre genes, moléculas e células" data-price="6">
+                    <div class="product-image-wrap">
+                        <img src="assets/produtos/chaveiroarte1.png" alt="Chaveiro entre genes moléculas e células">
+                    </div>
+                    <div class="product-card-body">
+                        <h2 class="product-name">Chaveiro</h2>
+                        <p class="product-note">Genes, moléculas e células</p>
+                        <div class="product-price">R$ 6,00</div>
+                    </div>
+                </button>
+
+                <button class="product-card" type="button" data-type="Chaveiro - DNA" data-price="6">
+                    <div class="product-image-wrap">
+                        <img src="assets/produtos/chaveiroarte2.png" alt="Chaveiro DNA">
+                    </div>
+                    <div class="product-card-body">
+                        <h2 class="product-name">Chaveiro</h2>
+                        <p class="product-note">DNA</p>
+                        <div class="product-price">R$ 6,00</div>
+                    </div>
+                </button>
+
+                <button class="product-card" type="button" data-type="Chaveiro - genética" data-price="6">
+                    <div class="product-image-wrap">
+                        <img src="assets/produtos/chaveiroarte3.png" alt="Chaveiro genética">
+                    </div>
+                    <div class="product-card-body">
+                        <h2 class="product-name">Chaveiro</h2>
+                        <p class="product-note">Genética</p>
+                        <div class="product-price">R$ 6,00</div>
+                    </div>
+                </button>
+
+                <button class="product-card" type="button" data-type="Chaveiro - PPGBq" data-price="6">
+                    <div class="product-image-wrap">
+                        <img src="assets/produtos/chaveiroppg1.png" alt="Chaveiro PPGBq">
+                    </div>
+                    <div class="product-card-body">
+                        <h2 class="product-name">Chaveiro</h2>
+                        <p class="product-note">PPGBq</p>
+                        <div class="product-price">R$ 6,00</div>
+                    </div>
+                </button>
+
+                <button class="product-card" type="button" data-type="Chaveiro - PPGBioCelMol" data-price="6">
+                    <div class="product-image-wrap">
+                        <img src="assets/produtos/chaveiroppg2.png" alt="Chaveiro PPGBioCelMol">
+                    </div>
+                    <div class="product-card-body">
+                        <h2 class="product-name">Chaveiro</h2>
+                        <p class="product-note">PPGBioCelMol</p>
+                        <div class="product-price">R$ 6,00</div>
+                    </div>
+                </button>
+
+                <button class="product-card" type="button" data-type="Chaveiro - PPGen" data-price="6">
+                    <div class="product-image-wrap">
+                        <img src="assets/produtos/chaveiroppg3.png" alt="Chaveiro PPGen">
+                    </div>
+                    <div class="product-card-body">
+                        <h2 class="product-name">Chaveiro</h2>
+                        <p class="product-note">PPGen</p>
+                        <div class="product-price">R$ 6,00</div>
+                    </div>
+                </button>
+            </div>
+
+            <aside class="order-panel">
+                <h2>Seu pedido</h2>
+                <div class="summary-box" aria-live="polite">
+                    <div class="summary-row">
+                        <span>Produto</span>
+                        <strong id="summary-product">Adesivo</strong>
+                    </div>
+                    <div class="summary-row">
+                        <span>Quantidade</span>
+                        <strong id="summary-quantity">1</strong>
+                    </div>
+                    <div class="summary-row">
+                        <span>Total</span>
+                        <strong id="summary-total">R$ 0,75</strong>
+                    </div>
+                </div>
+
+                <form id="product-order-form" class="store-form">
+                    <div class="form-group">
+                        <label for="product-quantity">Quantidade *</label>
+                        <div class="quantity-control">
+                            <button type="button" id="decrease-quantity" aria-label="Diminuir quantidade">-</button>
+                            <input id="product-quantity" type="number" min="1" max="99" value="1" inputmode="numeric" required>
+                            <button type="button" id="increase-quantity" aria-label="Aumentar quantidade">+</button>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="buyer-name">Nome completo *</label>
+                        <input id="buyer-name" type="text" autocomplete="name" required>
+                    </div>
+
+                    <div class="form-group" id="buyer-cpf-group">
+                        <label for="buyer-cpf">CPF *</label>
+                        <input id="buyer-cpf" type="text" maxlength="11" inputmode="numeric" placeholder="Somente números" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="buyer-email">E-mail *</label>
+                        <input id="buyer-email" type="email" autocomplete="email" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="buyer-phone">Telefone *</label>
+                        <input id="buyer-phone" type="tel" autocomplete="tel" required>
+                    </div>
+
+                    <div class="pix-box">
+                        <strong>Pagamento via PIX</strong>
+                        <div>Conta Mercado Pago em nome de Ana Carolina Mallin</div>
+                        <div class="pix-key">simol.simposiointegrado@gmail.com</div>
+                    </div>
+
+                    <div style="width: 160px; height: 160px; margin: 0 auto 16px;">
+                        <img src="semvalor.png" alt="QR Code PIX sem valor" style="width: 100%; height: 100%; object-fit: contain; border-radius: 8px; box-shadow: 0 0 0 1px #ddd;">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Comprovante (PDF, JPG, PNG) *</label>
+                        <div id="product-drop-area" class="drop-area">
+                            <p>Arraste e solte seu arquivo aqui<br>ou clique para selecionar</p>
+                            <input type="file" id="product-file-input" accept=".pdf,image/png,image/jpeg" required style="display: none;">
+                        </div>
+                        <div id="product-file-name" style="margin-top: 10px; font-size: 0.9rem; font-weight: 700; color: var(--color-3);"></div>
+                    </div>
+
+                    <div class="form-message store-message" id="product-message"></div>
+
+                    <button type="submit" class="submit-btn" id="product-submit-btn" disabled>
+                        <span>Enviar pedido</span>
+                        <div class="spinner" style="display: none;"></div>
+                    </button>
+                </form>
+
+                <a href="index.html" class="back-btn" style="text-decoration: none; margin-top: 18px; display: inline-block; color: var(--color-4); font-weight: 700;">← Voltar para a página inicial</a>
+            </aside>
+        </section>
+    </main>
+
+    <div class="store-modal" id="product-success-modal">
+        <div class="store-modal-content">
+            <h2>Pedido enviado</h2>
+            <p>Seu comprovante foi recebido. A organização vai conferir o pagamento e separar o produto selecionado.</p>
+            <a href="index.html" class="submit-btn" style="display: inline-block; text-decoration: none; margin-top: 12px;">Voltar para o início</a>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        const PRODUCT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzzUVW50SFfZ80SqZCEOtwNpVyRMpCV-3EneTutQ8TNh6IF2VoP5u5FZEe3CF6pMyECyQ/exec';
+        const productCards = Array.from(document.querySelectorAll('.product-card'));
+        const entryPanel = document.getElementById('entry-panel');
+        const storeLayout = document.getElementById('store-layout');
+        const registeredBtn = document.getElementById('entry-registered-btn');
+        const externalBtn = document.getElementById('entry-external-btn');
+        const entryCheck = document.getElementById('entry-check');
+        const entryCpfInput = document.getElementById('entry-cpf');
+        const entryVerifyBtn = document.getElementById('entry-verify-btn');
+        const entryVerifySpinner = entryVerifyBtn.querySelector('.spinner');
+        const entryVerifyText = entryVerifyBtn.querySelector('span');
+        const entryMessage = document.getElementById('entry-message');
+        const quantityInput = document.getElementById('product-quantity');
+        const summaryProduct = document.getElementById('summary-product');
+        const summaryQuantity = document.getElementById('summary-quantity');
+        const summaryTotal = document.getElementById('summary-total');
+        const cpfInput = document.getElementById('buyer-cpf');
+        const cpfGroup = document.getElementById('buyer-cpf-group');
+        const nameInput = document.getElementById('buyer-name');
+        const emailInput = document.getElementById('buyer-email');
+        const phoneInput = document.getElementById('buyer-phone');
+        const dropArea = document.getElementById('product-drop-area');
+        const fileInput = document.getElementById('product-file-input');
+        const fileName = document.getElementById('product-file-name');
+        const submitBtn = document.getElementById('product-submit-btn');
+        const submitSpinner = submitBtn.querySelector('.spinner');
+        const submitText = submitBtn.querySelector('span');
+        const messageBox = document.getElementById('product-message');
+        const successModal = document.getElementById('product-success-modal');
+        let selectedProduct = productCards[0];
+        let selectedFile = null;
+        let buyerMode = '';
+
+        function formatCurrency(value) {
+            return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        }
+
+        function showEntryMessage(text, type) {
+            entryMessage.textContent = text;
+            entryMessage.className = 'form-message entry-message ' + type;
+            entryMessage.style.display = 'block';
+        }
+
+        function unlockStore(mode) {
+            buyerMode = mode;
+            storeLayout.classList.remove('is-locked');
+            if (mode === 'inscrito') {
+                cpfGroup.style.display = 'block';
+                cpfInput.required = true;
+                cpfInput.readOnly = true;
+            } else {
+                cpfGroup.style.display = 'none';
+                cpfInput.required = false;
+                cpfInput.readOnly = false;
+                cpfInput.value = '';
+            }
+            entryPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            setTimeout(() => {
+                storeLayout.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 180);
+        }
+
+        registeredBtn.addEventListener('click', () => {
+            buyerMode = 'inscrito';
+            registeredBtn.classList.add('selected');
+            externalBtn.classList.remove('selected');
+            entryCheck.classList.add('visible');
+            entryMessage.style.display = 'none';
+            storeLayout.classList.add('is-locked');
+            cpfGroup.style.display = 'block';
+            cpfInput.required = true;
+            entryCpfInput.focus();
+        });
+
+        externalBtn.addEventListener('click', () => {
+            buyerMode = 'externo';
+            externalBtn.classList.add('selected');
+            registeredBtn.classList.remove('selected');
+            entryCheck.classList.remove('visible');
+            entryMessage.style.display = 'none';
+            nameInput.value = '';
+            emailInput.value = '';
+            phoneInput.value = '';
+            cpfInput.value = '';
+            unlockStore('externo');
+        });
+
+        entryCpfInput.addEventListener('input', function() {
+            this.value = this.value.replace(/\D/g, '').slice(0, 11);
+        });
+
+        entryVerifyBtn.addEventListener('click', () => {
+            const cpf = entryCpfInput.value.trim();
+            if (cpf.length !== 11) {
+                showEntryMessage('Informe o CPF com 11 números para verificar sua inscrição.', 'error');
+                return;
+            }
+
+            entryVerifyBtn.disabled = true;
+            entryVerifySpinner.style.display = 'block';
+            entryVerifyText.textContent = 'Verificando...';
+            entryMessage.style.display = 'none';
+
+            fetch(PRODUCT_SCRIPT_URL + '?action=buscarInscritoFesta&cpf=' + encodeURIComponent(cpf), { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    if (!data || !data.encontrado) {
+                        storeLayout.classList.add('is-locked');
+                        showEntryMessage('Não encontramos inscrição para esse CPF. Selecione "Não sou inscrito" para comprar sem informar CPF.', 'error');
+                        return;
+                    }
+
+                    nameInput.value = data.nome || '';
+                    emailInput.value = data.email || '';
+                    phoneInput.value = data.telefone || '';
+                    cpfInput.value = data.cpf || cpf;
+                    showEntryMessage('Inscrição encontrada. Seus dados foram preenchidos no pedido.', 'success');
+                    unlockStore('inscrito');
+                })
+                .catch(error => {
+                    console.error('Erro ao verificar inscrição:', error);
+                    showEntryMessage('Erro ao verificar sua inscrição. Tente novamente.', 'error');
+                })
+                .finally(() => {
+                    entryVerifyBtn.disabled = false;
+                    entryVerifySpinner.style.display = 'none';
+                    entryVerifyText.textContent = 'Verificar';
+                });
+        });
+
+        function getQuantity() {
+            const parsed = parseInt(quantityInput.value, 10);
+            if (isNaN(parsed) || parsed < 1) return 1;
+            if (parsed > 99) return 99;
+            return parsed;
+        }
+
+        function updateSummary() {
+            const quantity = getQuantity();
+            quantityInput.value = quantity;
+            const price = Number(selectedProduct.dataset.price);
+            const total = price * quantity;
+            summaryProduct.textContent = selectedProduct.dataset.type;
+            summaryQuantity.textContent = quantity;
+            summaryTotal.textContent = formatCurrency(total);
+        }
+
+        productCards.forEach(card => {
+            card.addEventListener('click', () => {
+                productCards.forEach(item => item.classList.remove('selected'));
+                card.classList.add('selected');
+                selectedProduct = card;
+                updateSummary();
+            });
+        });
+
+        document.getElementById('decrease-quantity').addEventListener('click', () => {
+            quantityInput.value = Math.max(1, getQuantity() - 1);
+            updateSummary();
+        });
+
+        document.getElementById('increase-quantity').addEventListener('click', () => {
+            quantityInput.value = Math.min(99, getQuantity() + 1);
+            updateSummary();
+        });
+
+        quantityInput.addEventListener('input', updateSummary);
+        cpfInput.addEventListener('input', function() {
+            this.value = this.value.replace(/\D/g, '').slice(0, 11);
+        });
+
+        dropArea.addEventListener('click', () => fileInput.click());
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, event => {
+                event.preventDefault();
+                event.stopPropagation();
+            });
+        });
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropArea.addEventListener(eventName, () => dropArea.classList.add('highlight'));
+        });
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, () => dropArea.classList.remove('highlight'));
+        });
+        dropArea.addEventListener('drop', event => handleFiles(event.dataTransfer.files));
+        fileInput.addEventListener('change', function() {
+            handleFiles(this.files);
+        });
+
+        function handleFiles(files) {
+            if (!files.length) return;
+            selectedFile = files[0];
+            fileName.textContent = 'Arquivo selecionado: ' + selectedFile.name;
+            submitBtn.disabled = false;
+        }
+
+        function showMessage(text, type) {
+            messageBox.textContent = text;
+            messageBox.className = 'form-message store-message ' + type;
+            messageBox.style.display = 'block';
+        }
+
+        document.getElementById('product-order-form').addEventListener('submit', event => {
+            event.preventDefault();
+            const name = document.getElementById('buyer-name').value.trim();
+            const cpf = cpfInput.value.trim();
+            const email = document.getElementById('buyer-email').value.trim();
+            const phone = document.getElementById('buyer-phone').value.trim();
+            const quantity = getQuantity();
+            const productType = selectedProduct.dataset.type;
+            const total = Number(selectedProduct.dataset.price) * quantity;
+
+            if (!buyerMode) {
+                showMessage('Escolha primeiro se você é inscrito no SIMOL ou não.', 'error');
+                return;
+            }
+
+            if (buyerMode === 'inscrito' && cpf.length !== 11) {
+                showMessage('Verifique sua inscrição pelo CPF antes de enviar.', 'error');
+                return;
+            }
+
+            if (!name || !email || !phone) {
+                showMessage('Preencha nome, e-mail e telefone antes de enviar.', 'error');
+                return;
+            }
+
+            if (!selectedFile) {
+                showMessage('Selecione o comprovante de pagamento.', 'error');
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitSpinner.style.display = 'block';
+            submitText.textContent = 'Enviando...';
+            messageBox.style.display = 'none';
+
+            const reader = new FileReader();
+            reader.onload = ev => {
+                const formData = new URLSearchParams();
+                formData.append('action', 'uploadFesta');
+                formData.append('nome', name);
+                formData.append('cpf', buyerMode === 'inscrito' ? cpf : '');
+                formData.append('tipo', productType);
+                formData.append('valor', total.toFixed(2).replace('.', ','));
+                formData.append('quantidade', String(quantity));
+                formData.append('email', email);
+                formData.append('telefone', phone);
+                formData.append('filename', selectedFile.name);
+                formData.append('mimeType', selectedFile.type || 'application/octet-stream');
+                formData.append('fileData', ev.target.result.split(',')[1]);
+
+                fetch(PRODUCT_SCRIPT_URL, {
+                    method: 'POST',
+                    body: formData,
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+                })
+                    .then(response => response.text())
+                    .then(text => {
+                        let result = {};
+                        try {
+                            result = JSON.parse(text);
+                        } catch (err) {}
+                        if (result.result && result.result !== 'success') {
+                            throw new Error(result.error || result.message || 'Erro ao enviar pedido.');
+                        }
+                        successModal.style.display = 'flex';
+                    })
+                    .catch(error => {
+                        console.error('Erro ao enviar pedido:', error);
+                        showMessage('Erro ao enviar pedido. Tente novamente.', 'error');
+                    })
+                    .finally(() => {
+                        submitBtn.disabled = false;
+                        submitSpinner.style.display = 'none';
+                        submitText.textContent = 'Enviar pedido';
+                    });
+            };
+
+            reader.onerror = () => {
+                showMessage('Erro ao ler o arquivo do comprovante.', 'error');
+                submitBtn.disabled = false;
+                submitSpinner.style.display = 'none';
+                submitText.textContent = 'Enviar pedido';
+            };
+
+            reader.readAsDataURL(selectedFile);
+        });
+
+        window.addEventListener('click', event => {
+            if (event.target === successModal) {
+                successModal.style.display = 'none';
+            }
+        });
+
+        updateSummary();
+    </script>
+</body>
+</html>

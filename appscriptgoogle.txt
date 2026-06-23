@@ -997,6 +997,37 @@ function doPost(e) {
       return ContentService.createTextOutput(JSON.stringify({ encontrado: encontrado })).setMimeType(ContentService.MimeType.JSON);
     }
 
+    // ====== 5.1. BUSCAR DADOS DO INSCRITO PARA PRODUTOS ======
+    else if (action === 'buscarInscritoFesta') {
+      const cpfBusca = (e.parameter.cpf || '').replace(/\D/g, '').padStart(11, '0');
+      const sheetVerif = doc.getSheetByName(sheetName);
+      const data = sheetVerif.getDataRange().getValues();
+      const headers = data[0].map(function(h) { return h.toString().toLowerCase().trim(); });
+      const cpfCol = headers.indexOf('cpf');
+      const nomeCol = headers.indexOf('nome');
+      const emailCol = headers.indexOf('email');
+      const telefoneCol = headers.indexOf('telefone');
+
+      if (!cpfBusca || cpfCol === -1) {
+        return ContentService.createTextOutput(JSON.stringify({ encontrado: false })).setMimeType(ContentService.MimeType.JSON);
+      }
+
+      for (var i = data.length - 1; i > 0; i--) {
+        var cpfSheet = (data[i][cpfCol] || '').toString().replace(/\D/g, '').padStart(11, '0');
+        if (cpfSheet === cpfBusca) {
+          return ContentService.createTextOutput(JSON.stringify({
+            encontrado: true,
+            cpf: cpfBusca,
+            nome: nomeCol !== -1 ? data[i][nomeCol] || '' : '',
+            email: emailCol !== -1 ? data[i][emailCol] || '' : '',
+            telefone: telefoneCol !== -1 ? data[i][telefoneCol] || '' : ''
+          })).setMimeType(ContentService.MimeType.JSON);
+        }
+      }
+
+      return ContentService.createTextOutput(JSON.stringify({ encontrado: false })).setMimeType(ContentService.MimeType.JSON);
+    }
+
     // ====== 5.5. CHECAR SE CPF EXISTE ======
     else if (action === 'checarCpf') {
       const cpfBusca = (e.parameter.cpf || '').replace(/\D/g, '').padStart(11, '0');
@@ -1077,8 +1108,8 @@ function doPost(e) {
         }
       } catch(e) {}
 
-      // 6.3 Dados da Festa
-      const sheetFesta = doc.getSheetByName('Festa');
+      // 6.3 Dados de produtos
+      const sheetFesta = doc.getSheetByName('produtos');
       if (sheetFesta) {
         const dataFesta = sheetFesta.getDataRange().getValues();
         for (var k = 1; k < dataFesta.length; k++) {
@@ -1154,21 +1185,48 @@ function doPost(e) {
       return ContentService.createTextOutput(JSON.stringify(data)).setMimeType(ContentService.MimeType.JSON);
     }
 
-    // ====== 7. UPLOAD DE COMPROVANTE (Festa de Encerramento) ======
+    // ====== 7. UPLOAD DE COMPROVANTE (Produtos) ======
     else if (action === 'uploadFesta') {
       const folder = DriveApp.getFolderById(FOLDER_ID);
+      if (!e.parameter.fileData || !e.parameter.filename) {
+        throw new Error('Comprovante não enviado.');
+      }
       const fileData = Utilities.base64Decode(e.parameter.fileData);
-      const blob = Utilities.newBlob(fileData, e.parameter.mimeType, "FESTA - " + e.parameter.nome + " - " + e.parameter.filename);
+      if (!fileData || fileData.length === 0) {
+        throw new Error('O arquivo do comprovante está vazio.');
+      }
+      const tipoProduto = (e.parameter.tipo || '').toString().trim();
+      if (!tipoProduto) {
+        throw new Error('Tipo do produto não informado.');
+      }
+      const quantidadeProduto = Math.max(1, parseInt(e.parameter.quantidade || '1', 10) || 1);
+      const tipoQuantidade = tipoProduto + ' - quantidade: ' + quantidadeProduto;
+      const blob = Utilities.newBlob(fileData, e.parameter.mimeType, "PRODUTO - " + tipoProduto + " - " + e.parameter.nome + " - " + e.parameter.filename);
       const file = folder.createFile(blob);
-      const sheetFesta = doc.getSheetByName('Festa');
-      var cpfFesta = "'" + (e.parameter.cpf || '').toString();
-      
-      // Adicionado email e telefone conforme solicitado
-      sheetFesta.appendRow([
+      let sheetProdutos = doc.getSheetByName('produtos');
+      const produtosHeaders = ['Data', 'Nome', 'CPF', 'Tipo_quantidade', 'Valor', 'Comprovante', 'email', 'telefone'];
+      if (!sheetProdutos) {
+        sheetProdutos = doc.insertSheet('produtos');
+      }
+      if (sheetProdutos.getMaxColumns() < produtosHeaders.length) {
+        sheetProdutos.insertColumnsAfter(sheetProdutos.getMaxColumns(), produtosHeaders.length - sheetProdutos.getMaxColumns());
+      }
+      if (sheetProdutos.getMaxColumns() > produtosHeaders.length) {
+        sheetProdutos.deleteColumns(produtosHeaders.length + 1, sheetProdutos.getMaxColumns() - produtosHeaders.length);
+      }
+      if (sheetProdutos.getLastRow() === 0) {
+        sheetProdutos.appendRow(produtosHeaders);
+      } else {
+        sheetProdutos.getRange(1, 1, 1, produtosHeaders.length).setValues([produtosHeaders]);
+      }
+      var cpfParamFesta = (e.parameter.cpf || '').toString().replace(/\D/g, '');
+      var cpfFesta = cpfParamFesta ? "'" + cpfParamFesta.padStart(11, '0') : '';
+
+      sheetProdutos.appendRow([
         new Date(), 
         e.parameter.nome, 
         cpfFesta, 
-        e.parameter.tipo, 
+        tipoQuantidade, 
         'R$ ' + e.parameter.valor, 
         file.getUrl(),
         e.parameter.email || '',
