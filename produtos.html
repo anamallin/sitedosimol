@@ -58,6 +58,25 @@
             backdrop-filter: blur(14px);
         }
 
+        .sales-warning {
+            max-width: 760px;
+            margin: 0 auto 18px;
+            padding: 16px 18px;
+            border: 1px solid rgba(184, 85, 0, 0.28);
+            border-left: 5px solid #b85500;
+            border-radius: 8px;
+            background: #fff6e8;
+            color: #5f3400;
+            line-height: 1.5;
+            box-shadow: 0 12px 28px rgba(184, 85, 0, 0.08);
+        }
+
+        .sales-warning strong {
+            display: block;
+            color: #8a3f00;
+            margin-bottom: 4px;
+        }
+
         .entry-panel {
             max-width: 760px;
             padding: 22px;
@@ -700,6 +719,93 @@
                 grid-template-columns: repeat(2, minmax(0, 1fr));
             }
         }
+
+        /* Aviso popup de fase de testes */
+        .warning-modal {
+            display: flex;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(6px);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            padding: 18px;
+            animation: fadeInOverlay 0.3s ease;
+        }
+
+        @keyframes fadeInOverlay {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes popIn {
+            from { opacity: 0; transform: scale(0.85) translateY(20px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .warning-modal-content {
+            position: relative;
+            background: #fff;
+            width: min(500px, 94%);
+            border-radius: 16px;
+            padding: 38px 32px 30px;
+            text-align: center;
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
+            animation: popIn 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+            border-top: 5px solid #f59e0b;
+        }
+
+        .warning-icon {
+            width: 68px;
+            height: 68px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            margin: 0 auto 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 34px;
+            box-shadow: 0 8px 24px rgba(245, 158, 11, 0.35);
+        }
+
+        .warning-modal-content h2 {
+            color: #92400e;
+            font-size: 1.45rem;
+            margin: 0 0 12px;
+            font-weight: 800;
+        }
+
+        .warning-modal-content p {
+            color: #555;
+            font-size: 1rem;
+            line-height: 1.6;
+            margin: 0 0 8px;
+        }
+
+        .warning-modal-content p strong {
+            color: #b45309;
+        }
+
+        .warning-modal-btn {
+            display: inline-block;
+            margin-top: 18px;
+            padding: 12px 36px;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 16px rgba(245, 158, 11, 0.3);
+        }
+
+        .warning-modal-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 22px rgba(245, 158, 11, 0.45);
+        }
     </style>
 </head>
 <body>
@@ -720,6 +826,11 @@
             </div>
             <img class="store-hero-image" src="Icone_Proteina_Óculos.png" alt="Proteina mascote do SIMOL">
         </section>
+
+        <div class="sales-warning" role="alert">
+            <strong>Vendas ainda n&atilde;o come&ccedil;aram.</strong>
+            Todos os pedidos de produtos enviados antes da abertura oficial ser&atilde;o desconsiderados.
+        </div>
 
         <section class="entry-panel" id="entry-panel">
             <h2>Antes de comprar</h2>
@@ -780,6 +891,11 @@
                 </div>
 
                 <form id="product-order-form" class="checkout-form">
+                    <div class="sales-warning" role="alert">
+                        <strong>Pedidos suspensos no momento.</strong>
+                        As vendas ainda n&atilde;o come&ccedil;aram; pedidos enviados agora ser&atilde;o desconsiderados.
+                    </div>
+
                     <div>
                         <label for="buyer-name">Nome completo *</label>
                         <input id="buyer-name" type="text" autocomplete="name" required>
@@ -819,7 +935,7 @@
                     <div class="form-message store-message" id="product-message"></div>
 
                     <button type="submit" class="submit-btn" id="product-submit-btn" disabled>
-                        <span>Enviar pedido</span>
+                        <span>Vendas indispon&iacute;veis</span>
                         <div class="spinner" style="display: none;"></div>
                     </button>
                 </form>
@@ -838,10 +954,23 @@
         </div>
     </div>
 
+    <!-- Aviso de fase de testes -->
+    <div class="warning-modal" id="warning-test-modal">
+        <div class="warning-modal-content">
+            <div class="warning-icon">⚠️</div>
+            <h2>🚧 Atenção — Fase de Testes!</h2>
+            <p>Nosso sistema de pedidos ainda está em <strong>fase de testes</strong>.</p>
+            <p>Todos os pedidos realizados até o dia <strong>24 de Junho às 15h</strong> serão <strong>DESCONSIDERADOS</strong>.</p>
+            <p style="font-size: 0.9rem; color: #888; margin-top: 6px;">Após esse período, os pedidos passarão a valer normalmente.</p>
+            <button class="warning-modal-btn" id="warning-close-btn">Entendi!</button>
+        </div>
+    </div>
+
     <script src="script.js"></script>
     <script>
         const PRODUCT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzzUVW50SFfZ80SqZCEOtwNpVyRMpCV-3EneTutQ8TNh6IF2VoP5u5FZEe3CF6pMyECyQ/exec';
         const PIX_KEY = 'simol.simposiointegrado@gmail.com';
+        const PRODUCTS_SALES_OPEN = false;
         const products = [
             { id: 'adesivo1', category: 'Adesivo', name: 'Adesivo', note: 'Tubo de ensaio', type: 'Adesivo (Tubo de ensaio)', price: 0.75, image: 'assets/produtos/adesivo1.png', alt: 'Adesivo tubo de ensaio' },
             { id: 'adesivo2', category: 'Adesivo', name: 'Adesivo', note: 'ATP', type: 'Adesivo (ATP)', price: 0.75, image: 'assets/produtos/adesivo2.png', alt: 'Adesivo ATP' },
@@ -1043,7 +1172,8 @@
         }
 
         function updateSubmitState() {
-            submitBtn.disabled = !cart.length || !selectedFile;
+            submitBtn.disabled = !PRODUCTS_SALES_OPEN || !cart.length || !selectedFile;
+            submitText.textContent = PRODUCTS_SALES_OPEN ? 'Enviar pedido' : 'Vendas indisponiveis';
         }
 
         function formatFileSize(bytes) {
@@ -1239,6 +1369,10 @@
 
         document.getElementById('product-order-form').addEventListener('submit', event => {
             event.preventDefault();
+            if (!PRODUCTS_SALES_OPEN) {
+                showMessage('As vendas de produtos ainda nao comecaram. Todos os pedidos enviados antes da abertura oficial serao desconsiderados.', 'error');
+                return;
+            }
             const name = nameInput.value.trim();
             const cpf = cpfInput.value.trim();
             const email = emailInput.value.trim();
@@ -1334,6 +1468,20 @@
         renderFilters();
         renderProducts();
         renderCart();
+
+        // Aviso popup de fase de testes
+        const warningModal = document.getElementById('warning-test-modal');
+        const warningCloseBtn = document.getElementById('warning-close-btn');
+        warningCloseBtn.addEventListener('click', () => {
+            warningModal.style.opacity = '0';
+            warningModal.style.transition = 'opacity 0.3s ease';
+            setTimeout(() => { warningModal.style.display = 'none'; }, 300);
+        });
+        warningModal.addEventListener('click', (e) => {
+            if (e.target === warningModal) {
+                warningCloseBtn.click();
+            }
+        });
     </script>
 </body>
 </html>
