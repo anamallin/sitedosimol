@@ -103,9 +103,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         localStorage.removeItem('simol_tipo_inscricao');
                         localStorage.removeItem('simol_programa_pos');
                         localStorage.removeItem('simol_cpf');
-                        localStorage.removeItem('simol_plus_produtos');
-                        localStorage.removeItem('simol_plus_total');
-                        localStorage.removeItem('simol_is_plus');
                         localStorage.removeItem('simol_isento');
                         localStorage.removeItem('simol_tamanho_camiseta');
                         resumeBox.remove();
@@ -418,9 +415,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     localStorage.removeItem('simol_tipo_inscricao');
                     localStorage.removeItem('simol_programa_pos');
                     localStorage.removeItem('simol_cpf');
-                    localStorage.removeItem('simol_plus_produtos');
-                    localStorage.removeItem('simol_plus_total');
-                    localStorage.removeItem('simol_is_plus');
                     localStorage.removeItem('simol_isento');
                     localStorage.removeItem('simol_tamanho_camiseta');
                 })

@@ -3,59 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Escolha seu Plano - I SIMOL</title>
+    <title>Confirmar Inscricao - I SIMOL</title>
     <link rel="stylesheet" href="styles.css">
     <style>
-        .page-content { text-align: center; margin-top: 50px; }
-        .produto-item:hover { border-color: var(--color-1) !important; background: rgba(138, 87, 181, 0.05); }
-        .back-btn { display: inline-block; margin-top: 30px; color: var(--color-4); font-weight: 600; text-decoration: none; }
-        .back-btn:hover { text-decoration: underline; }
-        
+        .page-content {
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        .back-btn {
+            display: inline-block;
+            margin-top: 30px;
+            color: var(--color-4);
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .back-btn:hover {
+            text-decoration: underline;
+        }
+
         .planos-container {
             display: flex;
-            gap: 30px;
-            margin-top: 40px;
             justify-content: center;
-            flex-wrap: wrap;
+            margin-top: 40px;
         }
 
         .plano-card {
             background: #fff;
             border-radius: 15px;
             padding: 40px 30px;
-            width: 320px;
+            width: min(100%, 360px);
             box-shadow: 0 10px 30px rgba(0,0,0,0.08);
             border: 2px solid transparent;
             transition: all 0.3s ease;
             display: flex;
             flex-direction: column;
-            position: relative;
         }
 
         .plano-card:hover {
             transform: translateY(-10px);
             box-shadow: 0 20px 40px rgba(0,0,0,0.12);
             border-color: var(--color-2);
-        }
-
-        .plano-card.plus {
-            border-color: var(--color-1);
-            background: linear-gradient(to bottom, #fff, #fcfafc);
-        }
-
-        .plano-card.plus::before {
-            content: 'MAIS POPULAR';
-            position: absolute;
-            top: -15px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: linear-gradient(135deg, var(--color-3), var(--color-4));
-            color: white;
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: bold;
-            letter-spacing: 1px;
         }
 
         .plano-title {
@@ -113,19 +102,29 @@
             transition: all 0.3s ease;
         }
 
-        .plano-card.plus .btn-escolher {
-            background: linear-gradient(135deg, var(--color-3), var(--color-4));
-            color: white;
-        }
-
         .btn-escolher:hover {
             opacity: 0.9;
             transform: scale(1.05);
         }
 
+        .produtos-link {
+            margin-top: 24px;
+            color: #666;
+            font-size: 0.98rem;
+        }
+
+        .produtos-link a {
+            color: var(--color-4);
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .produtos-link a:hover {
+            text-decoration: underline;
+        }
+
         @media (max-width: 768px) {
             .planos-container {
-                flex-direction: column;
                 align-items: center;
             }
         }
@@ -141,147 +140,29 @@
         </div>
     </div>
 
-    <div class="container page-content" style="max-width: 900px; background: rgba(255,255,255,0.9); padding: 40px; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); backdrop-filter: blur(10px); margin-bottom: 50px;">
-        
-        <div class="success-icon" style="font-size: 3rem; margin-bottom: 15px;">🎉</div>
+    <div class="container page-content" style="max-width: 760px; background: rgba(255,255,255,0.9); padding: 40px; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); backdrop-filter: blur(10px); margin-bottom: 50px;">
+        <div class="success-icon" style="font-size: 3rem; margin-bottom: 15px;">✅</div>
         <h1 style="color: var(--color-4); margin-bottom: 10px;">Inscrição Quase Concluída!</h1>
-        <p style="color: #666; font-size: 1.1rem;">Seus dados já foram salvos. Agora, escolha o formato da sua inscrição para gerar o pagamento.</p>
+        <p id="planos-intro" style="color: #666; font-size: 1.1rem;">Seus dados já foram salvos. Agora, confirme o pagamento da sua inscrição.</p>
 
         <div class="planos-container">
-            <!-- Plano Padrão -->
             <div class="plano-card">
                 <h2 class="plano-title" id="plano-basico-title">Inscrição Padrão</h2>
                 <div class="plano-price" id="plano-basico-price">R$ 60<span>,00</span></div>
-                
+
                 <ul class="plano-features">
                     <li>Acesso a todas as palestras</li>
                     <li>Certificado de participação</li>
                     <li>Acesso à submissão de resumos</li>
-                    <li>Direito de escolha de minicursos (sujeito à lotação)</li>
+                    <li>Direito de escolha de minicursos, sujeito à lotação</li>
                 </ul>
 
-                <a href="pagamento.html" class="btn-escolher">Escolher Padrão</a>
-            </div>
-
-            <!-- Plano Plus -->
-            <div class="plano-card plus">
-                <h2 class="plano-title">Inscrição Premium</h2>
-                <div class="plano-price" style="font-size: 1.5rem; margin-bottom: 25px;">Monte seu kit<br>de produtos</div>
-                
-                <ul class="plano-features">
-                    <li><strong>Tudo da inscrição comum</strong></li>
-                    <li><span style="color: var(--color-1); font-weight: bold;">Adicione produtos</span></li>
-                </ul>
-
-                <button id="btn-ver-produtos" class="btn-escolher" style="border: none; cursor: pointer; font-size: 1.1rem;">Ver Produtos</button>
+                <a href="pagamento.html" class="btn-escolher" id="btn-pagamento">Prosseguir para Pagamento</a>
             </div>
         </div>
 
-        <!-- Seção de Produtos -->
-        <div id="produtos-section" style="display: none; margin-top: 50px; text-align: left; background: #fff; padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); border: 2px solid var(--color-1); animation: fadeIn 0.8s ease;">
-            <h2 style="color: var(--color-4); margin-bottom: 20px; text-align: center; font-size: 2rem;">Produtos</h2>
-            
-            <div style="text-align: center; margin-bottom: 30px;">
-                <img src="produtos.png" alt="Produtos I SIMOL" style="max-width: 100%; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
-            </div>
-
-            <p style="text-align: center; color: #555; margin-bottom: 30px; font-size: 1.1rem;">Selecione os itens que deseja incluir no seu kit:</p>
-
-            <div class="produtos-list" style="display: flex; flex-direction: column; gap: 15px; max-width: 500px; margin: 0 auto;">
-                
-                <label class="produto-item" style="display: flex; align-items: center; justify-content: space-between; padding: 15px 20px; border: 1px solid #ddd; border-radius: 10px; cursor: pointer; transition: all 0.3s ease;">
-                    <div style="display: flex; align-items: center; gap: 15px;">
-                        <input type="checkbox" class="produto-checkbox" data-nome="Copo" data-preco="15.00" style="width: 20px; height: 20px;">
-                        <span style="font-size: 1rem; font-weight: bold; color: var(--color-4);">🥤 Copo</span>
-                    </div>
-                    <div class="produto-preco" style="font-size: 1.1rem; color: var(--color-1); font-weight: bold;">R$ 15,00</div>
-                </label>
-
-                <label class="produto-item" style="display: flex; align-items: center; justify-content: space-between; padding: 15px 20px; border: 1px solid #ddd; border-radius: 10px; cursor: pointer; transition: all 0.3s ease;">
-                    <div style="display: flex; align-items: center; gap: 15px;">
-                        <input type="checkbox" class="produto-checkbox" data-nome="Caneca" data-preco="35.00" style="width: 20px; height: 20px;">
-                        <span style="font-size: 1rem; font-weight: bold; color: var(--color-4);">☕ Caneca</span>
-                    </div>
-                    <div class="produto-preco" style="font-size: 1.1rem; color: var(--color-1); font-weight: bold;">R$ 35,00</div>
-                </label>
-
-                <label class="produto-item" style="display: flex; align-items: center; justify-content: space-between; padding: 15px 20px; border: 1px solid #ddd; border-radius: 10px; cursor: pointer; transition: all 0.3s ease;">
-                    <div style="display: flex; align-items: center; gap: 15px;">
-                        <input type="checkbox" class="produto-checkbox" data-nome="Ecobag" data-preco="39.50" style="width: 20px; height: 20px;">
-                        <span style="font-size: 1rem; font-weight: bold; color: var(--color-4);">🛍️ Ecobag</span>
-                    </div>
-                    <div class="produto-preco" style="font-size: 1.1rem; color: var(--color-1); font-weight: bold;">R$ 39,50</div>
-                </label>
-
-                <label class="produto-item" style="display: flex; align-items: center; justify-content: space-between; padding: 15px 20px; border: 1px solid #ddd; border-radius: 10px; cursor: pointer; transition: all 0.3s ease;">
-                    <div style="display: flex; align-items: center; gap: 15px;">
-                        <input type="checkbox" class="produto-checkbox" id="checkbox-camiseta" data-nome="Camiseta" data-preco="55.00" style="width: 20px; height: 20px;">
-                        <span style="font-size: 1rem; font-weight: bold; color: var(--color-4);">👕 Camiseta</span>
-                    </div>
-                    <div class="produto-preco" style="font-size: 1.1rem; color: var(--color-1); font-weight: bold;">R$ 55,00</div>
-                </label>
-
-                <!-- Seletor de tamanho de camiseta -->
-                <div id="tamanho-camiseta-container" style="display: none; margin-top: -5px; margin-bottom: 5px; padding: 12px 20px; border: 1px solid var(--color-2); border-radius: 10px; background: rgba(255,255,255,0.9); animation: slideDown 0.3s ease;">
-                    <label for="tamanho-camiseta" style="font-size: 0.9rem; font-weight: bold; color: var(--color-4); margin-bottom: 8px; display: block;">👕 Escolha o tamanho da camiseta:</label>
-                    <select id="tamanho-camiseta" style="width: 100%; padding: 10px 15px; border: 2px solid var(--color-2); border-radius: 8px; font-size: 1rem; color: var(--color-4); background: white; cursor: pointer; outline: none; transition: border-color 0.3s ease;">
-                        <option value="" disabled selected>Selecione o tamanho</option>
-                        <option value="P">P</option>
-                        <option value="M">M</option>
-                        <option value="G">G</option>
-                        <option value="GG">GG</option>
-                        <option value="XG">XG</option>
-                    </select>
-                </div>
-
-                <div id="tabela-medidas" style="margin-top:10px; text-align:left; color:#444; background:#fff; padding:14px; border:1px solid #eee; border-radius:8px;">
-                    <strong>Tabela de Medidas – Modelo Unissex</strong>
-                    <p style="margin:8px 0 6px 0;">Confira abaixo as medidas disponíveis para as camisetas modelo unissex:</p>
-                    <ul style="margin:0 0 6px 18px;">
-                        <li><strong>P</strong> – Largura: 51 cm | Altura: 72 cm</li>
-                        <li><strong>M</strong> – Largura: 55 cm | Altura: 74 cm</li>
-                        <li><strong>G</strong> – Largura: 57 cm | Altura: 76 cm</li>
-                        <li><strong>GG</strong> – Largura: 61 cm | Altura: 78 cm</li>
-                    </ul>
-                    <p style="margin:6px 0 0 0; font-size:0.95rem; color:#666;">As medidas de largura correspondem à parte frontal da camiseta, enquanto a altura é medida do ombro até a barra.</p>
-                </div>
-
-                <style>
-                    @keyframes slideDown {
-                        from { opacity: 0; transform: translateY(-10px); max-height: 0; }
-                        to { opacity: 1; transform: translateY(0); max-height: 200px; }
-                    }
-                    #tamanho-camiseta:focus {
-                        border-color: var(--color-3);
-                        box-shadow: 0 0 0 3px rgba(var(--color-3-rgb, 0,0,0), 0.15);
-                    }
-                </style>
-
-            </div>
-
-            <div style="text-align: center; margin-top: 20px;">
-                <a href="produtos.pdf" download class="btn-ver-produtos" style="display: inline-flex; align-items: center; gap: 8px; padding: 12px 25px; background: linear-gradient(135deg, var(--color-2), var(--color-3)); color: white; text-decoration: none; border-radius: 10px; font-size: 0.95rem; font-weight: bold; transition: all 0.3s ease; box-shadow: 0 3px 10px rgba(0,0,0,0.15);">
-                    🔍 Ver produtos de perto
-                </a>
-            </div>
-
-            <style>
-                .btn-ver-produtos:hover {
-                    transform: translateY(-2px);
-                    box-shadow: 0 6px 18px rgba(0,0,0,0.2);
-                    filter: brightness(1.08);
-                }
-            </style>
-
-            <div style="margin-top: 40px; text-align: center; border-top: 2px dashed #eee; padding-top: 30px;">
-                <p style="font-size: 1.2rem; color: #666; margin-bottom: 10px;">Valor Base Inscrição: <strong id="valor-base-display">R$ 0,00</strong></p>
-                <p style="font-size: 1.2rem; color: #666; margin-bottom: 15px;">Adicionais: <strong id="valor-adicionais-display">R$ 0,00</strong></p>
-                <h3 style="font-size: 2rem; color: var(--color-3); margin-bottom: 30px;">Total a Pagar: <span id="valor-total-display">R$ 0,00</span></h3>
-                
-                <button id="finalizar-plus-btn" class="btn-escolher" style="max-width: 300px; margin: 0 auto; border: none; cursor: pointer; font-size: 1.1rem;">Prosseguir com Premium</button>
-            </div>
-        </div>
-
+        <p class="produtos-link">Produtos oficiais podem ser adquiridos separadamente na <a href="produtos.html">loja do SIMOL</a>.</p>
+        <a href="inscricao.html" class="back-btn">← Voltar para inscrição</a>
     </div>
 
     <script src="script.js"></script>
@@ -290,121 +171,20 @@
             const tipo = localStorage.getItem('simol_tipo_inscricao');
             const programa = localStorage.getItem('simol_programa_pos');
             const specialProgram = tipo === 'Pós-Graduação Participante' && programa === 'Biologia Celular e Molecular';
-            let valorBase = 60.00;
+            const title = document.getElementById('plano-basico-title');
+            const price = document.getElementById('plano-basico-price');
+            const intro = document.getElementById('planos-intro');
+            const button = document.getElementById('btn-pagamento');
 
             if (specialProgram) {
-                document.getElementById('plano-basico-title').textContent = 'Isento';
-                document.getElementById('plano-basico-price').innerHTML = 'Isento';
-                valorBase = 0.00;
-                document.querySelector('.page-content p').textContent = 'Seus dados já foram salvos. Você pode confirmar sua isenção ou escolher produtos opcionais para compra.';
-                const plusCard = document.querySelector('.plano-card.plus');
-                if (plusCard) {
-                    plusCard.querySelector('.plano-title').textContent = 'Isenção + Produtos';
-                    plusCard.querySelector('.plano-price').innerHTML = 'Produtos adicionais';
-                }
-                const basicButton = document.querySelector('.plano-card .btn-escolher');
-                if (basicButton) basicButton.textContent = 'Confirmar Isenção';
-                const btnVerProdutos = document.getElementById('btn-ver-produtos');
-                if (btnVerProdutos) btnVerProdutos.textContent = 'Adicionar Produtos';
+                title.textContent = 'Isenção';
+                price.textContent = 'Isento';
+                intro.textContent = 'Seus dados já foram salvos. Confirme sua isenção para concluir a inscrição.';
+                button.textContent = 'Confirmar Isenção';
             } else if (tipo === 'Pós-Graduação Participante') {
-                document.getElementById('plano-basico-title').textContent = 'Inscrição Pós-Graduação';
-                document.getElementById('plano-basico-price').innerHTML = 'R$ 60<span>,00</span>';
-                valorBase = 60.00;
-            } else {
-                document.getElementById('plano-basico-title').textContent = 'Inscrição Padrão';
-                document.getElementById('plano-basico-price').innerHTML = 'R$ 60<span>,00</span>';
-                valorBase = 60.00;
-            }
-
-            // Lógica dos Produtos Plus
-            const btnVerProdutos = document.getElementById('btn-ver-produtos');
-            const produtosSection = document.getElementById('produtos-section');
-            const checkboxes = document.querySelectorAll('.produto-checkbox');
-            const valorBaseDisplay = document.getElementById('valor-base-display');
-            const valorAdicionaisDisplay = document.getElementById('valor-adicionais-display');
-            const valorTotalDisplay = document.getElementById('valor-total-display');
-            const finalizarPlusBtn = document.getElementById('finalizar-plus-btn');
-
-            let valorAdicionais = 0.00;
-
-            if (btnVerProdutos) {
-                btnVerProdutos.addEventListener('click', () => {
-                    produtosSection.style.display = 'block';
-                    produtosSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    atualizarValores();
-                });
-            }
-
-            function formatCurrency(val) {
-                return 'R$ ' + val.toFixed(2).replace('.', ',');
-            }
-
-            function atualizarValores() {
-                valorAdicionais = 0;
-                checkboxes.forEach(cb => {
-                    if (cb.checked) {
-                        valorAdicionais += parseFloat(cb.getAttribute('data-preco'));
-                    }
-                });
-
-                valorBaseDisplay.textContent = formatCurrency(valorBase);
-                valorAdicionaisDisplay.textContent = formatCurrency(valorAdicionais);
-                valorTotalDisplay.textContent = formatCurrency(valorBase + valorAdicionais);
-            }
-
-            const checkboxCamiseta = document.getElementById('checkbox-camiseta');
-            const tamanhoContainer = document.getElementById('tamanho-camiseta-container');
-            const tamanhoSelect = document.getElementById('tamanho-camiseta');
-
-            checkboxes.forEach(cb => {
-                cb.addEventListener('change', () => {
-                    atualizarValores();
-                    // Mostrar/ocultar seletor de tamanho
-                    if (cb.id === 'checkbox-camiseta') {
-                        if (cb.checked) {
-                            tamanhoContainer.style.display = 'block';
-                        } else {
-                            tamanhoContainer.style.display = 'none';
-                            tamanhoSelect.selectedIndex = 0; // Resetar seleção
-                        }
-                    }
-                });
-            });
-
-            if (finalizarPlusBtn) {
-                finalizarPlusBtn.addEventListener('click', () => {
-                    // Validar tamanho da camiseta se selecionada
-                    if (checkboxCamiseta && checkboxCamiseta.checked) {
-                        if (!tamanhoSelect.value) {
-                            tamanhoSelect.style.borderColor = '#e74c3c';
-                            tamanhoSelect.focus();
-                            alert('Por favor, selecione o tamanho da camiseta!');
-                            return;
-                        }
-                    }
-
-                    const produtosEscolhidos = [];
-                    checkboxes.forEach(cb => {
-                        if (cb.checked) {
-                            produtosEscolhidos.push(cb.getAttribute('data-nome'));
-                        }
-                    });
-
-                    // Salva no localStorage para a página de pagamento
-                    localStorage.setItem('simol_plus_produtos', JSON.stringify(produtosEscolhidos));
-                    localStorage.setItem('simol_plus_total', (valorBase + valorAdicionais).toFixed(2));
-                    localStorage.setItem('simol_is_plus', 'true'); // Flag para saber que foi via Plus
-                    localStorage.setItem('simol_isento', specialProgram ? 'true' : 'false');
-
-                    // Salvar tamanho da camiseta (se selecionada)
-                    if (checkboxCamiseta && checkboxCamiseta.checked && tamanhoSelect.value) {
-                        localStorage.setItem('simol_tamanho_camiseta', tamanhoSelect.value);
-                    } else {
-                        localStorage.removeItem('simol_tamanho_camiseta');
-                    }
-
-                    window.location.href = 'pagamento-plus.html';
-                });
+                title.textContent = 'Inscrição Pós-Graduação';
+                price.innerHTML = 'R$ 60<span>,00</span>';
+                button.textContent = 'Prosseguir para Pagamento';
             }
         });
     </script>
