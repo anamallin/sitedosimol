@@ -1027,7 +1027,7 @@
             { id: 'sticker19', category: 'Adesivo', name: 'Adesivo', note: 'Meio ambiente e toxicologia', type: 'Adesivo (Meio ambiente e toxicologia)', price: 0.75, image: 'sticker (18).png', alt: 'Adesivo meio ambiente e toxicologia' },
             { id: 'sticker20', category: 'Adesivo', name: 'Adesivo', note: 'Microbiologia e DNA', type: 'Adesivo (Microbiologia e DNA)', price: 0.75, image: 'sticker (19).png', alt: 'Adesivo microbiologia e DNA' },
             { id: 'caneca-simol', category: 'Caneca', name: 'Caneca', note: 'Modelo 3D com arte SIMOL frente e verso', type: 'Caneca SIMOL', price: 35, image: 'frente.png', model: 'simol_caneca_3d_corrigida.glb', alt: 'Caneca SIMOL em 3D com arte frente e verso' },
-            { id: 'copo-cafe-simol', category: 'Copo', name: 'Copo', note: 'Modelo 3D com arte SIMOL', type: 'Copo SIMOL', price: 15, image: 'artecopo.png', model: 'copo_cafe.glb', alt: 'Copo SIMOL em 3D com arte do evento' },
+            { id: 'copo-cafe-simol', category: 'Copo', name: 'Copo', note: 'Modelo 3D com arte SIMOL', type: 'Copo SIMOL', price: 15, image: 'artecopo.png', model: 'copo_cafe.glb', alt: 'Copo SIMOL em 3D com arte do evento', cameraOrbit: '35deg 76deg 0.28m', minCameraOrbit: '-180deg 76deg 0.28m', maxCameraOrbit: '180deg 76deg 0.28m' },
             { id: 'botton1', category: 'Botton', name: 'Botton', note: 'Biologia Celular e Molecular', type: 'Botton (Biologia Celular e Molecular)', price: 5, image: 'assets/produtos/botton1.png', alt: 'Botton Biologia Celular e Molecular' },
             { id: 'botton2', category: 'Botton', name: 'Botton', note: 'Bioquimica', type: 'Botton (Bioquimica)', price: 5, image: 'assets/produtos/botton2.png', alt: 'Botton Bioquimica' },
             { id: 'botton3', category: 'Botton', name: 'Botton', note: 'Genetica', type: 'Botton (Genetica)', price: 5, image: 'assets/produtos/botton3.png', alt: 'Botton Genetica' },
@@ -1154,9 +1154,9 @@
                                 interaction-prompt="none"
                                 shadow-intensity="0"
                                 exposure="1.15"
-                                camera-orbit="35deg 76deg 6.2m"
-                                min-camera-orbit="-180deg 76deg 6.2m"
-                                max-camera-orbit="180deg 76deg 6.2m"
+                                camera-orbit="${product.cameraOrbit || '35deg 76deg 6.2m'}"
+                                min-camera-orbit="${product.minCameraOrbit || '-180deg 76deg 6.2m'}"
+                                max-camera-orbit="${product.maxCameraOrbit || '180deg 76deg 6.2m'}"
                                 field-of-view="35deg"
                                 min-field-of-view="35deg"
                                 max-field-of-view="35deg">
