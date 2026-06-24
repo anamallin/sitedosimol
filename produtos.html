@@ -333,6 +333,45 @@
             line-height: 1.42;
         }
 
+        .product-actions {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .product-size-select {
+            width: 100%;
+            border: 1px solid rgba(138, 87, 181, 0.28);
+            border-radius: 8px;
+            padding: 9px 10px;
+            color: var(--color-4);
+            background: #fff;
+            font: inherit;
+            font-weight: 700;
+            min-width: 0;
+        }
+
+        .product-info-btn {
+            border: 1px solid rgba(138, 87, 181, 0.28);
+            background: #fff;
+            color: var(--color-4);
+            border-radius: 8px;
+            width: 40px;
+            height: 40px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            cursor: pointer;
+            flex: 0 0 auto;
+        }
+
+        .product-info-btn:hover {
+            background: #f3eff8;
+        }
+
         .product-footer {
             display: grid;
             gap: 10px;
@@ -424,6 +463,13 @@
             margin: 0 0 8px;
             color: #666;
             font-size: 0.82rem;
+        }
+
+        .cart-item small {
+            display: block;
+            color: var(--color-4);
+            font-weight: 800;
+            margin-bottom: 7px;
         }
 
         .cart-line {
@@ -643,6 +689,53 @@
             text-align: center;
             box-shadow: 0 18px 44px rgba(0, 0, 0, 0.22);
             z-index: 2;
+        }
+
+        .product-detail-modal .store-modal-content {
+            width: min(680px, 100%);
+            max-height: min(86vh, 760px);
+            overflow: auto;
+            text-align: left;
+        }
+
+        .product-detail-modal h2 {
+            color: var(--color-4);
+            margin: 0 42px 12px 0;
+        }
+
+        .product-detail-modal p,
+        .product-detail-modal li {
+            color: #555;
+            line-height: 1.5;
+        }
+
+        .product-detail-modal ul {
+            margin: 10px 0 0 20px;
+            padding: 0;
+        }
+
+        .product-detail-image {
+            width: 100%;
+            max-height: 460px;
+            object-fit: contain;
+            border: 1px solid rgba(138, 87, 181, 0.16);
+            border-radius: 8px;
+            background: #fff;
+            margin-top: 14px;
+        }
+
+        .modal-close-btn {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            border: 1px solid rgba(138, 87, 181, 0.24);
+            border-radius: 8px;
+            width: 34px;
+            height: 34px;
+            background: #fff;
+            color: var(--color-4);
+            font-weight: 900;
+            cursor: pointer;
         }
 
         .checkmark {
@@ -988,6 +1081,15 @@
         </div>
     </div>
 
+    <div class="store-modal product-detail-modal" id="product-detail-modal" aria-hidden="true">
+        <div class="store-modal-content">
+            <button type="button" class="modal-close-btn" id="product-detail-close" aria-label="Fechar">x</button>
+            <h2 id="product-detail-title"></h2>
+            <div id="product-detail-body"></div>
+            <img class="product-detail-image" id="product-detail-image" alt="" style="display: none;">
+        </div>
+    </div>
+
     <!-- Aviso de fase de testes -->
     <div class="warning-modal" id="warning-test-modal">
         <div class="warning-modal-content">
@@ -1027,9 +1129,9 @@
             { id: 'sticker19', category: 'Adesivo', name: 'Adesivo', note: 'Meio ambiente e toxicologia', type: 'Adesivo (Meio ambiente e toxicologia)', price: 0.75, image: 'sticker (18).png', alt: 'Adesivo meio ambiente e toxicologia' },
             { id: 'sticker20', category: 'Adesivo', name: 'Adesivo', note: 'Microbiologia e DNA', type: 'Adesivo (Microbiologia e DNA)', price: 0.75, image: 'sticker (19).png', alt: 'Adesivo microbiologia e DNA' },
             { id: 'caneca-simol', category: 'Caneca', name: 'Caneca', note: 'Modelo 3D com arte SIMOL frente e verso', type: 'Caneca SIMOL', price: 35, image: 'frente.png', model: 'simol_caneca_3d_corrigida.glb', alt: 'Caneca SIMOL em 3D com arte frente e verso' },
-            { id: 'copo-cafe-simol', category: 'Copo', name: 'Copo', note: 'Modelo 3D com arte SIMOL', type: 'Copo SIMOL', price: 15, image: 'artecopo.png', model: 'copo_cafe.glb', alt: 'Copo SIMOL em 3D com arte do evento', cameraOrbit: '35deg 76deg 0.28m', minCameraOrbit: '-180deg 76deg 0.28m', maxCameraOrbit: '180deg 76deg 0.28m' },
-            { id: 'camiseta-simol', category: 'Camiseta', name: 'Camiseta', note: 'Interacoes que definem a vida', type: 'Camiseta SIMOL', price: 55, image: 'camiseta.png', alt: 'Camiseta SIMOL branca com arte do evento' },
-            { id: 'ecobag-simol', category: 'Ecobag', name: 'Ecobag', note: 'Compreendendo a complexidade da vida', type: 'Ecobag SIMOL', price: 39.5, image: 'ecobag.png', alt: 'Ecobag SIMOL com arte do evento' },
+            { id: 'copo-cafe-simol', category: 'Copo', name: 'Copo', note: 'Modelo 3D com arte SIMOL', type: 'Copo SIMOL', price: 15, image: 'artecopo.png', model: 'copo_cafe.glb', alt: 'Copo SIMOL em 3D com arte do evento', cameraOrbit: '35deg 76deg 0.28m', minCameraOrbit: '-180deg 76deg 0.28m', maxCameraOrbit: '180deg 76deg 0.28m', detailTitle: 'Estampa do copo', detailText: 'Arte completa em fundo branco usada no copo.', detailImage: 'artecopo.png', detailImageAlt: 'Estampa completa do copo SIMOL' },
+            { id: 'camiseta-simol', category: 'Camiseta', name: 'Camiseta', note: 'Interacoes que definem a vida', type: 'Camiseta SIMOL', price: 55, image: 'camiseta.png', alt: 'Camiseta SIMOL branca com arte do evento', sizes: ['P', 'M', 'G', 'GG', 'XG'], detailTitle: 'Observacoes da camiseta', detailText: 'Modelo unissex. As medidas de largura correspondem a parte frontal da camiseta, enquanto a altura e medida do ombro ate a barra.', details: ['P - Largura: 51 cm | Altura: 72 cm', 'M - Largura: 55 cm | Altura: 74 cm', 'G - Largura: 57 cm | Altura: 76 cm', 'GG - Largura: 61 cm | Altura: 78 cm', 'XG - verificar disponibilidade com a organizacao'] },
+            { id: 'ecobag-simol', category: 'Ecobag', name: 'Ecobag', note: 'Compreendendo a complexidade da vida', type: 'Ecobag SIMOL', price: 39.5, image: 'ecobag.png', alt: 'Ecobag SIMOL com arte do evento', detailTitle: 'Observacoes da ecobag', detailText: 'Ecobag em algodao cru com arte SIMOL impressa.' },
             { id: 'botton1', category: 'Botton', name: 'Botton', note: 'Biologia Celular e Molecular', type: 'Botton (Biologia Celular e Molecular)', price: 5, image: 'assets/produtos/botton1.png', alt: 'Botton Biologia Celular e Molecular' },
             { id: 'botton2', category: 'Botton', name: 'Botton', note: 'Bioquimica', type: 'Botton (Bioquimica)', price: 5, image: 'assets/produtos/botton2.png', alt: 'Botton Bioquimica' },
             { id: 'botton3', category: 'Botton', name: 'Botton', note: 'Genetica', type: 'Botton (Genetica)', price: 5, image: 'assets/produtos/botton3.png', alt: 'Botton Genetica' },
@@ -1086,6 +1188,11 @@
         const successModal = document.getElementById('product-success-modal');
         const copyPixBtn = document.getElementById('copy-pix-btn');
         const copyToast = document.getElementById('copy-toast');
+        const detailModal = document.getElementById('product-detail-modal');
+        const detailCloseBtn = document.getElementById('product-detail-close');
+        const detailTitle = document.getElementById('product-detail-title');
+        const detailBody = document.getElementById('product-detail-body');
+        const detailImage = document.getElementById('product-detail-image');
 
         let buyerMode = '';
         let activeCategory = 'Todos';
@@ -1095,6 +1202,15 @@
 
         function formatCurrency(value) {
             return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        }
+
+        function escapeHtml(value) {
+            return (value || '').toString()
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
         }
 
         function showEntryMessage(text, type) {
@@ -1170,6 +1286,17 @@
                     <div class="product-card-body">
                         <h2 class="product-name">${product.name}</h2>
                         <p class="product-note">${product.note}</p>
+                        <div class="product-actions">
+                            ${product.sizes ? `
+                                <select class="product-size-select" data-size-for="${product.id}" aria-label="Tamanho de ${product.name}">
+                                    <option value="">Tamanho</option>
+                                    ${product.sizes.map(size => `<option value="${escapeHtml(size)}">${escapeHtml(size)}</option>`).join('')}
+                                </select>
+                            ` : '<span></span>'}
+                            ${(product.detailText || product.detailImage || product.details) ? `
+                                <button type="button" class="product-info-btn" data-product-info="${product.id}" aria-label="Ver observacoes de ${product.name}" title="Ver observacoes">🔍</button>
+                            ` : ''}
+                        </div>
                         <div class="product-footer">
                             <div class="product-price">${formatCurrency(product.price)}</div>
                             <button type="button" class="add-cart-btn" data-product-id="${product.id}">Adicionar ao Carrinho 🛒</button>
@@ -1179,15 +1306,55 @@
             `).join('');
         }
 
+        function openProductDetail(productId) {
+            const product = products.find(item => item.id === productId);
+            if (!product) return;
+            detailTitle.textContent = product.detailTitle || product.name;
+            const detailItems = product.details && product.details.length
+                ? '<ul>' + product.details.map(item => '<li>' + escapeHtml(item) + '</li>').join('') + '</ul>'
+                : '';
+            detailBody.innerHTML = '<p>' + escapeHtml(product.detailText || product.note || '') + '</p>' + detailItems;
+            if (product.detailImage) {
+                detailImage.src = product.detailImage;
+                detailImage.alt = product.detailImageAlt || product.alt || product.name;
+                detailImage.style.display = 'block';
+            } else {
+                detailImage.removeAttribute('src');
+                detailImage.alt = '';
+                detailImage.style.display = 'none';
+            }
+            detailModal.style.display = 'flex';
+            detailModal.setAttribute('aria-hidden', 'false');
+        }
+
+        function closeProductDetail() {
+            detailModal.style.display = 'none';
+            detailModal.setAttribute('aria-hidden', 'true');
+            detailImage.removeAttribute('src');
+        }
+
+        function getSelectedProductSize(product) {
+            if (!product.sizes) return '';
+            const sizeSelect = productGrid.querySelector('[data-size-for="' + product.id + '"]');
+            return sizeSelect ? sizeSelect.value : '';
+        }
+
         function addToCart(productId, button) {
             const product = products.find(item => item.id === productId);
             if (!product) return;
-            const existing = cart.find(item => item.id === productId);
+            const size = getSelectedProductSize(product);
+            if (product.sizes && !size) {
+                showMessage('Escolha o tamanho da camiseta antes de adicionar ao carrinho.', 'error');
+                return;
+            }
+            const cartKey = product.id + (size ? ':' + size : '');
+            const existing = cart.find(item => item.key === cartKey);
             if (existing) {
                 existing.quantity += 1;
             } else {
-                cart.push({ ...product, quantity: 1 });
+                cart.push({ ...product, key: cartKey, size: size, quantity: 1 });
             }
+            messageBox.style.display = 'none';
             if (button) {
                 button.classList.add('just-added');
                 const originalText = button.textContent;
@@ -1200,18 +1367,18 @@
             renderCart();
         }
 
-        function updateCartQuantity(productId, delta) {
-            const item = cart.find(cartItem => cartItem.id === productId);
+        function updateCartQuantity(cartKey, delta) {
+            const item = cart.find(cartItem => cartItem.key === cartKey);
             if (!item) return;
             item.quantity += delta;
             if (item.quantity <= 0) {
-                cart = cart.filter(cartItem => cartItem.id !== productId);
+                cart = cart.filter(cartItem => cartItem.key !== cartKey);
             }
             renderCart();
         }
 
-        function removeFromCart(productId) {
-            cart = cart.filter(cartItem => cartItem.id !== productId);
+        function removeFromCart(cartKey) {
+            cart = cart.filter(cartItem => cartItem.key !== cartKey);
             renderCart();
         }
 
@@ -1227,13 +1394,14 @@
                     <div>
                         <h3>${item.name}</h3>
                         <p>${item.note} • ${formatCurrency(item.price)}</p>
+                        ${item.size ? `<small>Tamanho: ${escapeHtml(item.size)}</small>` : ''}
                         <div class="cart-line">
                             <div class="cart-qty" aria-label="Quantidade de ${item.type}">
-                                <button type="button" data-cart-dec="${item.id}">-</button>
+                                <button type="button" data-cart-dec="${escapeHtml(item.key)}">-</button>
                                 <span>${item.quantity}</span>
-                                <button type="button" data-cart-inc="${item.id}">+</button>
+                                <button type="button" data-cart-inc="${escapeHtml(item.key)}">+</button>
                             </div>
-                            <button type="button" class="icon-btn" data-cart-remove="${item.id}" aria-label="Remover item">🗑️</button>
+                            <button type="button" class="icon-btn" data-cart-remove="${escapeHtml(item.key)}" aria-label="Remover item">🗑️</button>
                         </div>
                     </div>
                 </div>
@@ -1243,7 +1411,18 @@
         }
 
         function getCartSummary() {
-            return cart.map(item => `${item.quantity}x ${item.type}`).join(', ');
+            return cart.map(item => `${item.quantity}x ${item.type}${item.size ? ' - tamanho ' + item.size : ''}`).join(', ');
+        }
+
+        function getCartObservations() {
+            return cart.map(item => {
+                const parts = [`${item.quantity}x ${item.type}`];
+                if (item.size) parts.push('tamanho: ' + item.size);
+                if (item.note) parts.push('observacao: ' + item.note);
+                if (item.details && item.details.length) parts.push('detalhes: ' + item.details.join(' / '));
+                if (item.detailImage) parts.push('imagem de referencia: ' + item.detailImage);
+                return parts.join(' | ');
+            }).join('\n');
         }
 
         function updateSubmitState() {
@@ -1388,9 +1567,22 @@
         });
 
         productGrid.addEventListener('click', event => {
+            const infoButton = event.target.closest('[data-product-info]');
+            if (infoButton) {
+                openProductDetail(infoButton.dataset.productInfo);
+                return;
+            }
             const button = event.target.closest('[data-product-id]');
             if (!button) return;
             addToCart(button.dataset.productId, button);
+        });
+
+        detailCloseBtn.addEventListener('click', closeProductDetail);
+        detailModal.addEventListener('click', event => {
+            if (event.target === detailModal) closeProductDetail();
+        });
+        document.addEventListener('keydown', event => {
+            if (event.key === 'Escape' && detailModal.style.display === 'flex') closeProductDetail();
         });
 
         cartItemsEl.addEventListener('click', event => {
@@ -1454,6 +1646,7 @@
             const phone = phoneInput.value.trim();
             const total = getCartTotal();
             const orderSummary = getCartSummary();
+            const orderObservations = getCartObservations();
 
             if (!buyerMode) {
                 showMessage('Escolha primeiro se voce e inscrito no SIMOL ou nao.', 'error');
@@ -1488,6 +1681,7 @@
                 formData.append('nome', name);
                 formData.append('cpf', buyerMode === 'inscrito' ? cpf : '');
                 formData.append('tipo', orderSummary);
+                formData.append('observacoes', orderObservations);
                 formData.append('valor', total.toFixed(2).replace('.', ','));
                 formData.append('quantidade', '1');
                 formData.append('email', email);

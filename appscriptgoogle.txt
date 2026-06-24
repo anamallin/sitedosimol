@@ -1204,7 +1204,7 @@ function doPost(e) {
       const blob = Utilities.newBlob(fileData, e.parameter.mimeType, "PRODUTO - " + tipoProduto + " - " + e.parameter.nome + " - " + e.parameter.filename);
       const file = folder.createFile(blob);
       let sheetProdutos = doc.getSheetByName('produtos');
-      const produtosHeaders = ['Data', 'Nome', 'CPF', 'Tipo_quantidade', 'Valor', 'Comprovante', 'email', 'telefone'];
+      const produtosHeaders = ['Data', 'Nome', 'CPF', 'Tipo_quantidade', 'Valor', 'Comprovante', 'email', 'telefone', 'Observacoes'];
       if (!sheetProdutos) {
         sheetProdutos = doc.insertSheet('produtos');
       }
@@ -1230,7 +1230,8 @@ function doPost(e) {
         'R$ ' + e.parameter.valor, 
         file.getUrl(),
         e.parameter.email || '',
-        e.parameter.telefone || ''
+        e.parameter.telefone || '',
+        e.parameter.observacoes || ''
       ]);
 
       return ContentService.createTextOutput(JSON.stringify({ 'result': 'success', 'fileUrl': file.getUrl() })).setMimeType(ContentService.MimeType.JSON);
