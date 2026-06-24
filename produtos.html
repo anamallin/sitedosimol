@@ -43,11 +43,15 @@
         }
 
         .store-hero-image {
+            display: block;
             width: 100%;
+            height: 255px;
             min-height: 190px;
             aspect-ratio: 4 / 3;
             object-fit: contain;
             filter: drop-shadow(0 18px 32px rgba(59, 40, 160, 0.16));
+            --poster-color: transparent;
+            background: transparent;
         }
 
         .entry-panel,
@@ -719,6 +723,7 @@
             }
 
             .store-hero-image {
+                height: 180px;
                 min-height: 150px;
             }
         }
@@ -833,7 +838,27 @@
                 <div class="store-kicker">Produtos oficiais</div>
                 <h1 class="store-title">Loja SIMOL</h1>
             </div>
-            <img class="store-hero-image" src="Icone_Proteina_Óculos.png" alt="Proteina mascote do SIMOL">
+            <model-viewer
+                class="store-hero-image"
+                src="simol_caneca_3d_corrigida.glb"
+                poster="frente.png"
+                alt="Caneca SIMOL 3D"
+                loading="eager"
+                reveal="auto"
+                auto-rotate
+                rotation-per-second="28deg"
+                interaction-prompt="none"
+                disable-zoom
+                disable-pan
+                shadow-intensity="0"
+                exposure="1.15"
+                camera-orbit="35deg 76deg 6.2m"
+                min-camera-orbit="-180deg 76deg 6.2m"
+                max-camera-orbit="180deg 76deg 6.2m"
+                field-of-view="35deg"
+                min-field-of-view="35deg"
+                max-field-of-view="35deg">
+            </model-viewer>
         </section>
 
         <div class="sales-warning" role="alert">

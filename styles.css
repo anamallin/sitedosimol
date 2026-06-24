@@ -726,7 +726,9 @@ body {
 
     /* Diminui a proteína significativamente no celular */
     .mascot-protein {
-        max-width: 50px; 
+        width: 72px;
+        height: 72px;
+        max-width: 72px;
     }
     
     .mascot-container {
@@ -785,12 +787,15 @@ body {
 /* Proteína Mascote (Imagem) */
 .mascot-protein {
     display: block;
-    max-width: 400px; /* Grande como solicitado */
-    height: auto;
+    width: min(220px, 34vw);
+    height: min(220px, 34vw);
+    max-width: 220px;
     cursor: pointer;
     filter: drop-shadow(0 15px 25px rgba(0,0,0,0.25));
     animation: floatMascot 5s ease-in-out infinite alternate;
     transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), filter 0.4s ease;
+    --poster-color: transparent;
+    background: transparent;
 }
 
 .mascot-protein:hover {
@@ -1070,7 +1075,9 @@ body {
     }
 
     .mascot-protein {
-        max-width: 50px; 
+        width: 72px;
+        height: 72px;
+        max-width: 72px;
     }
     
     .mascot-container {
@@ -1116,4 +1123,3 @@ body {
     transform: scale(1.25) rotate(-12deg);
     color: var(--color-1);
 }
-
