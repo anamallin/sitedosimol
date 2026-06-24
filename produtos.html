@@ -6,6 +6,7 @@
     <title>Produtos SIMOL</title>
     <link rel="icon" type="image/png" href="Icone_Proteina_Óculos.png">
     <link rel="stylesheet" href="styles.css">
+    <script type="module" src="assets/vendor/model-viewer.min.js"></script>
     <style>
         body {
             min-height: 100vh;
@@ -279,11 +280,17 @@
             overflow: hidden;
         }
 
-        .product-image-wrap img {
+        .product-image-wrap img,
+        .product-image-wrap model-viewer {
             width: 100%;
             height: 100%;
             object-fit: contain;
             transition: transform 0.25s ease;
+        }
+
+        .product-image-wrap model-viewer {
+            --poster-color: transparent;
+            background: transparent;
         }
 
         .product-card:hover .product-image-wrap img {
@@ -992,6 +999,7 @@
             { id: 'sticker18', category: 'Adesivo', name: 'Adesivo', note: 'Microscopia histologica', type: 'Adesivo (Microscopia histologica)', price: 0.75, image: 'sticker (17).png', alt: 'Adesivo microscopia histologica' },
             { id: 'sticker19', category: 'Adesivo', name: 'Adesivo', note: 'Meio ambiente e toxicologia', type: 'Adesivo (Meio ambiente e toxicologia)', price: 0.75, image: 'sticker (18).png', alt: 'Adesivo meio ambiente e toxicologia' },
             { id: 'sticker20', category: 'Adesivo', name: 'Adesivo', note: 'Microbiologia e DNA', type: 'Adesivo (Microbiologia e DNA)', price: 0.75, image: 'sticker (19).png', alt: 'Adesivo microbiologia e DNA' },
+            { id: 'caneca-simol', category: 'Caneca', name: 'Caneca', note: 'Modelo 3D com arte SIMOL frente e verso', type: 'Caneca SIMOL', price: 35, image: 'frente.png', model: 'simol_caneca_3d_corrigida.glb', alt: 'Caneca SIMOL em 3D com arte frente e verso' },
             { id: 'botton1', category: 'Botton', name: 'Botton', note: 'Biologia Celular e Molecular', type: 'Botton (Biologia Celular e Molecular)', price: 5, image: 'assets/produtos/botton1.png', alt: 'Botton Biologia Celular e Molecular' },
             { id: 'botton2', category: 'Botton', name: 'Botton', note: 'Bioquimica', type: 'Botton (Bioquimica)', price: 5, image: 'assets/produtos/botton2.png', alt: 'Botton Bioquimica' },
             { id: 'botton3', category: 'Botton', name: 'Botton', note: 'Genetica', type: 'Botton (Genetica)', price: 5, image: 'assets/produtos/botton3.png', alt: 'Botton Genetica' },
@@ -1006,6 +1014,7 @@
         const categories = [
             { id: 'Todos', label: 'Todos' },
             { id: 'Adesivo', label: 'Adesivos' },
+            { id: 'Caneca', label: 'Canecas' },
             { id: 'Botton', label: 'Bottons' },
             { id: 'Chaveiro', label: 'Chaveiros' }
         ];
@@ -1101,7 +1110,29 @@
                 <article class="product-card" style="animation-delay: ${Math.min(index * 0.025, 0.24)}s">
                     <div class="product-image-wrap">
                         <span class="product-badge">${product.category}</span>
-                        <img src="${product.image}" alt="${product.alt}">
+                        ${product.model ? `
+                            <model-viewer
+                                src="${product.model}"
+                                poster="${product.image}"
+                                alt="${product.alt}"
+                                loading="eager"
+                                reveal="auto"
+                                camera-controls
+                                disable-zoom
+                                disable-pan
+                                auto-rotate
+                                rotation-per-second="28deg"
+                                interaction-prompt="none"
+                                shadow-intensity="0"
+                                exposure="1.15"
+                                camera-orbit="35deg 76deg 2.8m"
+                                min-camera-orbit="-180deg 76deg 2.8m"
+                                max-camera-orbit="180deg 76deg 2.8m"
+                                field-of-view="30deg"
+                                min-field-of-view="30deg"
+                                max-field-of-view="30deg">
+                            </model-viewer>
+                        ` : `<img src="${product.image}" alt="${product.alt}">`}
                     </div>
                     <div class="product-card-body">
                         <h2 class="product-name">${product.name}</h2>
