@@ -954,11 +954,6 @@
             </model-viewer>
         </section>
 
-        <div class="sales-warning" role="alert">
-            <strong>Vendas ainda n&atilde;o come&ccedil;aram.</strong>
-            Todos os pedidos de produtos enviados antes da abertura oficial ser&atilde;o desconsiderados.
-        </div>
-
         <section class="entry-panel" id="entry-panel">
             <h2>Antes de comprar</h2>
             <div class="entry-actions">
@@ -1018,11 +1013,6 @@
                 </div>
 
                 <form id="product-order-form" class="checkout-form">
-                    <div class="sales-warning" role="alert">
-                        <strong>Pedidos suspensos no momento.</strong>
-                        As vendas ainda n&atilde;o come&ccedil;aram; pedidos enviados agora ser&atilde;o desconsiderados.
-                    </div>
-
                     <div>
                         <label for="buyer-name">Nome completo *</label>
                         <input id="buyer-name" type="text" autocomplete="name" required>
@@ -1062,7 +1052,7 @@
                     <div class="form-message store-message" id="product-message"></div>
 
                     <button type="submit" class="submit-btn" id="product-submit-btn" disabled>
-                        <span>Vendas indispon&iacute;veis</span>
+                        <span>Enviar pedido</span>
                         <div class="spinner" style="display: none;"></div>
                     </button>
                 </form>
@@ -1090,23 +1080,10 @@
         </div>
     </div>
 
-    <!-- Aviso de fase de testes -->
-    <div class="warning-modal" id="warning-test-modal">
-        <div class="warning-modal-content">
-            <div class="warning-icon">⚠️</div>
-            <h2>🚧 Atenção — Fase de Testes!</h2>
-            <p>Nosso sistema de pedidos ainda está em <strong>fase de testes</strong>.</p>
-            <p>Todos os pedidos realizados até o dia <strong>24 de Junho às 15h</strong> serão <strong>DESCONSIDERADOS</strong>.</p>
-            <p style="font-size: 0.9rem; color: #888; margin-top: 6px;">Após esse período, os pedidos passarão a valer normalmente.</p>
-            <button class="warning-modal-btn" id="warning-close-btn">Entendi!</button>
-        </div>
-    </div>
-
     <script src="script.js"></script>
     <script>
         const PRODUCT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzzUVW50SFfZ80SqZCEOtwNpVyRMpCV-3EneTutQ8TNh6IF2VoP5u5FZEe3CF6pMyECyQ/exec';
         const PIX_KEY = 'simol.simposiointegrado@gmail.com';
-        const PRODUCTS_SALES_OPEN = false;
         const products = [
             { id: 'sticker1', category: 'Adesivo', name: 'Adesivo', note: 'PPGen UFPR', type: 'Adesivo (PPGen UFPR)', price: 0.75, image: 'sticker.png', alt: 'Adesivo PPGen UFPR' },
             { id: 'sticker2', category: 'Adesivo', name: 'Adesivo', note: 'PPGBioCelMol UFPR', type: 'Adesivo (PPGBioCelMol UFPR)', price: 0.75, image: 'sticker (1).png', alt: 'Adesivo PPGBioCelMol UFPR' },
@@ -1426,8 +1403,8 @@
         }
 
         function updateSubmitState() {
-            submitBtn.disabled = !PRODUCTS_SALES_OPEN || !cart.length || !selectedFile;
-            submitText.textContent = PRODUCTS_SALES_OPEN ? 'Enviar pedido' : 'Vendas indisponiveis';
+            submitBtn.disabled = !cart.length || !selectedFile;
+            submitText.textContent = 'Enviar pedido';
         }
 
         function formatFileSize(bytes) {
@@ -1636,10 +1613,6 @@
 
         document.getElementById('product-order-form').addEventListener('submit', event => {
             event.preventDefault();
-            if (!PRODUCTS_SALES_OPEN) {
-                showMessage('As vendas de produtos ainda nao comecaram. Todos os pedidos enviados antes da abertura oficial serao desconsiderados.', 'error');
-                return;
-            }
             const name = nameInput.value.trim();
             const cpf = cpfInput.value.trim();
             const email = emailInput.value.trim();
@@ -1738,19 +1711,6 @@
         renderProducts();
         renderCart();
 
-        // Aviso popup de fase de testes
-        const warningModal = document.getElementById('warning-test-modal');
-        const warningCloseBtn = document.getElementById('warning-close-btn');
-        warningCloseBtn.addEventListener('click', () => {
-            warningModal.style.opacity = '0';
-            warningModal.style.transition = 'opacity 0.3s ease';
-            setTimeout(() => { warningModal.style.display = 'none'; }, 300);
-        });
-        warningModal.addEventListener('click', (e) => {
-            if (e.target === warningModal) {
-                warningCloseBtn.click();
-            }
-        });
     </script>
 </body>
 </html>
