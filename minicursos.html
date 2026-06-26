@@ -473,6 +473,15 @@
             return text.slice(0, limit).replace(/\s+\S*$/, '') + '...';
         }
 
+        function vacanciesLabel(value) {
+            const text = String(value || '').trim();
+            if (!text) return 'Vagas a confirmar';
+            const normalized = normalize(text);
+            if (normalized.includes('ilimit')) return 'Vagas ilimitadas';
+            if (normalized.includes('vaga')) return text;
+            return `${text} vagas`;
+        }
+
         function makeDetail(title, value) {
             if (!String(value || '').trim()) return '';
             return `
@@ -528,7 +537,7 @@
                     <h2>${escapeHTML(course.titulo)}</h2>
                     <p class="course-teaser">${escapeHTML(shortText(teaserText(course)))}</p>
                     <div class="meta-strip">
-                        <span class="meta-chip">${escapeHTML(course.vagas || 'Vagas a confirmar')} vagas</span>
+                        <span class="meta-chip">${escapeHTML(vacanciesLabel(course.vagas))}</span>
                         <span class="meta-chip">${escapeHTML(course.formato || 'Formato a confirmar')}</span>
                         <span class="meta-chip">${escapeHTML(course.carga || course.horarios || 'Carga horária a confirmar')}</span>
                     </div>
