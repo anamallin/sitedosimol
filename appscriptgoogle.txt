@@ -121,6 +121,42 @@ function parseDataPrioridade_(value) {
   return isNaN(parsed.getTime()) ? null : parsed.getTime();
 }
 
+function normalizarTexto_(value) {
+  return (value || '').toString()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim();
+}
+
+function isPagamentoMinicursoPrioritario_(statusPagamento) {
+  const text = (statusPagamento || '').toString().trim();
+  if (!text) return false;
+
+  const normalized = normalizarTexto_(text);
+  if (
+    normalized === 'pendente' ||
+    normalized === 'nao se aplica' ||
+    normalized === 'previa'
+  ) {
+    return false;
+  }
+
+  return (
+    normalized.includes('pago') ||
+    normalized.includes('confirm') ||
+    normalized.includes('aprov') ||
+    /^https?:\/\//i.test(text) ||
+    normalized.includes('drive.google') ||
+    normalized.includes('docs.google')
+  );
+}
+
+function getStatusPagamentoMinicursoPublico_(statusPagamento) {
+  if (isPagamentoMinicursoPrioritario_(statusPagamento)) return 'Pago';
+  return statusPagamento || 'Pendente';
+}
+
 function getMapaPrioridadeInscricao_(sheetPrincipal) {
   const dataPrincipal = sheetPrincipal.getDataRange().getValues();
   if (dataPrincipal.length < 2) return {};
@@ -159,6 +195,7 @@ function calcularRankingMinicursos_(sheetPrincipal, sheetMinicursos) {
     const nome = row[1] || '';
     const lista = (row[3] || '').toString().split(',').map(c => c.trim()).filter(c => c);
     const prioridade = mapaPrioridade[cpf] || null;
+    const pagamentoPrioritario = isPagamentoMinicursoPrioritario_(row[7]);
     const ordem = prioridade === null ? 9000000000000 + i : prioridade;
 
     lista.forEach(function(curso) {
@@ -169,6 +206,7 @@ function calcularRankingMinicursos_(sheetPrincipal, sheetMinicursos) {
         nome: nome,
         rowIndex: i,
         prioridade: prioridade,
+        pagamentoPrioritario: pagamentoPrioritario,
         ordem: ordem
       });
     });
@@ -176,6 +214,7 @@ function calcularRankingMinicursos_(sheetPrincipal, sheetMinicursos) {
 
   Object.keys(cursos).forEach(function(curso) {
     cursos[curso].sort(function(a, b) {
+      if (a.pagamentoPrioritario !== b.pagamentoPrioritario) return a.pagamentoPrioritario ? -1 : 1;
       if (a.ordem !== b.ordem) return a.ordem - b.ordem;
       return a.rowIndex - b.rowIndex;
     });
@@ -188,6 +227,7 @@ function calcularRankingMinicursos_(sheetPrincipal, sheetMinicursos) {
         limite: limite,
         inscritos: cursos[curso].length,
         dentroDasVagas: limite === null || index < limite,
+        pagamentoPrioritario: item.pagamentoPrioritario,
         prioridadeInscricao: item.prioridade ? new Date(item.prioridade) : null
       };
       if (!porCpf[item.cpf]) porCpf[item.cpf] = [];
@@ -205,6 +245,7 @@ function calcularPreviaRankingMinicursos_(sheetPrincipal, sheetMinicursos, parti
   const porCpf = {};
   const cpfParticipante = normalizarCpf_(participante.cpf);
   let rowParticipanteExistente = null;
+  let statusPagamentoParticipante = '';
 
   for (var i = 1; i < dataMinicursos.length; i++) {
     const row = dataMinicursos[i];
@@ -212,12 +253,14 @@ function calcularPreviaRankingMinicursos_(sheetPrincipal, sheetMinicursos, parti
     if (!cpf) continue;
     if (cpf === cpfParticipante) {
       rowParticipanteExistente = i;
+      statusPagamentoParticipante = row[7] || '';
       continue;
     }
 
     const nome = row[1] || '';
     const lista = (row[3] || '').toString().split(',').map(c => c.trim()).filter(c => c);
     const prioridade = mapaPrioridade[cpf] || null;
+    const pagamentoPrioritario = isPagamentoMinicursoPrioritario_(row[7]);
     const ordem = prioridade === null ? 9000000000000 + i : prioridade;
 
     lista.forEach(function(curso) {
@@ -228,6 +271,7 @@ function calcularPreviaRankingMinicursos_(sheetPrincipal, sheetMinicursos, parti
         nome: nome,
         rowIndex: i,
         prioridade: prioridade,
+        pagamentoPrioritario: pagamentoPrioritario,
         ordem: ordem
       });
     });
@@ -235,6 +279,7 @@ function calcularPreviaRankingMinicursos_(sheetPrincipal, sheetMinicursos, parti
 
   const prioridadeParticipante = mapaPrioridade[cpfParticipante] || null;
   const rowParticipante = rowParticipanteExistente || dataMinicursos.length;
+  const pagamentoPrioritarioParticipante = isPagamentoMinicursoPrioritario_(statusPagamentoParticipante);
   const ordemParticipante = prioridadeParticipante === null ? 9000000000000 + rowParticipante : prioridadeParticipante;
   const cursosSelecionados = (participante.minicursos || '').toString().split(',').map(c => c.trim()).filter(c => c);
 
@@ -246,12 +291,14 @@ function calcularPreviaRankingMinicursos_(sheetPrincipal, sheetMinicursos, parti
       nome: participante.nome || '',
       rowIndex: rowParticipante,
       prioridade: prioridadeParticipante,
+      pagamentoPrioritario: pagamentoPrioritarioParticipante,
       ordem: ordemParticipante
     });
   });
 
   Object.keys(cursos).forEach(function(curso) {
     cursos[curso].sort(function(a, b) {
+      if (a.pagamentoPrioritario !== b.pagamentoPrioritario) return a.pagamentoPrioritario ? -1 : 1;
       if (a.ordem !== b.ordem) return a.ordem - b.ordem;
       return a.rowIndex - b.rowIndex;
     });
@@ -264,6 +311,7 @@ function calcularPreviaRankingMinicursos_(sheetPrincipal, sheetMinicursos, parti
         limite: limite,
         inscritos: cursos[curso].length,
         dentroDasVagas: limite === null || index < limite,
+        pagamentoPrioritario: item.pagamentoPrioritario,
         prioridadeInscricao: item.prioridade ? new Date(item.prioridade) : null
       };
       if (!porCpf[item.cpf]) porCpf[item.cpf] = [];
@@ -371,14 +419,14 @@ function enviarEmailsSaidaVagasMinicursos_(sheetPrincipal, sheetMinicursos, rank
       'Olá, ' + nome + '.\n\n' +
       'Informamos que, devido à atualização do ranking de inscrições dos minicursos, você não está mais dentro do número de vagas disponíveis em um ou mais minicursos selecionados.\n\n' +
       cursosTexto + '\n\n' +
-      'O ranking segue a ordem de inscrição no SIMOL, priorizando participantes que se inscreveram primeiro no evento.\n\n' +
+      'O ranking prioriza participantes com pagamento de minicurso confirmado; dentro de cada grupo, segue a ordem de inscrição no SIMOL.\n\n' +
       'Caso deseje, você poderá alterar os minicursos selecionados diretamente pela Área do Inscrito: ' + AREA_INSCRITO_URL + '\n\n' +
       'Atenciosamente,\nComissão Organizadora do SIMOL';
     const htmlBody =
       '<p>Olá, ' + escapeHtml_(nome) + '.</p>' +
       '<p>Informamos que, devido à atualização do ranking de inscrições dos minicursos, você não está mais dentro do número de vagas disponíveis em um ou mais minicursos selecionados.</p>' +
       '<ul>' + cursosHtml + '</ul>' +
-      '<p>O ranking segue a ordem de inscrição no SIMOL, priorizando participantes que se inscreveram primeiro no evento.</p>' +
+      '<p>O ranking prioriza participantes com pagamento de minicurso confirmado; dentro de cada grupo, segue a ordem de inscrição no SIMOL.</p>' +
       '<p>Caso deseje, você poderá alterar os minicursos selecionados diretamente pela <a href="' + AREA_INSCRITO_URL + '">Área do Inscrito</a>.</p>' +
       '<p>Atenciosamente,<br>Comissão Organizadora do SIMOL</p>';
 
@@ -849,6 +897,7 @@ function doPost(e) {
       
       const ssMinicursos = SpreadsheetApp.openById(ID_PLANILHA_MINICURSOS);
       const sheet = ssMinicursos.getSheets()[0];
+      const sheetPrincipal = doc.getSheetByName(sheetName);
       const data = sheet.getDataRange().getValues();
       const cpfBusca = (e.parameter.cpf || '').replace(/\D/g, '').padStart(11, '0');
       
@@ -859,7 +908,11 @@ function doPost(e) {
       }
       
       if (rowToUpdate !== -1) {
+          const rankingAntes = calcularRankingMinicursos_(sheetPrincipal, sheet);
           sheet.getRange(rowToUpdate, 8).setValue(file.getUrl()); 
+          SpreadsheetApp.flush();
+          const rankingDepois = calcularRankingMinicursos_(sheetPrincipal, sheet);
+          enviarEmailsSaidaVagasMinicursos_(sheetPrincipal, sheet, rankingAntes, rankingDepois);
       }
       return ContentService.createTextOutput(JSON.stringify({ result: 'success', fileUrl: file.getUrl() })).setMimeType(ContentService.MimeType.JSON);
     }
@@ -1092,7 +1145,7 @@ function doPost(e) {
             const listaCursos = (dataMinis[j][3] || '').toString().split(',').map(function(c) { return c.trim(); }).filter(function(c) { return c; });
             data.minicursos.push({
               lista: dataMinis[j][3], // coluna D: minicursos
-              status: dataMinis[j][7],  // coluna H: statusPagamento
+              status: getStatusPagamentoMinicursoPublico_(dataMinis[j][7]),  // coluna H: statusPagamento/comprovante
               rankings: listaCursos.map(function(curso) {
                 return rankingsCpf.find(function(r) { return r.curso === curso; }) || {
                   curso: curso,
