@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ãrea do Organizador - I SIMOL</title>
-    <link rel="icon" type="image/png" href="Icone_Proteina_Ã“culos.png">
+    <title>Área do Organizador - I SIMOL</title>
+    <link rel="icon" type="image/png" href="Icone_Proteina_Óculos.png">
     <link rel="stylesheet" href="styles.css">
     <style>
         body {
@@ -412,9 +412,9 @@
 <body>
     <div class="organizer-shell">
         <section id="login-screen" class="organizer-panel login-card">
-            <h1>Ãrea do Organizador</h1>
-            <p class="muted">Digite o cÃ³digo de organizador para carregar as estatÃ­sticas atuais do SIMOL.</p>
-            <label for="organizer-code">CÃ³digo de organizador</label>
+            <h1>Área do Organizador</h1>
+            <p class="muted">Digite o código de organizador para carregar as estatísticas atuais do SIMOL.</p>
+            <label for="organizer-code">Código de organizador</label>
             <input type="password" id="organizer-code" autocomplete="off">
             <button id="login-btn" class="submit-btn" type="button">
                 <span>Entrar</span>
@@ -426,8 +426,8 @@
         <section id="dashboard-screen" class="organizer-panel">
             <div class="organizer-header">
                 <div>
-                    <h1>EstatÃ­sticas do SIMOL</h1>
-                    <p>Resumo das inscriÃ§Ãµes principais e dos rankings de minicursos.</p>
+                    <h1>Estatísticas do SIMOL</h1>
+                    <p>Resumo das inscrições principais e dos rankings de minicursos.</p>
                     <p id="updated-at" class="muted" style="margin-top: 6px;"></p>
                 </div>
                 <a href="index.html" class="back-link">Voltar para Home</a>
@@ -435,15 +435,15 @@
 
             <div class="summary-grid">
                 <div class="stat-card">
-                    <span>Total de inscriÃ§Ãµes</span>
+                    <span>Total de inscrições</span>
                     <strong id="stat-total">0</strong>
                 </div>
                 <div class="stat-card">
-                    <span>InscriÃ§Ã£o normal</span>
+                    <span>Inscrição normal</span>
                     <strong id="stat-normal">0</strong>
                 </div>
                 <div class="stat-card">
-                    <span>PÃ³s-graduaÃ§Ã£o</span>
+                    <span>Pós-graduação</span>
                     <strong id="stat-pos">0</strong>
                 </div>
                 <div class="stat-card">
@@ -458,7 +458,7 @@
 
             <div class="charts-grid">
                 <div class="chart-card">
-                    <h2>InscriÃ§Ãµes</h2>
+                    <h2>Inscrições</h2>
                     <div id="inscricoes-chart" class="bar-list"></div>
                 </div>
                 <div class="chart-card">
@@ -572,7 +572,7 @@
         function renderCharts(inscricoes, cursos) {
             renderBarChart('inscricoes-chart', [
                 { key: 'normal', label: 'Normal', value: inscricoes.normal || 0, color: '#2f80ed', color2: '#56ccf2', soft: '#eaf4ff' },
-                { key: 'pos', label: 'PÃ³s-graduaÃ§Ã£o', value: inscricoes.pos || 0 },
+                { key: 'pos', label: 'Pós-graduação', value: inscricoes.pos || 0 },
                 { key: 'pagas', label: 'Pagaram', value: inscricoes.pagas || 0, color: '#219653', color2: '#6fcf97', soft: '#e9f8ef' },
                 { key: 'pendentes', label: 'Pendentes', value: inscricoes.pendentes || 0, color: '#d36b00', color2: '#f2c94c', soft: '#fff4d7' }
             ], () => {});
@@ -647,7 +647,7 @@
                 const limite = course.limite === null ? 'Sem limite' : course.limite;
                 const vagas = course.vagasSobrando === null ? 'Sem limite' : course.vagasSobrando;
                 const statusClass = course.filaEspera && course.filaEspera.length ? 'badge-wait' : (course.vagasSobrando > 0 || course.vagasSobrando === null ? 'badge-open' : 'badge-ok');
-                const statusText = course.filaEspera && course.filaEspera.length ? 'Com fila' : (course.vagasSobrando === null ? 'Sem limite' : (course.vagasSobrando > 0 ? 'HÃ¡ vagas' : 'Lotado'));
+                const statusText = course.filaEspera && course.filaEspera.length ? 'Com fila' : (course.vagasSobrando === null ? 'Sem limite' : (course.vagasSobrando > 0 ? 'Há vagas' : 'Lotado'));
 
                 return `
                     <tr data-search="${escapeHTML(JSON.stringify(course).toLowerCase())}">
@@ -730,7 +730,7 @@
                         fallbackCopy();
                         showCopyFeedback(successMessage + ' (' + emails.length + ')');
                     } catch (error) {
-                        showCopyFeedback('NÃ£o foi possÃ­vel copiar automaticamente.', true);
+                        showCopyFeedback('Não foi possível copiar automaticamente.', true);
                     }
                 });
         }
@@ -738,11 +738,11 @@
         function loadOrganizerStats() {
             const code = codeInput.value.trim().toUpperCase();
             if (!code) {
-                setMessage('Digite o cÃ³digo de organizador.');
+                setMessage('Digite o código de organizador.');
                 return;
             }
             if (code !== SECRET_CODE) {
-                setMessage('CÃ³digo incorreto. Tente novamente.');
+                setMessage('Código incorreto. Tente novamente.');
                 return;
             }
 
@@ -754,14 +754,14 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.result !== 'success') {
-                        throw new Error(data.message || 'NÃ£o foi possÃ­vel carregar as estatÃ­sticas.');
+                        throw new Error(data.message || 'Não foi possível carregar as estatísticas.');
                     }
                     renderStats(data);
                     loginScreen.style.display = 'none';
                     dashboardScreen.style.display = 'block';
                 })
                 .catch(error => {
-                    setMessage(error.message || 'Erro de conexÃ£o com o servidor.');
+                    setMessage(error.message || 'Erro de conexão com o servidor.');
                     loginBtn.disabled = false;
                     loginBtn.querySelector('span').textContent = 'Entrar';
                 });

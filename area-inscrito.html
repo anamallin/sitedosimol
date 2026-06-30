@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ãrea do Inscrito - I SIMOL</title>
-    <link rel="icon" type="image/png" href="Icone_Proteina_Ã“culos.png">
+    <title>Área do Inscrito - I SIMOL</title>
+    <link rel="icon" type="image/png" href="Icone_Proteina_Óculos.png">
     <link rel="stylesheet" href="styles.css">
     <style>
         body {
@@ -251,44 +251,44 @@
 </head>
 <body>
     <div id="main-container">
-        <!-- TELA DE VERIFICAÃ‡ÃƒO -->
+        <!-- TELA DE VERIFICAÇÃO -->
         <div id="verification-screen">
-            <div class="lock-icon">ðŸ‘¤</div>
-            <h2 style="color: var(--color-4);">Acessar Ãrea do Inscrito</h2>
-            <p style="color: #666; margin-bottom: 30px;">Identifique-se para acessar seus certificados e informaÃ§Ãµes.</p>
+            <div class="lock-icon">👤</div>
+            <h2 style="color: var(--color-4);">Acessar Área do Inscrito</h2>
+            <p style="color: #666; margin-bottom: 30px;">Identifique-se para acessar seus certificados e informações.</p>
 
             <div class="input-group">
                 <label>Nome Completo</label>
-                <input type="text" id="verify-nome" placeholder="Nome como na inscriÃ§Ã£o">
+                <input type="text" id="verify-nome" placeholder="Nome como na inscrição">
             </div>
             <div class="input-group">
                 <label>CPF</label>
-                <input type="text" id="verify-cpf" placeholder="Apenas nÃºmeros">
+                <input type="text" id="verify-cpf" placeholder="Apenas números">
             </div>
 
             <button id="verify-btn" class="btn-primary">Entrar no Portal</button>
-            <p id="error-msg" style="color: #e74c3c; font-size: 0.9rem; margin-top: 15px; display: none;">InscriÃ§Ã£o nÃ£o encontrada. Verifique os dados ou contate a organizaÃ§Ã£o.</p>
+            <p id="error-msg" style="color: #e74c3c; font-size: 0.9rem; margin-top: 15px; display: none;">Inscrição não encontrada. Verifique os dados ou contate a organização.</p>
 
-            <a href="index.html" style="display: block; margin-top: 25px; color: #888; text-decoration: none; font-size: 0.9rem;">â† Voltar para Home</a>
+            <a href="index.html" style="display: block; margin-top: 25px; color: #888; text-decoration: none; font-size: 0.9rem;">← Voltar para Home</a>
         </div>
 
-        <!-- CONTEÃšDO DO PORTAL -->
+        <!-- CONTEÚDO DO PORTAL -->
         <div id="portal-content">
             <div class="welcome-badge">
-                <h2 style="color: var(--color-4); margin-bottom: 5px;">OlÃ¡, <span id="user-name">...</span>!</h2>
+                <h2 style="color: var(--color-4); margin-bottom: 5px;">Olá, <span id="user-name">...</span>!</h2>
                 <p style="color: #666; font-size: 0.9rem;">CPF: <span id="user-cpf-display">...</span></p>
             </div>
 
             <div class="tabs">
-                <button class="tab-btn active" onclick="switchTab('dashboard')">SituaÃ§Ã£o</button>
+                <button class="tab-btn active" onclick="switchTab('dashboard')">Situação</button>
                 <button class="tab-btn" onclick="switchTab('certificados')">Certificados</button>
             </div>
 
-            <!-- ABA SITUAÃ‡ÃƒO -->
+            <!-- ABA SITUAÇÃO -->
             <div id="dashboard-tab">
                 <div class="status-grid">
                     <div class="status-card">
-                        <h4>InscriÃ§Ã£o SIMOL</h4>
+                        <h4>Inscrição SIMOL</h4>
                         <div class="value" id="status-simol">Carregando...</div>
                         <div id="badge-simol"></div>
                     </div>
@@ -299,13 +299,13 @@
                     </div>
                 </div>
 
-                <!-- SEÃ‡ÃƒO DE UPLOAD DE COMPROVANTE PENDENTE -->
+                <!-- SEÇÃO DE UPLOAD DE COMPROVANTE PENDENTE -->
                 <div id="upload-comprovante-section" style="display: none; margin-bottom: 25px;">
                     <div class="status-card" style="border: 2px dashed var(--color-1); background: rgba(103, 42, 147, 0.02);">
                         <h4 style="color: var(--color-1); font-weight: bold; margin-bottom: 8px;">Submeter seu Comprovante</h4>
-                        <p style="font-size: 0.85rem; color: #555; margin-bottom: 15px; line-height: 1.4;">Sua inscriÃ§Ã£o estÃ¡ pendente de pagamento. Caso jÃ¡ tenha realizado a transferÃªncia PIX, envie seu comprovante abaixo. Se ainda nÃ£o pagou, use a chave PIX abaixo:</p>
+                        <p style="font-size: 0.85rem; color: #555; margin-bottom: 15px; line-height: 1.4;">Sua inscrição está pendente de pagamento. Caso já tenha realizado a transferência PIX, envie seu comprovante abaixo. Se ainda não pagou, use a chave PIX abaixo:</p>
 
-                        <!-- InformaÃ§Ãµes de Pagamento PIX -->
+                        <!-- Informações de Pagamento PIX -->
                         <div style="background: white; border: 1px solid rgba(103, 42, 147, 0.15); padding: 12px 15px; border-radius: 10px; margin-bottom: 15px; text-align: left; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
                             <div>
                                 <span style="font-size: 0.7rem; font-weight: bold; color: #888; text-transform: uppercase; display: block; letter-spacing: 0.5px; margin-bottom: 2px;">Chave PIX (E-mail)</span>
@@ -328,17 +328,17 @@
                     <h4>Minicursos</h4>
                     <div id="minicursos-list" style="font-size: 0.9rem; font-weight: 600; color: var(--color-4);">Nenhum minicurso encontrado.</div>
                     <div style="margin-top: 15px; padding-top: 10px; border-top: 1px solid #eee; font-size: 0.75rem; color: #777; line-height: 1.4;">
-                        <strong>Nota Informativa:</strong> Participantes inscritos na categoria "Inscrito SIMOL" possuem isenÃ§Ã£o de taxa para atÃ© 2 (dois) minicursos. Caso sua situaÃ§Ã£o para estes itens conste como "Pendente", a validaÃ§Ã£o serÃ¡ processada automaticamente pela organizaÃ§Ã£o.
+                        <strong>Nota Informativa:</strong> Participantes inscritos na categoria "Inscrito SIMOL" possuem isenção de taxa para até 2 (dois) minicursos. Caso sua situação para estes itens conste como "Pendente", a validação será processada automaticamente pela organização.
                     </div>
                 </div>
 
                 <div class="status-card" style="margin-bottom: 25px;">
-                    <h4>SubmissÃµes de Resumos</h4>
-                    <div id="submissoes-list" style="font-size: 0.9rem; color: #555;">Nenhuma submissÃ£o encontrada.</div>
+                    <h4>Submissões de Resumos</h4>
+                    <div id="submissoes-list" style="font-size: 0.9rem; color: #555;">Nenhuma submissão encontrada.</div>
                 </div>
 
                 <a href="#" class="menu-item" style="width: 100%;" onclick="location.reload()">
-                    <div style="font-size: 20px; margin-bottom: 5px;">ðŸšª</div>
+                    <div style="font-size: 20px; margin-bottom: 5px;">🚪</div>
                     Sair do Portal
                 </a>
             </div>
@@ -346,9 +346,9 @@
             <!-- ABA CERTIFICADOS -->
             <div id="certificados-tab">
                 <div style="padding: 40px 20px; background: #f8f9fa; border-radius: 15px; border: 2px dashed #eee;">
-                    <div style="font-size: 40px; margin-bottom: 15px;">â³</div>
+                    <div style="font-size: 40px; margin-bottom: 15px;">⏳</div>
                     <h3 style="color: var(--color-4);">Certificados em Breve</h3>
-                    <p style="color: #888; font-size: 0.9rem;">Os certificados de participaÃ§Ã£o e submissÃ£o serÃ£o liberados em atÃ© 2 meses apÃ³s o evento.</p>
+                    <p style="color: #888; font-size: 0.9rem;">Os certificados de participação e submissão serão liberados em até 2 meses após o evento.</p>
                 </div>
             </div>
         </div>
@@ -381,7 +381,7 @@
             fetch(`${scriptURL}?action=getParticipantData&cpf=${cpf}`)
                 .then(r => r.json())
                 .then(data => {
-                    if (data.inscricao.status !== 'NÃ£o encontrada') {
+                    if (data.inscricao.status !== 'Não encontrada') {
                         renderDashboard(data, nome, cpf);
                     } else {
                         document.getElementById('error-msg').style.display = 'block';
@@ -390,7 +390,7 @@
                     }
                 })
                 .catch(err => {
-                    alert('Erro de conexÃ£o com o servidor.');
+                    alert('Erro de conexão com o servidor.');
                     btn.innerText = 'Entrar no Portal';
                     btn.disabled = false;
                 });
@@ -431,7 +431,7 @@
                     <div>${escapeHTML(ranking.curso)}</div>
                     ${ranking.posicao ? `
                         <div style="font-size: 0.8rem; color: #666; margin-top: 3px;">
-                            PosiÃ§Ã£o ${ranking.posicao} - ${limiteTexto}
+                            Posição ${ranking.posicao} - ${limiteTexto}
                         </div>
                         <span class="badge ${ranking.dentroDasVagas ? 'badge-success' : 'badge-pending'}">${ranking.dentroDasVagas ? 'Dentro das vagas' : 'Lista de espera'}</span>
                     ` : ''}
@@ -448,7 +448,7 @@
             document.getElementById('user-name').innerText = nome.split(' ')[0];
             document.getElementById('user-cpf-display').innerText = cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
 
-            // 1. InscriÃ§Ã£o SIMOL
+            // 1. Inscrição SIMOL
             const sSimol = data.inscricao.status;
             document.getElementById('status-simol').innerText = sSimol;
             const bSimol = document.getElementById('badge-simol');
@@ -467,8 +467,8 @@
                 sFesta.innerText = 'Inscrito';
                 bFesta.innerHTML = '<span class="badge badge-success">Confirmado</span>';
             } else {
-                sFesta.innerText = 'NÃ£o inscrito';
-                bFesta.innerHTML = '<span class="badge badge-neutral">Nenhuma inscriÃ§Ã£o</span>';
+                sFesta.innerText = 'Não inscrito';
+                bFesta.innerHTML = '<span class="badge badge-neutral">Nenhuma inscrição</span>';
             }
 
             // 3. Minicursos
@@ -479,44 +479,44 @@
                 miniList.innerHTML = data.minicursos.map(m => `
                     <div style="margin-bottom: 10px; padding-bottom: 5px; border-bottom: 1px solid #eee;">
                         ${(m.rankings && m.rankings.length ? m.rankings : String(m.lista || '').split(',').map(curso => ({ curso: curso.trim() }))).map(renderMinicursoRanking).join('')}
-                        <span class="badge ${m.status === 'Pago' || m.status === 'NÃ£o se aplica' ? 'badge-success' : 'badge-pending'}">${m.status}</span>
+                        <span class="badge ${m.status === 'Pago' || m.status === 'Não se aplica' ? 'badge-success' : 'badge-pending'}">${m.status}</span>
                     </div>
                 `).join('') + (hasWaitlist ? `
                     <a href="${trocaUrl}" class="btn-primary" style="display: inline-block; margin-top: 10px; padding: 10px 14px; font-size: 0.85rem; text-decoration: none;">
                         Trocar minicursos
                     </a>
                     <div style="font-size: 0.75rem; color: #777; margin-top: 8px; line-height: 1.4;">
-                        A troca fica disponÃ­vel porque vocÃª estÃ¡ em lista de espera em pelo menos um minicurso.
+                        A troca fica disponível porque você está em lista de espera em pelo menos um minicurso.
                     </div>
                 ` : '');
             }
 
-            // 4. SubmissÃµes
+            // 4. Submissões
             const subList = document.getElementById('submissoes-list');
             if (data.submissoes.length > 0) {
                 subList.innerHTML = data.submissoes.map(s => `
                     <div style="margin-bottom: 10px; padding: 10px; background: #fafafa; border-radius: 8px;">
-                        <div style="font-weight: 700; color: var(--color-1); margin-bottom: 5px;">${escapeHTML(s.titulo || 'Sem tÃ­tulo')}</div>
+                        <div style="font-weight: 700; color: var(--color-1); margin-bottom: 5px;">${escapeHTML(s.titulo || 'Sem título')}</div>
                         <div style="font-size: 0.8rem; color: #666; line-height: 1.5; margin-bottom: 8px;">
                             ${s.data_envio ? `<div><strong>Enviado em:</strong> ${formatSubmissionDate(s.data_envio)}</div>` : ''}
-                            ${s.area_tematica ? `<div><strong>Ãrea temÃ¡tica:</strong> ${escapeHTML(s.area_tematica)}</div>` : ''}
+                            ${s.area_tematica ? `<div><strong>Área temática:</strong> ${escapeHTML(s.area_tematica)}</div>` : ''}
                             ${s.categoria_autor ? `<div><strong>Categoria:</strong> ${escapeHTML(s.categoria_autor)}</div>` : ''}
                             ${s.tipo_estudo ? `<div><strong>Tipo de estudo:</strong> ${escapeHTML(s.tipo_estudo === 'Outro' && s.tipo_estudo_outro ? s.tipo_estudo_outro : s.tipo_estudo)}</div>` : ''}
-                            ${s.aprovacao_etica ? `<div><strong>AprovaÃ§Ã£o Ã©tica:</strong> ${escapeHTML(s.aprovacao_etica)}</div>` : ''}
+                            ${s.aprovacao_etica ? `<div><strong>Aprovação ética:</strong> ${escapeHTML(s.aprovacao_etica)}</div>` : ''}
                             ${s.protocolo_etica ? `<div><strong>Protocolo:</strong> ${escapeHTML(s.protocolo_etica)}</div>` : ''}
                             ${s.autor_correspondente ? `<div><strong>Autor correspondente:</strong> ${escapeHTML(s.autor_correspondente)}</div>` : ''}
                             ${s.origem ? `<div><strong>Origem:</strong> ${escapeHTML(s.origem)}</div>` : ''}
                             ${s.arquivo_identificado_url ? `<div><strong>Arquivo identificado:</strong> <a href="${escapeHTML(s.arquivo_identificado_url)}" target="_blank" rel="noopener">${escapeHTML(s.arquivo_identificado_nome || 'Abrir arquivo')}</a></div>` : ''}
-                            ${s.arquivo_sem_identificacao_url ? `<div><strong>Arquivo sem identificaÃ§Ã£o:</strong> <a href="${escapeHTML(s.arquivo_sem_identificacao_url)}" target="_blank" rel="noopener">${escapeHTML(s.arquivo_sem_identificacao_nome || 'Abrir arquivo')}</a></div>` : ''}
+                            ${s.arquivo_sem_identificacao_url ? `<div><strong>Arquivo sem identificação:</strong> <a href="${escapeHTML(s.arquivo_sem_identificacao_url)}" target="_blank" rel="noopener">${escapeHTML(s.arquivo_sem_identificacao_nome || 'Abrir arquivo')}</a></div>` : ''}
                             ${!s.arquivo_identificado_url && s.arquivo_url ? `<div><strong>Arquivo:</strong> <a href="${escapeHTML(s.arquivo_url)}" target="_blank" rel="noopener">${escapeHTML(s.arquivo_nome || 'Abrir arquivo')}</a></div>` : ''}
                         </div>
-                        <span class="badge ${s.status === 'Aprovado' ? 'badge-success' : (s.status === 'NÃ£o aprovado' ? 'badge-pending' : 'badge-neutral')}">${escapeHTML(s.status)}</span>
+                        <span class="badge ${s.status === 'Aprovado' ? 'badge-success' : (s.status === 'Não aprovado' ? 'badge-pending' : 'badge-neutral')}">${escapeHTML(s.status)}</span>
                     </div>
                 `).join('');
             }
         }
 
-        // LÃ³gica de Upload de Comprovante na Ãrea do Inscrito
+        // Lógica de Upload de Comprovante na Área do Inscrito
         const compFileInput = document.getElementById('comp-file-input');
         const compDropArea = document.getElementById('comp-drop-area');
         const compFileLabel = document.getElementById('comp-file-label');
@@ -525,7 +525,7 @@
 
         let compSelectedFile = null;
 
-        // Abrir seletor de arquivos ao clicar na Ã¡rea
+        // Abrir seletor de arquivos ao clicar na área
         compDropArea.addEventListener('click', () => compFileInput.click());
 
         // Eventos de Drag & Drop
@@ -589,7 +589,7 @@
                 .then(r => r.json())
                 .then(result => {
                     if (result.result === 'success') {
-                        compUploadMsg.textContent = 'âœ… Comprovante enviado com sucesso! Sua inscriÃ§Ã£o serÃ¡ confirmada em breve.';
+                        compUploadMsg.textContent = '✅ Comprovante enviado com sucesso! Sua inscrição será confirmada em breve.';
                         compUploadMsg.style.color = '#155724';
                         compUploadMsg.style.display = 'block';
 
@@ -597,12 +597,12 @@
                         document.getElementById('status-simol').innerText = 'Pago';
                         document.getElementById('badge-simol').innerHTML = '<span class="badge badge-success">Confirmada</span>';
 
-                        // Esconde a Ã¡rea de upload apÃ³s alguns segundos
+                        // Esconde a área de upload após alguns segundos
                         setTimeout(() => {
                             document.getElementById('upload-comprovante-section').style.display = 'none';
                         }, 4000);
                     } else {
-                        compUploadMsg.textContent = 'âŒ Erro ao enviar comprovante: ' + (result.message || 'Tente novamente.');
+                        compUploadMsg.textContent = '❌ Erro ao enviar comprovante: ' + (result.message || 'Tente novamente.');
                         compUploadMsg.style.color = '#721c24';
                         compUploadMsg.style.display = 'block';
                         compUploadBtn.disabled = false;
@@ -611,7 +611,7 @@
                 })
                 .catch(err => {
                     console.error('Erro no upload:', err);
-                    compUploadMsg.textContent = 'âŒ Erro de conexÃ£o com o servidor. Tente novamente.';
+                    compUploadMsg.textContent = '❌ Erro de conexão com o servidor. Tente novamente.';
                     compUploadMsg.style.color = '#721c24';
                     compUploadMsg.style.display = 'block';
                     compUploadBtn.disabled = false;
@@ -621,7 +621,7 @@
             reader.readAsDataURL(compSelectedFile);
         });
 
-        // Copiar chave PIX na Ãrea do Inscrito
+        // Copiar chave PIX na Área do Inscrito
         const copyPixBtn = document.getElementById('copy-pix-dash');
         if (copyPixBtn) {
             copyPixBtn.addEventListener('click', async () => {

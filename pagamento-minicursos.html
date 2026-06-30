@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pagamento Minicursos - I SIMOL</title>
-    <link rel="icon" type="image/png" href="Icone_Proteina_Ã“culos.png">
+    <link rel="icon" type="image/png" href="Icone_Proteina_Óculos.png">
     <link rel="stylesheet" href="styles.css">
     <style>
         body {
@@ -46,7 +46,7 @@
             margin: 10px 0;
         }
 
-        /* Ãrea de Upload */
+        /* Área de Upload */
         .upload-section {
             margin-top: 30px;
             padding-top: 20px;
@@ -109,7 +109,7 @@
     <div class="payment-card">
         <h2 style="color: var(--color-4);">Pagamento de Minicursos</h2>
         <p id="user-info" style="font-weight: 600; color: var(--color-1); margin-top: 5px;"></p>
-        <p style="font-size: 0.9rem; color: #666;">VocÃª selecionou <span id="course-count">0</span> minicurso(s).</p>
+        <p style="font-size: 0.9rem; color: #666;">Você selecionou <span id="course-count">0</span> minicurso(s).</p>
 
         <div class="value-tag">R$ <span id="total-value">0,00</span></div>
 
@@ -120,10 +120,10 @@
             </div>
             <p style="margin: 0 0 8px 0; color: #555; font-size: 0.95rem;">Conta Mercado Pago em nome de Ana Carolina Mallin:</p>
             <code style="font-size: 0.8rem; word-break: break-all; color: var(--color-1);">simol.simposiointegrado@gmail.com</code>
-            <p style="font-size: 0.85rem; color: #666; margin-top: 10px;">Pagamento via Mercado Pago. QR code sem valor para exibiÃ§Ã£o.</p>
+            <p style="font-size: 0.85rem; color: #666; margin-top: 10px;">Pagamento via Mercado Pago. QR code sem valor para exibição.</p>
         </div>
 
-        <!-- SeÃ§Ã£o de Upload de Comprovante -->
+        <!-- Seção de Upload de Comprovante -->
         <div class="upload-section">
             <label class="upload-label">Anexe seu comprovante aqui:</label>
             <div class="file-drop-area" id="drop-area" onclick="document.getElementById('file-input').click()">
@@ -134,7 +134,7 @@
             <button id="upload-btn" class="btn-upload" disabled>Enviar Comprovante</button>
         </div>
 
-        <a href="index.html" class="btn-home">Voltar para a pÃ¡gina inicial</a>
+        <a href="index.html" class="btn-home">Voltar para a página inicial</a>
     </div>
 
     <script>
@@ -151,7 +151,7 @@
         document.getElementById('course-count').innerText = count;
         document.getElementById('user-info').innerText = nome;
 
-        // LÃ³gica de SeleÃ§Ã£o de Arquivo
+        // Lógica de Seleção de Arquivo
         const fileInput = document.getElementById('file-input');
         const fileNameDisplay = document.getElementById('file-name');
         const uploadBtn = document.getElementById('upload-btn');
@@ -163,7 +163,7 @@
             }
         });
 
-        // LÃ³gica de Upload
+        // Lógica de Upload
         uploadBtn.addEventListener('click', function() {
             const file = fileInput.files[0];
             if (!file) return;
@@ -189,17 +189,17 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.result === 'success') {
-                        alert('âœ… Comprovante enviado com sucesso! Sua vaga serÃ¡ confirmada em breve.');
+                        alert('✅ Comprovante enviado com sucesso! Sua vaga será confirmada em breve.');
                         window.location.href = 'index.html';
                     } else {
-                        alert('âŒ Erro ao enviar comprovante. Tente novamente.');
+                        alert('❌ Erro ao enviar comprovante. Tente novamente.');
                         uploadBtn.disabled = false;
                         uploadBtn.innerText = 'Enviar Comprovante';
                     }
                 })
                 .catch(error => {
                     console.error('Erro:', error);
-                    alert('Erro de conexÃ£o. Tente novamente.');
+                    alert('Erro de conexão. Tente novamente.');
                     uploadBtn.disabled = false;
                     uploadBtn.innerText = 'Enviar Comprovante';
                 });
