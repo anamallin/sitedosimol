@@ -11,6 +11,7 @@ const PROGRAMA_POS_LIBERADO = 'Biologia Celular e Molecular';
 const LIMITE_INSCRICOES_NORMAIS_REABERTAS = 260;
 const PROP_INSCRICOES_NORMAIS_REABERTAS_USADAS = 'inscricoes_normais_reabertas_usadas';
 const AREA_INSCRITO_URL = 'https://www.simol2026.com.br/area-inscrito.html';
+const ORGANIZADOR_SECRET_CODE = 'SIMOL_ORG_2026_PREVIEW';
 const VAGAS_MINICURSOS = {
   'Expressão e purificação de Proteínas': 6,
   'Toxicologia Celular': 10,
@@ -67,9 +68,35 @@ const CRONOGRAMA_MINICURSOS = {
   'Inteligência Artificial e Dados Biológicos': { days: [2, 3], period: 'night' }
 };
 
+function parseListaMinicursos_(minicursosStr) {
+  const text = (minicursosStr || '').toString().trim();
+  if (!text) return [];
+
+  const titulosMap = {};
+  Object.keys(VAGAS_MINICURSOS).forEach(function(titulo) { titulosMap[titulo] = true; });
+  Object.keys(CRONOGRAMA_MINICURSOS).forEach(function(titulo) { titulosMap[titulo] = true; });
+
+  const encontrados = Object.keys(titulosMap).map(function(titulo) {
+    return {
+      titulo: titulo,
+      index: text.indexOf(titulo)
+    };
+  }).filter(function(item) {
+    return item.index !== -1;
+  }).sort(function(a, b) {
+    return a.index - b.index;
+  }).map(function(item) {
+    return item.titulo;
+  });
+
+  if (encontrados.length) return encontrados;
+
+  return text.split(',').map(function(c) { return c.trim(); }).filter(function(c) { return c; });
+}
+
 function verificarConflitosMinicursos_(minicursosStr) {
   if (!minicursosStr) return null;
-  const listaCursos = minicursosStr.toString().split(',').map(function(c) { return c.trim(); }).filter(function(c) { return c; });
+  const listaCursos = parseListaMinicursos_(minicursosStr);
   
   for (var i = 0; i < listaCursos.length; i++) {
     var cursoA = listaCursos[i];
@@ -193,7 +220,7 @@ function calcularRankingMinicursos_(sheetPrincipal, sheetMinicursos) {
     const cpf = normalizarCpf_(row[2]);
     if (!cpf) continue;
     const nome = row[1] || '';
-    const lista = (row[3] || '').toString().split(',').map(c => c.trim()).filter(c => c);
+    const lista = parseListaMinicursos_(row[3]);
     const prioridade = mapaPrioridade[cpf] || null;
     const pagamentoPrioritario = isPagamentoMinicursoPrioritario_(row[7]);
     const ordem = prioridade === null ? 9000000000000 + i : prioridade;
@@ -258,7 +285,7 @@ function calcularPreviaRankingMinicursos_(sheetPrincipal, sheetMinicursos, parti
     }
 
     const nome = row[1] || '';
-    const lista = (row[3] || '').toString().split(',').map(c => c.trim()).filter(c => c);
+    const lista = parseListaMinicursos_(row[3]);
     const prioridade = mapaPrioridade[cpf] || null;
     const pagamentoPrioritario = isPagamentoMinicursoPrioritario_(row[7]);
     const ordem = prioridade === null ? 9000000000000 + i : prioridade;
@@ -281,7 +308,7 @@ function calcularPreviaRankingMinicursos_(sheetPrincipal, sheetMinicursos, parti
   const rowParticipante = rowParticipanteExistente || dataMinicursos.length;
   const pagamentoPrioritarioParticipante = isPagamentoMinicursoPrioritario_(statusPagamentoParticipante);
   const ordemParticipante = prioridadeParticipante === null ? 9000000000000 + rowParticipante : prioridadeParticipante;
-  const cursosSelecionados = (participante.minicursos || '').toString().split(',').map(c => c.trim()).filter(c => c);
+  const cursosSelecionados = parseListaMinicursos_(participante.minicursos);
 
   cursosSelecionados.forEach(function(curso) {
     if (!cursos[curso]) cursos[curso] = [];
@@ -449,6 +476,93 @@ function recalcularStatusPagamentoMinicurso_(statusAtual, tipoInsc, nMinis) {
     return statusAtual;
   }
   return (tipoInsc === 'Inscrito SIMOL' && nMinis <= 2) ? 'Não se aplica' : 'Pendente';
+}
+
+function getHeaderIndex_(headers, aliases) {
+  for (var i = 0; i < aliases.length; i++) {
+    const index = headers.indexOf(aliases[i]);
+    if (index !== -1) return index;
+  }
+  return -1;
+}
+
+function isInscricaoPos_(row, tipoCol, programaCol) {
+  const tipo = tipoCol !== -1 ? normalizarTexto_(row[tipoCol]) : '';
+  const programa = programaCol !== -1 ? normalizarTexto_(row[programaCol]) : '';
+  return (
+    tipo.includes('pos-graduacao') ||
+    tipo.includes('pos graduacao') ||
+    tipo.includes('biologia celular e molecular') ||
+    !!programa
+  );
+}
+
+function getOrganizerStats_(sheetPrincipal, sheetMinicursos) {
+  const dataPrincipal = sheetPrincipal.getDataRange().getValues();
+  const headersPrincipal = dataPrincipal.length ? dataPrincipal[0].map(function(h) { return h.toString().toLowerCase().trim(); }) : [];
+  const nomeCol = getHeaderIndex_(headersPrincipal, ['nome']);
+  const cpfCol = getHeaderIndex_(headersPrincipal, ['cpf']);
+  const tipoCol = getHeaderIndex_(headersPrincipal, ['tipo_inscricao', 'tipo inscrição', 'tipo de inscrição', 'tipo']);
+  const programaCol = getHeaderIndex_(headersPrincipal, ['programa_pos', 'programa pós', 'programa pos', 'programa']);
+  const comprovanteCol = getHeaderIndex_(headersPrincipal, ['comprovante']);
+
+  const inscricoes = {
+    total: 0,
+    normal: 0,
+    pos: 0,
+    pagas: 0,
+    pendentes: 0
+  };
+
+  for (var i = 1; i < dataPrincipal.length; i++) {
+    const row = dataPrincipal[i];
+    const temNome = nomeCol !== -1 && row[nomeCol] && row[nomeCol].toString().trim();
+    const temCpf = cpfCol !== -1 && normalizarCpf_(row[cpfCol]);
+    if (!temNome && !temCpf) continue;
+
+    inscricoes.total++;
+    if (isInscricaoPos_(row, tipoCol, programaCol)) inscricoes.pos++;
+    else inscricoes.normal++;
+
+    const comprovante = comprovanteCol !== -1 ? (row[comprovanteCol] || '').toString().trim() : '';
+    if (comprovante) inscricoes.pagas++;
+    else inscricoes.pendentes++;
+  }
+
+  const contatos = getMapaContatosParticipantes_(sheetPrincipal, sheetMinicursos);
+  const ranking = calcularRankingMinicursos_(sheetPrincipal, sheetMinicursos);
+  const cursos = Object.keys(ranking.cursos || {}).sort().map(function(curso) {
+    const inscritos = ranking.cursos[curso] || [];
+    const limite = getLimiteMinicurso_(curso);
+    const dentroDasVagas = limite === null ? inscritos.length : Math.min(inscritos.length, limite);
+    const vagasSobrando = limite === null ? null : Math.max(0, limite - inscritos.length);
+    const filaEspera = limite === null ? [] : inscritos.slice(limite).map(function(item, index) {
+      const contato = contatos[item.cpf] || {};
+      return {
+        posicao: limite + index + 1,
+        nome: item.nome || contato.nome || '',
+        cpf: item.cpf || '',
+        email: isEmailValido_(contato.email),
+        pagamento: item.pagamentoPrioritario ? 'Pago' : 'Pendente'
+      };
+    });
+
+    return {
+      curso: curso,
+      limite: limite,
+      totalInscritos: inscritos.length,
+      dentroDasVagas: dentroDasVagas,
+      vagasSobrando: vagasSobrando,
+      filaEspera: filaEspera
+    };
+  });
+
+  return {
+    result: 'success',
+    generatedAt: new Date(),
+    inscricoes: inscricoes,
+    minicursos: cursos
+  };
 }
 
 function isInscricaoLiberada_(params) {
@@ -702,7 +816,7 @@ function doPost(e) {
         cpf: cpfBusca,
         minicursos: e.parameter.minicursos
       });
-      const listaCursos = (e.parameter.minicursos || '').toString().split(',').map(function(c) { return c.trim(); }).filter(function(c) { return c; });
+      const listaCursos = parseListaMinicursos_(e.parameter.minicursos);
       const rankingsCpf = rankingPreview.porCpf[cpfBusca] || [];
 
       return ContentService.createTextOutput(JSON.stringify({
@@ -732,9 +846,8 @@ function doPost(e) {
       
       var contagem = {};
       for (var j = 1; j < dataMinicursos.length; j++) {
-        var cursosNaLinha = (dataMinicursos[j][3] || '').toString().split(',');
-        cursosNaLinha.forEach(function(curso) {
-          var nomeCurso = curso.trim();
+        var cursosNaLinha = parseListaMinicursos_(dataMinicursos[j][3]);
+        cursosNaLinha.forEach(function(nomeCurso) {
           if (nomeCurso) {
             contagem[nomeCurso] = (contagem[nomeCurso] || 0) + 1;
           }
@@ -1103,6 +1216,24 @@ function doPost(e) {
       })).setMimeType(ContentService.MimeType.JSON);
     }
 
+    // ====== 5.6. ESTATÍSTICAS DA ÁREA DO ORGANIZADOR ======
+    else if (action === 'getOrganizerStats') {
+      const codigo = (e.parameter.codigo || '').toString().trim().toUpperCase();
+      if (codigo !== ORGANIZADOR_SECRET_CODE) {
+        return ContentService.createTextOutput(JSON.stringify({
+          result: 'error',
+          message: 'Código de organizador inválido.'
+        })).setMimeType(ContentService.MimeType.JSON);
+      }
+
+      const sheetPrincipal = doc.getSheetByName(sheetName);
+      const ssMinicursos = SpreadsheetApp.openById(ID_PLANILHA_MINICURSOS);
+      const sheetMinicursos = ssMinicursos.getSheets()[0];
+      return ContentService.createTextOutput(JSON.stringify(
+        getOrganizerStats_(sheetPrincipal, sheetMinicursos)
+      )).setMimeType(ContentService.MimeType.JSON);
+    }
+
     // ====== 6. BUSCAR DADOS COMPLETOS DO PARTICIPANTE (DASHBOARD) ======
     else if (action === 'getParticipantData') {
       const cpfBusca = (e.parameter.cpf || '').replace(/\D/g, '').padStart(11, '0');
@@ -1142,7 +1273,7 @@ function doPost(e) {
         for (var j = 1; j < dataMinis.length; j++) {
           var cpfSheetM = (dataMinis[j][2] || '').toString().replace(/\D/g, '').padStart(11, '0');
           if (cpfSheetM === cpfBusca) {
-            const listaCursos = (dataMinis[j][3] || '').toString().split(',').map(function(c) { return c.trim(); }).filter(function(c) { return c; });
+            const listaCursos = parseListaMinicursos_(dataMinis[j][3]);
             data.minicursos.push({
               lista: dataMinis[j][3], // coluna D: minicursos
               status: getStatusPagamentoMinicursoPublico_(dataMinis[j][7]),  // coluna H: statusPagamento/comprovante

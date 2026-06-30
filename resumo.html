@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Submissão de Resumo - I SIMOL</title>
-    <link rel="icon" type="image/png" href="Icone_Proteina_Óculos.png">
+    <title>SubmissÃ£o de Resumo - I SIMOL</title>
+    <link rel="icon" type="image/png" href="Icone_Proteina_Ã“culos.png">
     <link rel="stylesheet" href="styles.css">
     <style>
         .success-overlay {
@@ -38,25 +38,25 @@
 
         * { box-sizing: border-box; }
 
-        
-        /* TELA DE VERIFICAÇÃO */
+
+        /* TELA DE VERIFICAÃ‡ÃƒO */
         #verification-screen { display: none; text-align: center; }
-        
-        /* FORMULÁRIO */
+
+        /* FORMULÃRIO */
         #submission-form { display: none; }
 
         .lock-icon { font-size: 50px; margin-bottom: 20px; }
         .input-group { text-align: left; margin-bottom: 15px; }
         .input-group label { display: block; margin-bottom: 5px; font-weight: 600; color: var(--color-4); }
-        .input-group input { 
-            width: 100%; 
-            padding: 12px; 
-            border: 2px solid #eee; 
-            border-radius: 10px; 
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #eee;
+            border-radius: 10px;
             transition: 0.3s;
         }
         .input-group input:focus { border-color: var(--color-1); outline: none; }
-        
+
         .btn-primary {
             background: linear-gradient(135deg, var(--color-3), var(--color-4));
             color: white;
@@ -71,7 +71,7 @@
         }
         .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 15px rgba(103, 42, 147, 0.2); }
 
-        /* SEÇÃO DE NORMAS */
+        /* SEÃ‡ÃƒO DE NORMAS */
         .norms-section {
             margin-top: 40px;
             padding-top: 30px;
@@ -281,156 +281,156 @@
 <body>
 
     <div id="main-container">
-        <!-- TELA 1: SELEÇÃO DE PAPEL -->
+        <!-- TELA 1: SELEÃ‡ÃƒO DE PAPEL -->
         <div id="role-selection-screen" style="text-align: center;">
-            <div class="lock-icon">🧬</div>
-            <h2 style="color: var(--color-4);">Bem-vindo ao Portal de Submissão</h2>
-            <p style="color: #666; margin-bottom: 40px;">Como você deseja prosseguir?</p>
-            
+            <div class="lock-icon">ðŸ§¬</div>
+            <h2 style="color: var(--color-4);">Bem-vindo ao Portal de SubmissÃ£o</h2>
+            <p style="color: #666; margin-bottom: 40px;">Como vocÃª deseja prosseguir?</p>
+
             <div class="role-grid">
                 <div class="role-card" id="role-student">
-                    <div class="role-icon">🎓</div>
+                    <div class="role-icon">ðŸŽ“</div>
                     <h3>Sou Aluno</h3>
-                    <p>Quero enviar meu resumo para avaliação e publicação nos anais.</p>
+                    <p>Quero enviar meu resumo para avaliaÃ§Ã£o e publicaÃ§Ã£o nos anais.</p>
                 </div>
                 <div class="role-card" id="role-reviewer">
-                    <div class="role-icon">🔍</div>
+                    <div class="role-icon">ðŸ”</div>
                     <h3>Sou Avaliador</h3>
-                    <p>Acesse o portal de revisão para avaliar os trabalhos submetidos.</p>
+                    <p>Acesse o portal de revisÃ£o para avaliar os trabalhos submetidos.</p>
                 </div>
             </div>
-            
-            <a href="index.html" style="display: block; margin-top: 40px; color: #888; text-decoration: none; font-size: 0.9rem;">← Voltar para Home</a>
+
+            <a href="index.html" style="display: block; margin-top: 40px; color: #888; text-decoration: none; font-size: 0.9rem;">â† Voltar para Home</a>
         </div>
 
         <!-- TELA NOVA: AVALIADOR (AGUARDANDO) -->
         <div id="reviewer-screen" style="display: none; text-align: center; padding: 40px 20px;">
-            <div style="font-size: 80px; margin-bottom: 20px;">🚧</div>
+            <div style="font-size: 80px; margin-bottom: 20px;">ðŸš§</div>
             <h2 style="color: var(--color-4); font-size: 2rem; margin-bottom: 15px;">Portal do Avaliador</h2>
             <p style="color: #555; margin-bottom: 30px; font-size: 1.1rem; line-height: 1.6;">
-                O sistema de avaliação para revisores está sendo preparado pela comissão organizadora.
+                O sistema de avaliaÃ§Ã£o para revisores estÃ¡ sendo preparado pela comissÃ£o organizadora.
             </p>
             <div style="background: rgba(103, 42, 147, 0.05); border: 2px dashed var(--color-1); padding: 30px; border-radius: 20px; color: var(--color-4); font-weight: 500;">
-                Aguarde mais instruções via e-mail ou acompanhe as atualizações oficiais do SIMOL.
+                Aguarde mais instruÃ§Ãµes via e-mail ou acompanhe as atualizaÃ§Ãµes oficiais do SIMOL.
             </div>
-            <button class="btn-primary" style="margin-top: 40px; width: auto; padding: 15px 40px;" onclick="location.reload()">Voltar ao Início</button>
+            <button class="btn-primary" style="margin-top: 40px; width: auto; padding: 15px 40px;" onclick="location.reload()">Voltar ao InÃ­cio</button>
         </div>
 
-        <!-- TELA 2: VERIFICAÇÃO (INSCRITO) -->
+        <!-- TELA 2: VERIFICAÃ‡ÃƒO (INSCRITO) -->
         <div id="verification-screen">
-            <div class="lock-icon">📄</div>
-            <h2 style="color: var(--color-4);">Identifique sua Inscrição</h2>
-            <p style="color: #666; margin-bottom: 30px;">Identifique-se para acessar o formulário de submissão.</p>
-            
+            <div class="lock-icon">ðŸ“„</div>
+            <h2 style="color: var(--color-4);">Identifique sua InscriÃ§Ã£o</h2>
+            <p style="color: #666; margin-bottom: 30px;">Identifique-se para acessar o formulÃ¡rio de submissÃ£o.</p>
+
             <div class="input-group">
                 <label>Nome Completo</label>
-                <input type="text" id="verify-nome" placeholder="Nome como na inscrição">
+                <input type="text" id="verify-nome" placeholder="Nome como na inscriÃ§Ã£o">
             </div>
             <div class="input-group">
                 <label>CPF</label>
-                <input type="text" id="verify-cpf" placeholder="Apenas números">
+                <input type="text" id="verify-cpf" placeholder="Apenas nÃºmeros">
             </div>
-            
-            <button id="verify-btn" class="btn-primary">Verificar e Continuar</button>
-            <p id="error-msg" style="color: #e74c3c; font-size: 0.9rem; margin-top: 15px; display: none;">Inscrição não encontrada. Caso seja aluno externo, <a href="#" id="external-access" style="color: var(--color-1); font-weight: bold;">clique aqui para prosseguir</a>.</p>
 
-            <!-- SEÇÃO DE NORMAS E DOWNLOADS -->
+            <button id="verify-btn" class="btn-primary">Verificar e Continuar</button>
+            <p id="error-msg" style="color: #e74c3c; font-size: 0.9rem; margin-top: 15px; display: none;">InscriÃ§Ã£o nÃ£o encontrada. Caso seja aluno externo, <a href="#" id="external-access" style="color: var(--color-1); font-weight: bold;">clique aqui para prosseguir</a>.</p>
+
+            <!-- SEÃ‡ÃƒO DE NORMAS E DOWNLOADS -->
             <div class="norms-section">
-                <div class="norms-title">📋 Normas e Templates</div>
+                <div class="norms-title">ðŸ“‹ Normas e Templates</div>
                 <div class="norms-grid">
                     <a href="Template%20do%20Resumo%20I%20SIMOL.docx" class="norm-card" download>
-                        <h4>📄 Template do Resumo</h4>
+                        <h4>ðŸ“„ Template do Resumo</h4>
                         <p>Baixe o modelo oficial em Word (.docx) para formatar seu trabalho.</p>
                         <span class="file-type">DOCX</span>
                     </a>
                     <a href="Template%20do%20Resumo%20I%20SIMOL%20-%20Sem%20identifica%C3%A7%C3%A3o.docx" class="norm-card" download>
-                        <h4>Template sem identificação</h4>
-                        <p>Modelo em Word para envio sem identificação dos autores, quando solicitado.</p>
+                        <h4>Template sem identificaÃ§Ã£o</h4>
+                        <p>Modelo em Word para envio sem identificaÃ§Ã£o dos autores, quando solicitado.</p>
                         <span class="file-type">DOCX</span>
                     </a>
                     <a href="Regras%20de%20Submiss%C3%A3o%20%20I%20SIMOL.docx" class="norm-card" download>
-                        <h4>⚖️ Regras de Submissão</h4>
+                        <h4>âš–ï¸ Regras de SubmissÃ£o</h4>
                         <p>Consulte as normas gerais, limites de autores e estrutura exigida.</p>
                         <span class="file-type">DOCX</span>
                     </a>
                     <a href="Modelo%20Banner%20I%20SIMOL%20(2).pptx" class="norm-card" download>
-                        <h4>🎨 Modelo de Pôster</h4>
-                        <p>Template sugerido para a apresentação no dia do evento.</p>
+                        <h4>ðŸŽ¨ Modelo de PÃ´ster</h4>
+                        <p>Template sugerido para a apresentaÃ§Ã£o no dia do evento.</p>
                         <span class="file-type">PPTX</span>
                     </a>
                     <a href="Cronograma%20Submiss%C3%A3o%20%20I%20SIMOL.docx" class="norm-card" download>
-                        <h4>📊 Cronograma</h4>
-                        <p>Datas importantes: submissão, avaliação e resultados.</p>
+                        <h4>ðŸ“Š Cronograma</h4>
+                        <p>Datas importantes: submissÃ£o, avaliaÃ§Ã£o e resultados.</p>
                         <span class="file-type">DOCX</span>
                     </a>
                 </div>
             </div>
 
-            <a href="index.html" style="display: block; margin-top: 30px; color: #888; text-decoration: none; font-size: 0.9rem;">← Voltar para Home</a>
+            <a href="index.html" style="display: block; margin-top: 30px; color: #888; text-decoration: none; font-size: 0.9rem;">â† Voltar para Home</a>
         </div>
 
-        <!-- TELA 3: FORMULÁRIO -->
+        <!-- TELA 3: FORMULÃRIO -->
         <div id="submission-form">
-            <h2 style="color: var(--color-4); margin-bottom: 5px;">Submissão de Resumo para Apresentação</h2>
-            <p style="color: #666; margin-bottom: 25px; font-size: 0.9rem;">Todos os campos são obrigatórios e devem seguir o modelo oficial do evento.</p>
+            <h2 style="color: var(--color-4); margin-bottom: 5px;">SubmissÃ£o de Resumo para ApresentaÃ§Ã£o</h2>
+            <p style="color: #666; margin-bottom: 25px; font-size: 0.9rem;">Todos os campos sÃ£o obrigatÃ³rios e devem seguir o modelo oficial do evento.</p>
 
             <div class="form-section">
                 <label>Nome do(a) apresentador(a)</label>
                 <input type="text" id="sub-nome" placeholder="Nome completo">
             </div>
-            
+
             <div class="form-section">
-                <label>Título do Trabalho</label>
-                <input type="text" id="sub-titulo" placeholder="Título do resumo">
+                <label>TÃ­tulo do Trabalho</label>
+                <input type="text" id="sub-titulo" placeholder="TÃ­tulo do resumo">
             </div>
 
             <div class="form-section">
-                <label>Área temática</label>
+                <label>Ãrea temÃ¡tica</label>
                 <select id="sub-area-tematica">
-                    <option value="">Selecione uma área</option>
-                    <option value="Genética do Câncer">Genética do Câncer</option>
-                    <option value="Imunogenética">Imunogenética</option>
-                    <option value="Genética de Populações">Genética de Populações</option>
-                    <option value="Genética de Doenças Complexas">Genética de Doenças Complexas</option>
-                    <option value="Genética de microrganismos">Genética de microrganismos</option>
-                    <option value="Mutagênese ambiental">Mutagênese ambiental</option>
-                    <option value="Educação científica">Educação científica</option>
-                    <option value="Evolução genômica">Evolução genômica</option>
-                    <option value="Bioquímica e biologia de microrganismos">Bioquímica e biologia de microrganismos</option>
-                    <option value="Química de carboidratos">Química de carboidratos</option>
-                    <option value="Bioquímica farmacológica e metabolismo celular">Bioquímica farmacológica e metabolismo celular</option>
+                    <option value="">Selecione uma Ã¡rea</option>
+                    <option value="GenÃ©tica do CÃ¢ncer">GenÃ©tica do CÃ¢ncer</option>
+                    <option value="ImunogenÃ©tica">ImunogenÃ©tica</option>
+                    <option value="GenÃ©tica de PopulaÃ§Ãµes">GenÃ©tica de PopulaÃ§Ãµes</option>
+                    <option value="GenÃ©tica de DoenÃ§as Complexas">GenÃ©tica de DoenÃ§as Complexas</option>
+                    <option value="GenÃ©tica de microrganismos">GenÃ©tica de microrganismos</option>
+                    <option value="MutagÃªnese ambiental">MutagÃªnese ambiental</option>
+                    <option value="EducaÃ§Ã£o cientÃ­fica">EducaÃ§Ã£o cientÃ­fica</option>
+                    <option value="EvoluÃ§Ã£o genÃ´mica">EvoluÃ§Ã£o genÃ´mica</option>
+                    <option value="BioquÃ­mica e biologia de microrganismos">BioquÃ­mica e biologia de microrganismos</option>
+                    <option value="QuÃ­mica de carboidratos">QuÃ­mica de carboidratos</option>
+                    <option value="BioquÃ­mica farmacolÃ³gica e metabolismo celular">BioquÃ­mica farmacolÃ³gica e metabolismo celular</option>
                     <option value="Enzimologia e biotecnologia">Enzimologia e biotecnologia</option>
                     <option value="Biologia dos processos celulares">Biologia dos processos celulares</option>
                     <option value="Toxicologia celular e ambiental">Toxicologia celular e ambiental</option>
-                    <option value="Biologia molecular de patógenos">Biologia molecular de patógenos</option>
+                    <option value="Biologia molecular de patÃ³genos">Biologia molecular de patÃ³genos</option>
                     <option value="Outro">Outro</option>
                 </select>
             </div>
 
             <div class="form-section" id="area-tematica-outro-container" style="display: none;">
-                <label>Informe a área temática</label>
-                <input type="text" id="sub-area-tematica-outro" placeholder="Descreva a área temática">
+                <label>Informe a Ã¡rea temÃ¡tica</label>
+                <input type="text" id="sub-area-tematica-outro" placeholder="Descreva a Ã¡rea temÃ¡tica">
             </div>
 
             <div class="form-section">
-                <label>Autores e afiliações</label>
-                <textarea id="sub-autores-afiliacoes" maxlength="3000" placeholder="Nome completo dos autores e instituição vinculada. Copie exatamente a lista de autores conforme o modelo do Word."></textarea>
+                <label>Autores e afiliaÃ§Ãµes</label>
+                <textarea id="sub-autores-afiliacoes" maxlength="3000" placeholder="Nome completo dos autores e instituiÃ§Ã£o vinculada. Copie exatamente a lista de autores conforme o modelo do Word."></textarea>
                 <div class="char-counter"><span id="autores-count">0</span> / 3000 caracteres</div>
             </div>
 
             <div class="form-section">
                 <label>Autor correspondente</label>
-                <input type="text" id="sub-autor-correspondente" placeholder="Nome + e-mail obrigatório">
+                <input type="text" id="sub-autor-correspondente" placeholder="Nome + e-mail obrigatÃ³rio">
             </div>
 
             <div class="form-section">
                 <label>Categoria do autor</label>
                 <select id="sub-categoria-autor">
                     <option value="">Selecione uma categoria</option>
-                    <option value="Graduação">Graduação</option>
+                    <option value="GraduaÃ§Ã£o">GraduaÃ§Ã£o</option>
                     <option value="Mestrado">Mestrado</option>
                     <option value="Doutorado">Doutorado</option>
-                    <option value="Pós-doutorado">Pós-doutorado</option>
+                    <option value="PÃ³s-doutorado">PÃ³s-doutorado</option>
                     <option value="Outro">Outro</option>
                 </select>
             </div>
@@ -441,40 +441,40 @@
             </div>
 
             <div class="form-section">
-                <label>Classificação científica do tipo de estudo</label>
+                <label>ClassificaÃ§Ã£o cientÃ­fica do tipo de estudo</label>
                 <select id="sub-tipo-estudo">
-                    <option value="">Selecione uma classificação</option>
+                    <option value="">Selecione uma classificaÃ§Ã£o</option>
                     <option value="Experimental">Experimental</option>
-                    <option value="Clínico">Clínico</option>
-                    <option value="Revisão">Revisão</option>
+                    <option value="ClÃ­nico">ClÃ­nico</option>
+                    <option value="RevisÃ£o">RevisÃ£o</option>
                     <option value="Outro">Outro</option>
                 </select>
             </div>
 
             <div class="form-section" id="tipo-estudo-outro-container" style="display: none;">
                 <label>Informe o tipo de estudo</label>
-                <input type="text" id="sub-tipo-estudo-outro" placeholder="Descreva a classificação científica">
+                <input type="text" id="sub-tipo-estudo-outro" placeholder="Descreva a classificaÃ§Ã£o cientÃ­fica">
             </div>
 
             <div class="form-section">
-                <label>Nível de aprovação ética</label>
+                <label>NÃ­vel de aprovaÃ§Ã£o Ã©tica</label>
                 <select id="sub-aprovacao-etica">
-                    <option value="">Selecione uma opção</option>
+                    <option value="">Selecione uma opÃ§Ã£o</option>
                     <option value="Envolvendo seres humanos (CEP)">Envolvendo seres humanos (CEP)</option>
                     <option value="Animais (CEUA)">Animais (CEUA)</option>
-                    <option value="Não aplicável">Não aplicável</option>
+                    <option value="NÃ£o aplicÃ¡vel">NÃ£o aplicÃ¡vel</option>
                     <option value="Outro">Outro</option>
                 </select>
             </div>
 
             <div class="form-section" id="aprovacao-etica-outro-container" style="display: none;">
-                <label>Informe o nível de aprovação ética</label>
-                <input type="text" id="sub-aprovacao-etica-outro" placeholder="Descreva o nível de aprovação ética">
+                <label>Informe o nÃ­vel de aprovaÃ§Ã£o Ã©tica</label>
+                <input type="text" id="sub-aprovacao-etica-outro" placeholder="Descreva o nÃ­vel de aprovaÃ§Ã£o Ã©tica">
             </div>
 
             <div class="form-section" id="protocolo-etica-container" style="display: none;">
-                <label>Número do protocolo de aprovação ética</label>
-                <input type="text" id="sub-protocolo-etica" placeholder="Obrigatório quando houver aprovação ética">
+                <label>NÃºmero do protocolo de aprovaÃ§Ã£o Ã©tica</label>
+                <input type="text" id="sub-protocolo-etica" placeholder="ObrigatÃ³rio quando houver aprovaÃ§Ã£o Ã©tica">
             </div>
 
             <div class="form-section">
@@ -487,10 +487,10 @@
             </div>
 
             <div class="form-section">
-                <label>Arquivo sem identificação</label>
+                <label>Arquivo sem identificaÃ§Ã£o</label>
                 <label class="file-upload-box" id="sub-file-sem-identificacao-box">
                     <input type="file" id="sub-arquivo-sem-identificacao" required accept=".pdf,application/pdf">
-                    <strong>Clique para selecionar o PDF sem identificação</strong>
+                    <strong>Clique para selecionar o PDF sem identificaÃ§Ã£o</strong>
                     <span id="sub-file-sem-identificacao-name">Formato aceito: PDF.</span>
                 </label>
             </div>
@@ -505,38 +505,38 @@
             <div class="form-section">
                 <label class="checkbox-option">
                     <input type="checkbox" id="sub-declara-regulamento">
-                    <span>Declaro que li e concordo com o Regulamento de Submissão de Resumos do I SIMOL e com o tratamento dos meus dados pessoais para fins de organização e divulgação do evento.</span>
+                    <span>Declaro que li e concordo com o Regulamento de SubmissÃ£o de Resumos do I SIMOL e com o tratamento dos meus dados pessoais para fins de organizaÃ§Ã£o e divulgaÃ§Ã£o do evento.</span>
                 </label>
             </div>
 
-            <button id="submit-btn" class="btn-primary">Finalizar Submissão</button>
-            <button id="back-to-verify" style="background: none; border: none; color: #888; width: 100%; margin-top: 15px; cursor: pointer;">← Voltar para Normas / Identificação</button>
+            <button id="submit-btn" class="btn-primary">Finalizar SubmissÃ£o</button>
+            <button id="back-to-verify" style="background: none; border: none; color: #888; width: 100%; margin-top: 15px; cursor: pointer;">â† Voltar para Normas / IdentificaÃ§Ã£o</button>
         </div>
 
         <!-- TELA 4: SUCESSO -->
         <div id="success-screen" class="success-overlay">
-            <div style="font-size: 100px; margin-bottom: 20px;">✨</div>
-            <h2 style="color: var(--color-4); font-size: 2.5rem; margin-bottom: 10px;">Submissão Concluída!</h2>
+            <div style="font-size: 100px; margin-bottom: 20px;">âœ¨</div>
+            <h2 style="color: var(--color-4); font-size: 2.5rem; margin-bottom: 10px;">SubmissÃ£o ConcluÃ­da!</h2>
             <div style="width: 50px; height: 4px; background: var(--color-1); margin: 0 auto 25px; border-radius: 2px;"></div>
             <p style="color: #555; margin-bottom: 40px; font-size: 1.2rem; line-height: 1.6; max-width: 500px;">
-                Seu resumo foi enviado com sucesso para a comissão científica do <strong>I SIMOL</strong>.<br><br>
-                Em breve, você receberá um retorno sobre a avaliação.
+                Seu resumo foi enviado com sucesso para a comissÃ£o cientÃ­fica do <strong>I SIMOL</strong>.<br><br>
+                Em breve, vocÃª receberÃ¡ um retorno sobre a avaliaÃ§Ã£o.
             </p>
-            <a href="index.html" class="btn-primary" style="text-decoration: none; display: inline-block; width: auto; padding: 18px 60px; font-size: 1.1rem;">Voltar para o Início</a>
+            <a href="index.html" class="btn-primary" style="text-decoration: none; display: inline-block; width: auto; padding: 18px 60px; font-size: 1.1rem;">Voltar para o InÃ­cio</a>
         </div>
     </div>
 
     <script>
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbydDJXlSxrLYx_fqEBP_ECtfhMIYFX-eVcDVLdmyytD09BpV1x_QEy8FpTGDkj1_hBVBA/exec';
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbzIqzvbnUxu2Yq2-ve_9CbsN_jhYQupkJAnrcgeOGSOXqU5PF8nO7-l6NotNJyz5hHvAg/exec';
         const roleSelectionScreen = document.getElementById('role-selection-screen');
         const reviewerScreen = document.getElementById('reviewer-screen');
         const verifScreen = document.getElementById('verification-screen');
         const subForm = document.getElementById('submission-form');
         const successScreen = document.getElementById('success-screen');
-        
+
         let currentUser = { nome: '', cpf: '', isExternal: false };
 
-        // 1. SELEÇÃO DE PAPEL
+        // 1. SELEÃ‡ÃƒO DE PAPEL
         document.getElementById('role-student').addEventListener('click', () => {
             roleSelectionScreen.style.display = 'none';
             verifScreen.style.display = 'block';
@@ -547,12 +547,12 @@
             reviewerScreen.style.display = 'block';
         });
 
-        // 2. VERIFICAÇÃO
+        // 2. VERIFICAÃ‡ÃƒO
         document.getElementById('verify-btn').addEventListener('click', () => {
             const nome = document.getElementById('verify-nome').value.trim();
             const rawCpf = document.getElementById('verify-cpf').value.trim();
             const cpf = rawCpf.replace(/\D/g, '');
-            
+
             if (!nome || !cpf) return alert('Preencha seu nome e CPF.');
 
             const btn = document.getElementById('verify-btn');
@@ -573,7 +573,7 @@
                     }
                 })
                 .catch(err => {
-                    alert('Erro de conexão.');
+                    alert('Erro de conexÃ£o.');
                     btn.innerText = 'Verificar e Continuar';
                     btn.disabled = false;
                 });
@@ -591,7 +591,7 @@
             document.getElementById('sub-nome').value = currentUser.nome;
         }
 
-        // 3. FORMULÁRIO
+        // 3. FORMULÃRIO
         const autoresTextarea = document.getElementById('sub-autores-afiliacoes');
         const autoresCount = document.getElementById('autores-count');
         autoresTextarea.addEventListener('input', () => autoresCount.innerText = autoresTextarea.value.length);
@@ -634,7 +634,7 @@
         const protocoloEticaContainer = document.getElementById('protocolo-etica-container');
         const protocoloEticaInput = document.getElementById('sub-protocolo-etica');
         aprovacaoEticaSelect.addEventListener('change', () => {
-            const exigeProtocolo = aprovacaoEticaSelect.value && aprovacaoEticaSelect.value !== 'Não aplicável';
+            const exigeProtocolo = aprovacaoEticaSelect.value && aprovacaoEticaSelect.value !== 'NÃ£o aplicÃ¡vel';
             protocoloEticaContainer.style.display = exigeProtocolo ? 'block' : 'none';
             if (!exigeProtocolo) protocoloEticaInput.value = '';
         });
@@ -664,7 +664,7 @@
                 reader.onload = function(event) {
                     const base64Data = event.target.result.split(',')[1];
                     if (!base64Data) {
-                        reject(new Error('Não foi possível ler o arquivo anexado.'));
+                        reject(new Error('NÃ£o foi possÃ­vel ler o arquivo anexado.'));
                         return;
                     }
                     resolve(base64Data);
@@ -692,23 +692,23 @@
             const declaraRegulamento = document.getElementById('sub-declara-regulamento').checked;
 
             if (!nomeSubmissao || !titulo || !areaTematicaSelecionada || !autoresAfiliacoes || !autorCorrespondente || !categoriaAutorSelecionada || !tipoEstudo || !aprovacaoEticaSelecionada) {
-                return alert('Preencha todos os campos obrigatórios.');
+                return alert('Preencha todos os campos obrigatÃ³rios.');
             }
-            const areaTematica = resolveOutroValue('a área temática', areaTematicaOutro.select, areaTematicaOutro.input);
+            const areaTematica = resolveOutroValue('a Ã¡rea temÃ¡tica', areaTematicaOutro.select, areaTematicaOutro.input);
             if (!areaTematica) return;
             const categoriaAutor = resolveOutroValue('a categoria do autor', categoriaAutorOutro.select, categoriaAutorOutro.input);
             if (!categoriaAutor) return;
             if (tipoEstudo === 'Outro' && !tipoEstudoOutro) return alert('Informe o tipo de estudo.');
-            const aprovacaoEtica = resolveOutroValue('o nível de aprovação ética', aprovacaoEticaOutro.select, aprovacaoEticaOutro.input);
+            const aprovacaoEtica = resolveOutroValue('o nÃ­vel de aprovaÃ§Ã£o Ã©tica', aprovacaoEticaOutro.select, aprovacaoEticaOutro.input);
             if (!aprovacaoEtica) return;
-            if (aprovacaoEticaSelecionada !== 'Não aplicável' && !protocoloEtica) return alert('Informe o número do protocolo de aprovação ética.');
-            if (!declaraModelo || !declaraRegulamento) return alert('Marque as declarações obrigatórias.');
+            if (aprovacaoEticaSelecionada !== 'NÃ£o aplicÃ¡vel' && !protocoloEtica) return alert('Informe o nÃºmero do protocolo de aprovaÃ§Ã£o Ã©tica.');
+            if (!declaraModelo || !declaraRegulamento) return alert('Marque as declaraÃ§Ãµes obrigatÃ³rias.');
             const selectedIdentificadoFile = arquivoIdentificado.getFile();
             const selectedSemIdentificacaoFile = arquivoSemIdentificacao.getFile();
-            if (!selectedIdentificadoFile) return alert('Anexe o PDF identificado da submissão.');
-            if (!selectedSemIdentificacaoFile) return alert('Anexe o PDF sem identificação da submissão.');
-            if (selectedIdentificadoFile.size === 0 || selectedSemIdentificacaoFile.size === 0) return alert('Um dos arquivos selecionados está vazio. Anexe arquivos válidos.');
-            if (!/\.pdf$/i.test(selectedIdentificadoFile.name) || !/\.pdf$/i.test(selectedSemIdentificacaoFile.name)) return alert('Os dois arquivos da submissão devem ser enviados em PDF.');
+            if (!selectedIdentificadoFile) return alert('Anexe o PDF identificado da submissÃ£o.');
+            if (!selectedSemIdentificacaoFile) return alert('Anexe o PDF sem identificaÃ§Ã£o da submissÃ£o.');
+            if (selectedIdentificadoFile.size === 0 || selectedSemIdentificacaoFile.size === 0) return alert('Um dos arquivos selecionados estÃ¡ vazio. Anexe arquivos vÃ¡lidos.');
+            if (!/\.pdf$/i.test(selectedIdentificadoFile.name) || !/\.pdf$/i.test(selectedSemIdentificacaoFile.name)) return alert('Os dois arquivos da submissÃ£o devem ser enviados em PDF.');
 
             const btn = document.getElementById('submit-btn');
             btn.innerText = 'Enviando...';
@@ -753,12 +753,12 @@
                     })
                     .catch(err => {
                         alert('Erro ao enviar.');
-                        btn.innerText = 'Finalizar Submissão';
+                        btn.innerText = 'Finalizar SubmissÃ£o';
                         btn.disabled = false;
                     });
             }).catch(err => {
                 alert(err.message || 'Erro ao ler os arquivos.');
-                btn.innerText = 'Finalizar Submissão';
+                btn.innerText = 'Finalizar SubmissÃ£o';
                 btn.disabled = false;
             });
         });

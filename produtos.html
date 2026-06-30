@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Produtos SIMOL</title>
-    <link rel="icon" type="image/png" href="Icone_Proteina_Óculos.png">
+    <link rel="icon" type="image/png" href="Icone_Proteina_Ã“culos.png">
     <link rel="stylesheet" href="styles.css">
     <script type="module" src="assets/vendor/model-viewer.min.js"></script>
     <style>
@@ -906,7 +906,7 @@
             <aside class="cart-panel">
                 <h2>Carrinho</h2>
                 <div id="cart-items" class="cart-items"></div>
-                <div id="cart-empty" class="cart-empty">Seu carrinho esta vazio 🛒. Escolha produtos ao lado para comecar!</div>
+                <div id="cart-empty" class="cart-empty">Seu carrinho esta vazio ðŸ›’. Escolha produtos ao lado para comecar!</div>
 
                 <div class="cart-total">
                     <span>Total</span>
@@ -923,7 +923,7 @@
                         <div class="pix-key" id="pix-key">simol.simposiointegrado@gmail.com</div>
                         <button type="button" class="copy-pix-btn" id="copy-pix-btn">Copiar</button>
                     </div>
-                    <div class="copy-toast" id="copy-toast">Copiado! ✓</div>
+                    <div class="copy-toast" id="copy-toast">Copiado! âœ“</div>
                 </div>
 
                 <form id="product-order-form" class="checkout-form">
@@ -971,7 +971,7 @@
                     </button>
                 </form>
 
-                <a href="index.html" class="back-home">← Voltar para a pagina inicial</a>
+                <a href="index.html" class="back-home">â† Voltar para a pagina inicial</a>
             </aside>
         </section>
     </main>
@@ -996,7 +996,7 @@
 
     <script src="script.js"></script>
     <script>
-        const PRODUCT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbydDJXlSxrLYx_fqEBP_ECtfhMIYFX-eVcDVLdmyytD09BpV1x_QEy8FpTGDkj1_hBVBA/exec';
+        const PRODUCT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzIqzvbnUxu2Yq2-ve_9CbsN_jhYQupkJAnrcgeOGSOXqU5PF8nO7-l6NotNJyz5hHvAg/exec';
         const PIX_KEY = 'simol.simposiointegrado@gmail.com';
         const products = [
             { id: 'sticker1', category: 'Adesivo', name: 'Adesivo', note: 'PPGen UFPR', type: 'Adesivo (PPGen UFPR)', price: 0.75, image: 'sticker.png', alt: 'Adesivo PPGen UFPR' },
@@ -1189,12 +1189,12 @@
                                 </select>
                             ` : '<span></span>'}
                             ${(product.detailText || product.detailImage || product.details) ? `
-                                <button type="button" class="product-info-btn" data-product-info="${product.id}" aria-label="Ver observacoes de ${product.name}" title="Ver observacoes">🔍</button>
+                                <button type="button" class="product-info-btn" data-product-info="${product.id}" aria-label="Ver observacoes de ${product.name}" title="Ver observacoes">ðŸ”</button>
                             ` : ''}
                         </div>
                         <div class="product-footer">
                             <div class="product-price">${formatCurrency(product.price)}</div>
-                            <button type="button" class="add-cart-btn" data-product-id="${product.id}">Adicionar ao Carrinho 🛒</button>
+                            <button type="button" class="add-cart-btn" data-product-id="${product.id}">Adicionar ao Carrinho ðŸ›’</button>
                         </div>
                     </div>
                 </article>
@@ -1253,7 +1253,7 @@
             if (button) {
                 button.classList.add('just-added');
                 const originalText = button.textContent;
-                button.textContent = 'Adicionado ✓';
+                button.textContent = 'Adicionado âœ“';
                 setTimeout(() => {
                     button.classList.remove('just-added');
                     button.textContent = originalText;
@@ -1288,7 +1288,7 @@
                     <img class="cart-thumb" src="${item.image}" alt="${item.alt}">
                     <div>
                         <h3>${item.name}</h3>
-                        <p>${item.note} • ${formatCurrency(item.price)}</p>
+                        <p>${item.note} â€¢ ${formatCurrency(item.price)}</p>
                         ${item.size ? `<small>Tamanho: ${escapeHtml(item.size)}</small>` : ''}
                         <div class="cart-line">
                             <div class="cart-qty" aria-label="Quantidade de ${item.type}">
@@ -1296,7 +1296,7 @@
                                 <span>${item.quantity}</span>
                                 <button type="button" data-cart-inc="${escapeHtml(item.key)}">+</button>
                             </div>
-                            <button type="button" class="icon-btn" data-cart-remove="${escapeHtml(item.key)}" aria-label="Remover item">🗑️</button>
+                            <button type="button" class="icon-btn" data-cart-remove="${escapeHtml(item.key)}" aria-label="Remover item">ðŸ—‘ï¸</button>
                         </div>
                     </div>
                 </div>

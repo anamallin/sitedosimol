@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+﻿document.addEventListener('DOMContentLoaded', () => {
     // Background Parallax Effect
     const parallaxLayers = document.querySelectorAll('.parallax-layer');
 
@@ -11,32 +11,32 @@ document.addEventListener('DOMContentLoaded', () => {
             // Calculando o deslocamento baseado no mouse e na velocidade da camada
             const xOffset = (x * speed) / 100;
             const yOffset = (y * speed) / 100;
-            
-            // Usando requestAnimationFrame implicitamente ao não sobrecarregar, mas para melhor performance:
+
+            // Usando requestAnimationFrame implicitamente ao nÃ£o sobrecarregar, mas para melhor performance:
             layer.style.transform = `translate3d(${xOffset}px, ${yOffset}px, 0)`;
         });
     });
     // Mascot Interaction
     const mascotContainer = document.querySelector('.mascot-container');
     const mascotImg = document.querySelector('.mascot-protein');
-    
+
     if (mascotContainer && mascotImg) {
         const floatingIcons = mascotContainer.querySelectorAll('.floating-icon');
-        
+
         document.addEventListener('mousemove', (e) => {
-            // Calcular a posição do mouse em relação ao mascote
+            // Calcular a posiÃ§Ã£o do mouse em relaÃ§Ã£o ao mascote
             const rect = mascotContainer.getBoundingClientRect();
             const mascotCenterX = rect.left + rect.width / 2;
             const mascotCenterY = rect.top + rect.height / 2;
-            
-            // Movimentação sutil da div inteira
+
+            // MovimentaÃ§Ã£o sutil da div inteira
             const xMove = (e.clientX - mascotCenterX) * 0.03;
             const yMove = (e.clientY - mascotCenterY) * 0.03;
             mascotContainer.style.transform = `translate(${xMove}px, ${yMove}px)`;
 
-            // Movimentação independente dos ícones atrás (efeito parallax)
+            // MovimentaÃ§Ã£o independente dos Ã­cones atrÃ¡s (efeito parallax)
             floatingIcons.forEach((icon, index) => {
-                const factor = (index + 1) * 0.05; // Fatores diferentes para cada ícone
+                const factor = (index + 1) * 0.05; // Fatores diferentes para cada Ã­cone
                 const iconX = (e.clientX - mascotCenterX) * factor;
                 const iconY = (e.clientY - mascotCenterY) * factor;
                 icon.style.transform = `translate(${iconX}px, ${iconY}px)`;
@@ -47,12 +47,12 @@ document.addEventListener('DOMContentLoaded', () => {
         mascotImg.addEventListener('click', () => {
             mascotImg.style.transition = 'transform 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
             mascotImg.style.transform = `scale(0.8)`;
-            
+
             setTimeout(() => {
                 mascotImg.style.transition = 'transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
                 mascotImg.style.transform = `scale(1.2) rotate(-10deg)`;
             }, 100);
-            
+
             // Retorna ao hover normal da CSS depois de um tempo
             setTimeout(() => {
                 mascotImg.style.transform = '';
@@ -62,14 +62,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('registration-form');
     if (form) {
         // URL do Web App Apps Script (deploy fornecido)
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbydDJXlSxrLYx_fqEBP_ECtfhMIYFX-eVcDVLdmyytD09BpV1x_QEy8FpTGDkj1_hBVBA/exec'; 
-        
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbzIqzvbnUxu2Yq2-ve_9CbsN_jhYQupkJAnrcgeOGSOXqU5PF8nO7-l6NotNJyz5hHvAg/exec';
+
         const submitBtn = document.getElementById('submit-btn');
         const spinner = submitBtn.querySelector('.spinner');
         const btnText = submitBtn.querySelector('span');
         const formMessage = document.getElementById('form-message');
-        const SOLD_OUT_MESSAGE = 'inscrições esgotadas';
-        // Modal de aviso pré-pagamento
+        const SOLD_OUT_MESSAGE = 'inscriÃ§Ãµes esgotadas';
+        // Modal de aviso prÃ©-pagamento
         const avisoPagamentoModal = document.getElementById('aviso-pagamento-modal');
         const confirmPagamentoBtn = document.getElementById('confirm-pagamento-btn');
         const cancelPagamentoBtn = document.getElementById('cancel-pagamento-btn');
@@ -113,16 +113,16 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // Ao submeter o formulário, mostra o modal de aviso primeiro
+        // Ao submeter o formulÃ¡rio, mostra o modal de aviso primeiro
         form.addEventListener('submit', e => {
             e.preventDefault();
-            
+
             if (scriptURL === 'COLE_SEU_LINK_AQUI') {
-                showMessage('Erro: O link do Google Sheets ainda não foi configurado pelo administrador.', 'error');
+                showMessage('Erro: O link do Google Sheets ainda nÃ£o foi configurado pelo administrador.', 'error');
                 return;
             }
 
-            // Valida o formulário nativamente antes de abrir o modal
+            // Valida o formulÃ¡rio nativamente antes de abrir o modal
             if (!form.checkValidity()) {
                 form.reportValidity();
                 return;
@@ -134,7 +134,7 @@ document.addEventListener('DOMContentLoaded', () => {
             avisoPagamentoModal.style.display = 'flex';
         });
 
-        // Botão cancelar: fecha o modal
+        // BotÃ£o cancelar: fecha o modal
         if (cancelPagamentoBtn) {
             cancelPagamentoBtn.addEventListener('click', () => {
                 avisoPagamentoModal.style.display = 'none';
@@ -150,7 +150,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        // Botão confirmar: envia os dados
+        // BotÃ£o confirmar: envia os dados
         if (confirmPagamentoBtn) {
             confirmPagamentoBtn.addEventListener('click', () => {
                 // UI Loading State
@@ -164,20 +164,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (!cpfValue) {
                     avisoPagamentoModal.style.display = 'none';
-                    showMessage('CPF inválido ou não informado.', 'error');
+                    showMessage('CPF invÃ¡lido ou nÃ£o informado.', 'error');
                     confirmPagamentoBtn.disabled = false;
                     confirmSpinner.style.display = 'none';
                     confirmBtnText.textContent = 'Entendi, prosseguir para pagamento';
                     return;
                 }
 
-                // Verifica se o CPF já está cadastrado antes de prosseguir
+                // Verifica se o CPF jÃ¡ estÃ¡ cadastrado antes de prosseguir
                 fetch(`${scriptURL}?action=checarCpf&cpf=${cpfValue}`)
                     .then(response => response.json())
                     .then(result => {
                         if (result.encontrado) {
                             avisoPagamentoModal.style.display = 'none';
-                            showMessage('Este CPF já possui uma inscrição cadastrada.', 'error');
+                            showMessage('Este CPF jÃ¡ possui uma inscriÃ§Ã£o cadastrada.', 'error');
                             confirmPagamentoBtn.disabled = false;
                             confirmSpinner.style.display = 'none';
                             confirmBtnText.textContent = 'Entendi, prosseguir para pagamento';
@@ -188,7 +188,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             confirmSpinner.style.display = 'none';
                             confirmBtnText.textContent = 'Entendi, prosseguir para pagamento';
                         } else {
-                            // Salvar os dados do formulário localmente para enviar junto com o comprovante de pagamento
+                            // Salvar os dados do formulÃ¡rio localmente para enviar junto com o comprovante de pagamento
                             const regData = {};
                             for (let [key, val] of formData.entries()) {
                                 if (key === 'RESTRICAO_ALIMENTAR') {
@@ -200,7 +200,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             }
                             localStorage.setItem('simol_registration_data', JSON.stringify(regData));
 
-                            // Salvar o tipo, o programa e o CPF da inscrição para ajustar as próximas páginas
+                            // Salvar o tipo, o programa e o CPF da inscriÃ§Ã£o para ajustar as prÃ³ximas pÃ¡ginas
                             localStorage.setItem('simol_tipo_inscricao', formData.get('TIPO_INSCRICAO'));
                             const programaPos = formData.get('PROGRAMA_POS');
                             if (programaPos) {
@@ -215,9 +215,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
                     })
                     .catch(error => {
-                        console.error('Erro na verificação de CPF!', error.message);
+                        console.error('Erro na verificaÃ§Ã£o de CPF!', error.message);
                         avisoPagamentoModal.style.display = 'none';
-                        showMessage('Ocorreu um erro ao verificar sua inscrição. Tente novamente mais tarde.', 'error');
+                        showMessage('Ocorreu um erro ao verificar sua inscriÃ§Ã£o. Tente novamente mais tarde.', 'error');
                         confirmPagamentoBtn.disabled = false;
                         confirmSpinner.style.display = 'none';
                         confirmBtnText.textContent = 'Entendi, prosseguir para pagamento';
@@ -232,27 +232,27 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Upload de Arquivo (Página de Pagamento)
+    // Upload de Arquivo (PÃ¡gina de Pagamento)
     const uploadForm = document.getElementById('upload-form');
     if (uploadForm) {
         const dropArea = document.getElementById('drop-area');
         const fileInput = document.getElementById('file-input');
         const fileNameDisplay = document.getElementById('file-name');
-        
+
         const uploadBtn = document.getElementById('upload-btn');
         const uploadSpinner = uploadBtn.querySelector('.spinner');
         const uploadBtnText = uploadBtn.querySelector('span');
         const uploadMessage = document.getElementById('upload-message');
         const REGISTRATION_DATA_KEY = 'simol_registration_data';
-        
-        // Desabilitar botão por padrão
+
+        // Desabilitar botÃ£o por padrÃ£o
         uploadBtn.disabled = true;
-        
+
         let selectedFile = null;
-        let uploadCompleted = false; // Rastrear se o upload foi concluído com sucesso
+        let uploadCompleted = false; // Rastrear se o upload foi concluÃ­do com sucesso
 
         // URL do Web App Apps Script (deploy fornecido) - usado para uploads
-        const uploadScriptURL = 'https://script.google.com/macros/s/AKfycbydDJXlSxrLYx_fqEBP_ECtfhMIYFX-eVcDVLdmyytD09BpV1x_QEy8FpTGDkj1_hBVBA/exec'; 
+        const uploadScriptURL = 'https://script.google.com/macros/s/AKfycbzIqzvbnUxu2Yq2-ve_9CbsN_jhYQupkJAnrcgeOGSOXqU5PF8nO7-l6NotNJyz5hHvAg/exec';
 
         function getSavedRegistrationData() {
             try {
@@ -321,15 +321,15 @@ document.addEventListener('DOMContentLoaded', () => {
             if (files.length > 0) {
                 selectedFile = files[0];
                 fileNameDisplay.textContent = 'Arquivo selecionado: ' + selectedFile.name;
-                uploadBtn.disabled = false; // Habilitar botão
+                uploadBtn.disabled = false; // Habilitar botÃ£o
             }
         }
 
         uploadForm.addEventListener('submit', e => {
             e.preventDefault();
-            
+
             if (uploadScriptURL === 'COLE_SEU_LINK_AQUI') {
-                showUploadMessage('Erro: O link do Google Sheets ainda não foi configurado pelo administrador.', 'error');
+                showUploadMessage('Erro: O link do Google Sheets ainda nÃ£o foi configurado pelo administrador.', 'error');
                 return;
             }
 
@@ -358,9 +358,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 const base64Data = e.target.result.split(',')[1];
                 const nome = document.getElementById('upload-nome').value;
                 const tipoInscricaoInput = document.getElementById('tipo-inscricao');
-                const tipoInscricao = tipoInscricaoInput ? tipoInscricaoInput.value : 'Padrão';
+                const tipoInscricao = tipoInscricaoInput ? tipoInscricaoInput.value : 'PadrÃ£o';
 
-                // Montar o formulário que será enviado
+                // Montar o formulÃ¡rio que serÃ¡ enviado
                 const formData = new URLSearchParams();
                 const savedData = appendSavedRegistrationData(formData);
                 const cpfFromSavedData = savedData.CPF || savedData.cpf || '';
@@ -371,7 +371,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (programaPosInput && programaPosInput.value) {
                     formData.append('PROGRAMA_POS', programaPosInput.value);
                 }
-                
+
                 const produtosInput = document.getElementById('produtos-selecionados');
                 if (produtosInput && produtosInput.value) {
                     formData.append('PRODUTOS', produtosInput.value);
@@ -391,11 +391,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 formData.append('filename', selectedFile.name);
                 formData.append('mimeType', selectedFile.type);
                 formData.append('fileData', base64Data);
-                // Campo especial para o script saber que é um upload
-                formData.append('action', 'upload'); 
+                // Campo especial para o script saber que Ã© um upload
+                formData.append('action', 'upload');
 
-                fetch(uploadScriptURL, { 
-                    method: 'POST', 
+                fetch(uploadScriptURL, {
+                    method: 'POST',
                     body: formData,
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded'
@@ -406,8 +406,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (data.result === 'error') {
                         throw new Error(data.message || data.error || 'Ocorreu um erro ao enviar o comprovante.');
                     }
-                    uploadCompleted = true; // Marcar como concluído
-                    showUploadMessage('Comprovante enviado com sucesso! Sua inscrição será confirmada em breve.', 'success');
+                    uploadCompleted = true; // Marcar como concluÃ­do
+                    showUploadMessage('Comprovante enviado com sucesso! Sua inscriÃ§Ã£o serÃ¡ confirmada em breve.', 'success');
                     uploadForm.reset();
                     selectedFile = null;
                     fileNameDisplay.textContent = '';
@@ -429,7 +429,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     uploadBtnText.textContent = 'Enviar Comprovante';
                 });
             };
-            
+
             reader.onerror = function() {
                 showUploadMessage('Erro ao ler o arquivo.', 'error');
                 uploadBtn.disabled = false;
@@ -446,31 +446,31 @@ document.addEventListener('DOMContentLoaded', () => {
             uploadMessage.style.display = 'block';
         }
 
-        // Impedir navegação sem enviar o comprovante (OBRIGATÓRIO)
+        // Impedir navegaÃ§Ã£o sem enviar o comprovante (OBRIGATÃ“RIO)
         window.addEventListener('beforeunload', (e) => {
             if (!uploadCompleted) {
-                // Uma vez na página de pagamento, DEVE enviar o comprovante
+                // Uma vez na pÃ¡gina de pagamento, DEVE enviar o comprovante
                 e.preventDefault();
                 e.returnValue = '';
             }
         });
 
-        // Bloquear links de navegação
+        // Bloquear links de navegaÃ§Ã£o
         document.addEventListener('click', (e) => {
             const link = e.target.closest('a');
             if (link && !uploadCompleted) {
-                // Se há arquivo selecionado mas não foi enviado
+                // Se hÃ¡ arquivo selecionado mas nÃ£o foi enviado
                 e.preventDefault();
-                showUploadMessage('⚠️ COMPROVANTE OBRIGATÓRIO: Por favor, anexe e envie seu comprovante antes de sair desta página.', 'error');
+                showUploadMessage('âš ï¸ COMPROVANTE OBRIGATÃ“RIO: Por favor, anexe e envie seu comprovante antes de sair desta pÃ¡gina.', 'error');
                 return false;
             }
         });
     }
 
-    // Lógica do Modal de Aviso na Página Inicial
+    // LÃ³gica do Modal de Aviso na PÃ¡gina Inicial
     const openAvisoBtn = document.getElementById('open-aviso-btn');
     const avisoModal = document.getElementById('aviso-modal');
-    
+
     if (openAvisoBtn && avisoModal) {
         const closeModalBtn = document.getElementById('close-modal-btn');
         const agreeCheckbox = document.getElementById('agree-checkbox');
@@ -489,7 +489,7 @@ document.addEventListener('DOMContentLoaded', () => {
             avisoModal.style.display = 'flex';
         });
 
-        // Fecha o modal pelo botão Cancelar
+        // Fecha o modal pelo botÃ£o Cancelar
         closeModalBtn.addEventListener('click', () => {
             closeAvisoModal();
         });
@@ -501,7 +501,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // Habilita o botão apenas se o checkbox estiver marcado
+        // Habilita o botÃ£o apenas se o checkbox estiver marcado
         agreeCheckbox.addEventListener('change', () => {
             if (agreeCheckbox.checked) {
                 proceedBtn.disabled = false;
@@ -514,14 +514,14 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // Redireciona para a página de inscrição ao clicar em prosseguir
+        // Redireciona para a pÃ¡gina de inscriÃ§Ã£o ao clicar em prosseguir
         proceedBtn.addEventListener('click', () => {
             window.location.href = 'inscricao.html';
         });
     }
 
     // ========================================
-    // Lógica da Página - Festa de Encerramento
+    // LÃ³gica da PÃ¡gina - Festa de Encerramento
     // ========================================
     const festaCards = document.getElementById('option-cards');
     if (festaCards) {
@@ -540,30 +540,30 @@ document.addEventListener('DOMContentLoaded', () => {
         const valorTag = document.getElementById('festa-valor-tag');
         const successModal = document.getElementById('festa-success-modal');
 
-        // URL do Google Apps Script (mesmo já usado no projeto)
-        const festaScriptURL = 'https://script.google.com/macros/s/AKfycbydDJXlSxrLYx_fqEBP_ECtfhMIYFX-eVcDVLdmyytD09BpV1x_QEy8FpTGDkj1_hBVBA/exec';
+        // URL do Google Apps Script (mesmo jÃ¡ usado no projeto)
+        const festaScriptURL = 'https://script.google.com/macros/s/AKfycbzIqzvbnUxu2Yq2-ve_9CbsN_jhYQupkJAnrcgeOGSOXqU5PF8nO7-l6NotNJyz5hHvAg/exec';
 
         let selectedOption = null;
 
-        // CPF: aceitar apenas números
+        // CPF: aceitar apenas nÃºmeros
         cpfInput.addEventListener('input', function() {
             this.value = this.value.replace(/\D/g, '').slice(0, 11);
         });
 
-        // Seleção de cards
+        // SeleÃ§Ã£o de cards
         function selectOption(option) {
             selectedOption = option;
             cardInscrito.classList.toggle('selected', option === 'inscrito');
             cardExterno.classList.toggle('selected', option === 'externo');
 
-            // Mostrar formulário
+            // Mostrar formulÃ¡rio
             formSection.classList.add('visible');
             verifyStatus.style.display = 'none';
             paymentSection.classList.remove('visible');
 
             if (option === 'inscrito') {
-                formTitle.textContent = 'Verifique sua Inscrição';
-                nomeInput.placeholder = 'Nome completo conforme usado na inscrição';
+                formTitle.textContent = 'Verifique sua InscriÃ§Ã£o';
+                nomeInput.placeholder = 'Nome completo conforme usado na inscriÃ§Ã£o';
                 verifyBtn.style.display = 'flex';
                 proceedFestaBtn.style.display = 'none';
                 document.getElementById('festa-external-fields').style.display = 'none';
@@ -579,7 +579,7 @@ document.addEventListener('DOMContentLoaded', () => {
         cardInscrito.addEventListener('click', () => selectOption('inscrito'));
         cardExterno.addEventListener('click', () => selectOption('externo'));
 
-        // Botão prosseguir (externo — sem verificação)
+        // BotÃ£o prosseguir (externo â€” sem verificaÃ§Ã£o)
         proceedFestaBtn.addEventListener('click', () => {
             const nome = nomeInput.value.trim();
             const cpf = cpfInput.value.trim();
@@ -596,7 +596,7 @@ document.addEventListener('DOMContentLoaded', () => {
             showPayment('60,00', 'Externo', nome, cpf, email, telefone);
         });
 
-        // Botão verificar inscrição
+        // BotÃ£o verificar inscriÃ§Ã£o
         verifyBtn.addEventListener('click', () => {
             const nome = nomeInput.value.trim();
             const cpf = cpfInput.value.trim();
@@ -627,26 +627,26 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
 
                     if (data && data.encontrado) {
-                        verifyStatus.textContent = '✅ Inscrição encontrada! Prossiga com o pagamento abaixo.';
+                        verifyStatus.textContent = 'âœ… InscriÃ§Ã£o encontrada! Prossiga com o pagamento abaixo.';
                         verifyStatus.className = 'verify-status success';
                         verifyStatus.style.display = 'block';
                         showPayment('50,00', 'Inscrito SIMOL', nome, cpf);
                     } else {
-                        verifyStatus.innerHTML = '❌ Inscrição não encontrada. Verifique se o nome e CPF estão iguais aos usados na inscrição.<br><small style="margin-top:8px;display:inline-block;">Se preferir, selecione a opção "Quero apenas participar da festa" (R$ 60,00).</small>';
+                        verifyStatus.innerHTML = 'âŒ InscriÃ§Ã£o nÃ£o encontrada. Verifique se o nome e CPF estÃ£o iguais aos usados na inscriÃ§Ã£o.<br><small style="margin-top:8px;display:inline-block;">Se preferir, selecione a opÃ§Ã£o "Quero apenas participar da festa" (R$ 60,00).</small>';
                         verifyStatus.className = 'verify-status error';
                         verifyStatus.style.display = 'block';
                         paymentSection.classList.remove('visible');
                     }
                 })
                 .catch(error => {
-                    console.error('Erro na verificação:', error);
+                    console.error('Erro na verificaÃ§Ã£o:', error);
                     verifyStatus.textContent = 'Erro ao verificar. Tente novamente mais tarde.';
                     verifyStatus.className = 'verify-status error';
                     verifyStatus.style.display = 'block';
                 })
                 .finally(() => {
                     verifyBtn.disabled = false;
-                    verifyBtnText.textContent = 'Verificar Inscrição';
+                    verifyBtnText.textContent = 'Verificar InscriÃ§Ã£o';
                     verifySpinner.style.display = 'none';
                 });
         });
@@ -657,8 +657,8 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('festa-valor').value = valor;
             document.getElementById('festa-nome-hidden').value = nome;
             document.getElementById('festa-cpf-hidden').value = cpf;
-            
-            // Adicionando campos ocultos para email e telefone se não existirem
+
+            // Adicionando campos ocultos para email e telefone se nÃ£o existirem
             let emailHidden = document.getElementById('festa-email-hidden');
             if (!emailHidden) {
                 emailHidden = document.createElement('input');
@@ -678,13 +678,13 @@ document.addEventListener('DOMContentLoaded', () => {
             telHidden.value = telefone;
 
             paymentSection.classList.add('visible');
-            // Scroll suave até a seção de pagamento
+            // Scroll suave atÃ© a seÃ§Ã£o de pagamento
             setTimeout(() => {
                 paymentSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }, 100);
         }
 
-        // Upload de comprovante — Festa
+        // Upload de comprovante â€” Festa
         const festaUploadForm = document.getElementById('festa-upload-form');
         const festaDropArea = document.getElementById('festa-drop-area');
         const festaFileInput = document.getElementById('festa-file-input');
@@ -693,10 +693,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const festaUploadSpinner = festaUploadBtn.querySelector('.spinner');
         const festaUploadBtnText = festaUploadBtn.querySelector('span');
         const festaUploadMessage = document.getElementById('festa-upload-message');
-        
-        // Desabilitar botão por padrão
+
+        // Desabilitar botÃ£o por padrÃ£o
         festaUploadBtn.disabled = true;
-        
+
         let festaSelectedFile = null;
 
         festaDropArea.addEventListener('click', () => festaFileInput.click());
@@ -723,7 +723,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (files.length > 0) {
                 festaSelectedFile = files[0];
                 festaFileName.textContent = 'Arquivo selecionado: ' + festaSelectedFile.name;
-                festaUploadBtn.disabled = false; // Habilitar botão
+                festaUploadBtn.disabled = false; // Habilitar botÃ£o
             }
         }
 
@@ -809,16 +809,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Button Molecules Interaction (Hover & Click)
     const interactiveButtons = document.querySelectorAll('.action-btn, #open-aviso-btn');
-    
+
     interactiveButtons.forEach(btn => {
-        // Criar moléculas no hover
+        // Criar molÃ©culas no hover
         btn.addEventListener('mouseenter', () => {
             for (let i = 0; i < 4; i++) {
                 createMolecule(btn, false);
             }
         });
 
-        // Remover moléculas ao sair
+        // Remover molÃ©culas ao sair
         btn.addEventListener('mouseleave', () => {
             const molecules = btn.querySelectorAll('.btn-molecule');
             molecules.forEach(m => {
@@ -827,7 +827,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
-        // Efeito de explosão no Click (funciona no celular também)
+        // Efeito de explosÃ£o no Click (funciona no celular tambÃ©m)
         btn.addEventListener('click', () => {
             for (let i = 0; i < 10; i++) {
                 createMolecule(btn, true);
@@ -838,32 +838,32 @@ document.addEventListener('DOMContentLoaded', () => {
     function createMolecule(parent, isExplosion) {
         const molecule = document.createElement('div');
         molecule.className = 'btn-molecule';
-        
-        // Posição inicial aleatória ao redor do botão
+
+        // PosiÃ§Ã£o inicial aleatÃ³ria ao redor do botÃ£o
         const rect = parent.getBoundingClientRect();
         const startX = Math.random() * rect.width;
         const startY = Math.random() * rect.height;
-        
+
         molecule.style.left = `${startX}px`;
         molecule.style.top = `${startY}px`;
-        
+
         parent.appendChild(molecule);
 
-        // Pequeno delay para a animação entrar
+        // Pequeno delay para a animaÃ§Ã£o entrar
         requestAnimationFrame(() => {
             molecule.style.opacity = '1';
-            
+
             if (isExplosion) {
                 // Voa para longe e some
                 const angle = Math.random() * Math.PI * 2;
                 const distance = 100 + Math.random() * 100;
                 const destX = Math.cos(angle) * distance;
                 const destY = Math.sin(angle) * distance;
-                
+
                 molecule.style.transform = `translate(${destX}px, ${destY}px) scale(0)`;
                 molecule.style.opacity = '0';
                 molecule.style.transition = 'all 0.8s ease-out';
-                
+
                 setTimeout(() => molecule.remove(), 800);
             } else {
                 // Fica orbitando sutilmente
@@ -874,7 +874,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Copiar chave PIX (botão de copiar em pagamento.html)
+    // Copiar chave PIX (botÃ£o de copiar em pagamento.html)
     (function setupCopyPix() {
         const copyBtn = document.getElementById('copy-pix-btn');
         const pixEl = document.getElementById('pix-key');
@@ -919,7 +919,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     })();
 
-    // Função utilitária para mostrar um toast simples
+    // FunÃ§Ã£o utilitÃ¡ria para mostrar um toast simples
     function showToast(message) {
         const toast = document.getElementById('copy-toast');
         if (!toast) return;
@@ -927,7 +927,7 @@ document.addEventListener('DOMContentLoaded', () => {
         toast.style.transition = '';
         toast.style.opacity = '1';
         toast.style.display = 'block';
-        // Forçar reflow para garantir transição
+        // ForÃ§ar reflow para garantir transiÃ§Ã£o
         void toast.offsetWidth;
         toast.style.transition = 'opacity 300ms ease';
         setTimeout(() => {
