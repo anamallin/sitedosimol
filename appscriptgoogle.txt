@@ -4,6 +4,7 @@ const FOLDER_ID = '1aftFKtaxgsKLQNC2zxw-PP_xTBjbJ0_x'; // Pasta de inscrições 
 const ID_PLANILHA_MINICURSOS = '1-278Vp_ofZRnqhlVD5F08qe4SbLBPP8cE716ApxWFQY';
 const FOLDER_ID_MINICURSOS = '1pjAg6wLFzTjPFgHRMWCZKZC8jsSRW4xC'; // Pasta de comprovantes minicursos
 const FOLDER_ID_SUBMISSOES = '17eSmJzlW9EFekcDinmRwM8LRgk3Xagd4'; // Pasta de arquivos de submissão
+const FOLDER_ID_VIDEOS_CONCURSOS = '1nMeQ4S5W83kWu7JY6XCuFES8Xx6v_9Q5'; // Pasta de vídeos dos concursos
 
 const scriptProp = PropertiesService.getScriptProperties();
 const INSCRICOES_ESGOTADAS_MESSAGE = 'inscrições esgotadas';
@@ -623,6 +624,37 @@ function enviarEmailConfirmacaoInscricao_(email, nome) {
     '<p>Atenciosamente,<br>' +
     'Comissão Organizadora I SIMOL 2026<br>' +
     'I Simpósio Integrado de Genética, Biologia Celular e Bioquímica – UFPR<br>' +
+    'simol.simposiointegrado@gmail.com | @simol.ufpr</p>';
+
+  MailApp.sendEmail({
+    to: emailValido,
+    subject: subject,
+    body: body,
+    htmlBody: htmlBody,
+    name: 'SIMOL'
+  });
+}
+
+function enviarEmailConfirmacaoConcurso_(email, nome, concurso) {
+  const emailValido = isEmailValido_(email);
+  if (!emailValido) return;
+
+  const nomeDestinatario = (nome || '').toString().trim() || 'participante';
+  const nomeConcurso = (concurso || '').toString().trim() || 'concurso';
+  const subject = 'Inscrição recebida - ' + nomeConcurso + ' - SIMOL 2026';
+  const body =
+    'Prezado(a), ' + nomeDestinatario + '.\n\n' +
+    'Recebemos sua inscrição no concurso "' + nomeConcurso + '" do SIMOL 2026.\n\n' +
+    'Agora é só aguardar: a Comissão Organizadora entrará em contato pelo e-mail informado com as próximas orientações e demais informações sobre o concurso.\n\n' +
+    'Atenciosamente,\n' +
+    'Comissão Organizadora I SIMOL 2026\n' +
+    'simol.simposiointegrado@gmail.com | @simol.ufpr';
+  const htmlBody =
+    '<p>Prezado(a), ' + escapeHtml_(nomeDestinatario) + '.</p>' +
+    '<p>Recebemos sua inscrição no concurso <strong>' + escapeHtml_(nomeConcurso) + '</strong> do SIMOL 2026.</p>' +
+    '<p>Agora é só aguardar: a Comissão Organizadora entrará em contato pelo e-mail informado com as próximas orientações e demais informações sobre o concurso.</p>' +
+    '<p>Atenciosamente,<br>' +
+    'Comissão Organizadora I SIMOL 2026<br>' +
     'simol.simposiointegrado@gmail.com | @simol.ufpr</p>';
 
   MailApp.sendEmail({
@@ -1369,7 +1401,137 @@ function doPost(e) {
       return ContentService.createTextOutput(JSON.stringify(data)).setMimeType(ContentService.MimeType.JSON);
     }
 
-    // ====== 7. UPLOAD DE COMPROVANTE (Produtos) ======
+    // ====== 7. INSCRIÇÃO NOS CONCURSOS ======
+    else if (action === 'inscreverConcurso') {
+      const concursosPermitidos = [
+        'Minha Tese em 3 Minutos'
+      ];
+      const concurso = (e.parameter.concurso || '').toString().trim();
+      const nome = (e.parameter.nome || '').toString().trim();
+      const cpfLimpo = normalizarCpf_(e.parameter.cpf);
+      const email = isEmailValido_(e.parameter.email);
+      const telefone = (e.parameter.telefone || '').toString().trim();
+      const vinculo = (e.parameter.vinculo || '').toString().trim();
+      const origem = (e.parameter.origem || '').toString().trim() || 'Não informado';
+      const titulo = (e.parameter.titulo || '').toString().trim();
+      const observacoes = (e.parameter.observacoes || '').toString().trim();
+      const filenameVideo = (e.parameter.filename || '').toString().trim();
+      const fileDataVideoBase64 = (e.parameter.fileData || '').toString().trim();
+      const mimeTypeVideo = e.parameter.mimeType || 'application/octet-stream';
+
+      if (concursosPermitidos.indexOf(concurso) === -1) {
+        throw new Error('Concurso inválido.');
+      }
+      if (!nome || !cpfLimpo || !email || !telefone || !vinculo) {
+        throw new Error('Dados obrigatórios da inscrição não enviados.');
+      }
+      if (!filenameVideo || !fileDataVideoBase64) {
+        throw new Error('Vídeo da inscrição não enviado.');
+      }
+      if (FOLDER_ID_VIDEOS_CONCURSOS === 'COLE_AQUI_O_ID_DA_PASTA_DE_VIDEOS') {
+        throw new Error('Pasta de vídeos dos concursos ainda não configurada no Apps Script.');
+      }
+      if (!/^video\//i.test(mimeTypeVideo)) {
+        throw new Error('Envie um arquivo de vídeo válido.');
+      }
+
+      const folderVideosConcursos = DriveApp.getFolderById(FOLDER_ID_VIDEOS_CONCURSOS);
+      const fileDataVideo = Utilities.base64Decode(fileDataVideoBase64);
+      if (!fileDataVideo || fileDataVideo.length === 0) {
+        throw new Error('O arquivo de vídeo está vazio.');
+      }
+      const videoBlob = Utilities.newBlob(fileDataVideo, mimeTypeVideo, 'CONCURSO - ' + concurso + ' - ' + nome + ' - ' + filenameVideo);
+      const videoFile = folderVideosConcursos.createFile(videoBlob);
+      const videoUrl = videoFile.getUrl();
+
+      const concursosHeaders = ['Data', 'Concurso', 'Nome', 'CPF', 'Vinculo', 'Origem', 'Email', 'Telefone', 'Titulo', 'Observacoes', 'Video_nome', 'Video_url', 'Status'];
+      let sheetConcursos = doc.getSheetByName('concursos');
+      if (!sheetConcursos) {
+        sheetConcursos = doc.insertSheet('concursos');
+      }
+      if (sheetConcursos.getMaxColumns() < concursosHeaders.length) {
+        sheetConcursos.insertColumnsAfter(sheetConcursos.getMaxColumns(), concursosHeaders.length - sheetConcursos.getMaxColumns());
+      }
+      if (sheetConcursos.getLastRow() === 0) {
+        sheetConcursos.appendRow(concursosHeaders);
+      } else {
+        sheetConcursos.getRange(1, 1, 1, concursosHeaders.length).setValues([concursosHeaders]);
+      }
+
+      const dataConcursos = sheetConcursos.getDataRange().getValues();
+      let rowToUpdate = -1;
+      for (var i = dataConcursos.length - 1; i > 0; i--) {
+        const cpfSheet = normalizarCpf_(dataConcursos[i][3]);
+        const concursoSheet = (dataConcursos[i][1] || '').toString().trim();
+        if (cpfSheet === cpfLimpo && concursoSheet === concurso) {
+          rowToUpdate = i + 1;
+          break;
+        }
+      }
+
+      const rowData = [
+        new Date(),
+        concurso,
+        nome,
+        "'" + cpfLimpo,
+        vinculo,
+        origem,
+        email,
+        telefone,
+        titulo,
+        observacoes,
+        videoFile.getName(),
+        videoUrl,
+        'Inscrito'
+      ];
+
+      if (rowToUpdate !== -1) {
+        sheetConcursos.getRange(rowToUpdate, 1, 1, concursosHeaders.length).setValues([rowData]);
+      } else {
+        sheetConcursos.appendRow(rowData);
+      }
+
+      try {
+        enviarEmailConfirmacaoConcurso_(email, nome, concurso);
+      } catch (emailError) {
+        console.error('Erro ao enviar confirmação de inscrição no concurso para ' + email + ': ' + emailError.toString());
+      }
+
+      return ContentService.createTextOutput(JSON.stringify({ result: 'success', updated: rowToUpdate !== -1 })).setMimeType(ContentService.MimeType.JSON);
+    }
+
+    // ====== 7.1. BUSCAR DADOS DO INSCRITO PARA CONCURSOS ======
+    else if (action === 'buscarInscritoConcurso') {
+      const cpfBusca = normalizarCpf_(e.parameter.cpf);
+      const sheetVerif = doc.getSheetByName(sheetName);
+      const data = sheetVerif.getDataRange().getValues();
+      const headers = data[0].map(function(h) { return h.toString().toLowerCase().trim(); });
+      const cpfCol = headers.indexOf('cpf');
+      const nomeCol = headers.indexOf('nome');
+      const emailCol = headers.indexOf('email');
+      const telefoneCol = headers.indexOf('telefone');
+
+      if (!cpfBusca || cpfCol === -1) {
+        return ContentService.createTextOutput(JSON.stringify({ encontrado: false })).setMimeType(ContentService.MimeType.JSON);
+      }
+
+      for (var i = data.length - 1; i > 0; i--) {
+        const cpfSheet = normalizarCpf_(data[i][cpfCol]);
+        if (cpfSheet === cpfBusca) {
+          return ContentService.createTextOutput(JSON.stringify({
+            encontrado: true,
+            cpf: cpfBusca,
+            nome: nomeCol !== -1 ? data[i][nomeCol] || '' : '',
+            email: emailCol !== -1 ? data[i][emailCol] || '' : '',
+            telefone: telefoneCol !== -1 ? data[i][telefoneCol] || '' : ''
+          })).setMimeType(ContentService.MimeType.JSON);
+        }
+      }
+
+      return ContentService.createTextOutput(JSON.stringify({ encontrado: false })).setMimeType(ContentService.MimeType.JSON);
+    }
+
+    // ====== 8. UPLOAD DE COMPROVANTE (Produtos) ======
     else if (action === 'uploadFesta') {
       const folder = DriveApp.getFolderById(FOLDER_ID);
       if (!e.parameter.fileData || !e.parameter.filename) {
@@ -1421,7 +1583,7 @@ function doPost(e) {
       return ContentService.createTextOutput(JSON.stringify({ 'result': 'success', 'fileUrl': file.getUrl() })).setMimeType(ContentService.MimeType.JSON);
     }
 
-    // ====== 7. INSCRIÇÃO NORMAL (Dados do Formulário) ======
+    // ====== 9. INSCRIÇÃO NORMAL (Dados do Formulário) ======
     else {
       return ContentService.createTextOutput(JSON.stringify({
         result: 'error',

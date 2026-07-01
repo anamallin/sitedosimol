@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Concursos - I SIMOL</title>
+    <meta name="description" content="Inscreva-se no concurso Minha Tese em 3 Minutos do I SIMOL.">
+    <link rel="icon" type="image/png" href="Icone_Proteina_Óculos.png">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            display: block;
+        }
+
+        .concursos-page {
+            width: min(1040px, calc(100% - 32px));
+            margin: 0 auto;
+            padding: 34px 0 58px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .concursos-topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 26px;
+        }
+
+        .concursos-brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--color-4);
+            text-decoration: none;
+            font-weight: 800;
+        }
+
+        .concursos-brand img {
+            width: 44px;
+            height: 44px;
+            object-fit: contain;
+            border-radius: 50%;
+            background: #fff;
+            box-shadow: 0 8px 18px rgba(103, 42, 147, 0.12);
+        }
+
+        .home-link {
+            color: var(--color-4);
+            text-decoration: none;
+            font-weight: 800;
+            padding: 10px 14px;
+            background: rgba(255, 255, 255, 0.72);
+            border: 1px solid rgba(103, 42, 147, 0.14);
+            border-radius: 999px;
+        }
+
+        .concursos-hero {
+            margin-bottom: 22px;
+            padding: 34px;
+            background: rgba(255, 255, 255, 0.78);
+            border: 1px solid rgba(103, 42, 147, 0.16);
+            border-radius: 24px;
+            box-shadow: 0 22px 55px rgba(103, 42, 147, 0.12);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+        }
+
+        .concursos-kicker {
+            color: #8a6111;
+            font-size: 0.78rem;
+            font-weight: 900;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .concursos-hero h1 {
+            color: var(--color-4);
+            font-size: clamp(2rem, 5vw, 3.8rem);
+            line-height: 1;
+            margin-bottom: 16px;
+        }
+
+        .concursos-hero p {
+            max-width: 760px;
+            color: #241a30;
+            font-size: 1.05rem;
+            line-height: 1.65;
+        }
+
+        .concursos-panel {
+            display: grid;
+            grid-template-columns: 0.95fr 1.05fr;
+            gap: 22px;
+            align-items: start;
+        }
+
+        .contest-list,
+        .contest-form-card {
+            background: rgba(255, 255, 255, 0.86);
+            border: 1px solid rgba(103, 42, 147, 0.14);
+            border-radius: 18px;
+            box-shadow: 0 14px 35px rgba(103, 42, 147, 0.09);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+
+        .contest-list {
+            padding: 18px;
+        }
+
+        .contest-card {
+            width: 100%;
+            display: block;
+            margin-bottom: 12px;
+            padding: 18px;
+            color: #241a30;
+            background: #fff;
+            border: 1.5px solid var(--color-2);
+            border-left: 5px solid transparent;
+            border-radius: 14px;
+            text-align: left;
+            cursor: pointer;
+            font: inherit;
+            transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+        }
+
+        .contest-card:last-child {
+            margin-bottom: 0;
+        }
+
+        .contest-card:hover,
+        .contest-card.selected {
+            transform: translateY(-2px);
+            border-color: rgba(103, 42, 147, 0.26);
+            border-left-color: #b88716;
+            box-shadow: 0 12px 25px rgba(103, 42, 147, 0.12);
+        }
+
+        .contest-card.closed {
+            cursor: not-allowed;
+            opacity: 0.62;
+            background: #f7f2fa;
+        }
+
+        .contest-card.closed:hover {
+            transform: none;
+            border-color: var(--color-2);
+            border-left-color: transparent;
+            box-shadow: none;
+        }
+
+        .contest-card strong {
+            display: block;
+            color: var(--color-4);
+            font-size: 1.08rem;
+            margin-bottom: 7px;
+        }
+
+        .contest-card span {
+            display: block;
+            color: #4b4058;
+            line-height: 1.45;
+            font-size: 0.93rem;
+        }
+
+        .contest-form-card {
+            padding: 26px;
+        }
+
+        .contest-form-card h2 {
+            color: var(--color-4);
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+        }
+
+        .contest-form-card .selected-label {
+            color: #8a6111;
+            font-weight: 800;
+            margin-bottom: 20px;
+        }
+
+        .participant-mode {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .mode-button {
+            min-height: 48px;
+            padding: 12px;
+            color: var(--color-4);
+            background: #fff;
+            border: 1.5px solid var(--color-2);
+            border-radius: 12px;
+            cursor: pointer;
+            font: inherit;
+            font-weight: 850;
+            transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+        }
+
+        .mode-button:hover,
+        .mode-button.active {
+            transform: translateY(-1px);
+            border-color: var(--color-1);
+            background: #f7f2fa;
+            box-shadow: 0 10px 20px rgba(103, 42, 147, 0.1);
+        }
+
+        .lookup-panel {
+            display: none;
+            margin-bottom: 18px;
+            padding: 16px;
+            background: #f9f5fb;
+            border: 1px solid rgba(103, 42, 147, 0.14);
+            border-radius: 12px;
+        }
+
+        .lookup-panel.visible {
+            display: block;
+        }
+
+        .lookup-actions {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 10px;
+            align-items: end;
+        }
+
+        .lookup-button {
+            min-height: 47px;
+            padding: 12px 15px;
+            color: #fff;
+            background: var(--color-4);
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font: inherit;
+            font-weight: 850;
+        }
+
+        .lookup-button:disabled {
+            opacity: 0.65;
+            cursor: not-allowed;
+        }
+
+        .edital-download {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding: 16px;
+            background: #fff8e8;
+            border: 1px solid rgba(184, 135, 22, 0.32);
+            border-radius: 12px;
+        }
+
+        .edital-download span {
+            color: #3a2d16;
+            font-weight: 750;
+            line-height: 1.4;
+        }
+
+        .edital-download a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 40px;
+            padding: 10px 14px;
+            color: #fff;
+            background: #8a6111;
+            border-radius: 999px;
+            text-decoration: none;
+            font-weight: 850;
+        }
+
+        .contest-form {
+            display: grid;
+            gap: 16px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .contest-form label {
+            display: block;
+            color: var(--color-4);
+            font-weight: 750;
+            margin-bottom: 7px;
+        }
+
+        .contest-form input,
+        .contest-form select,
+        .contest-form textarea,
+        .lookup-panel input {
+            width: 100%;
+            padding: 13px 14px;
+            border: 1.5px solid #d8c7e1;
+            border-radius: 10px;
+            background: #fff;
+            color: #241a30;
+            font: inherit;
+            outline: none;
+        }
+
+        .contest-form textarea {
+            min-height: 108px;
+            resize: vertical;
+        }
+
+        .contest-form input:focus,
+        .contest-form select:focus,
+        .contest-form textarea:focus,
+        .lookup-panel input:focus {
+            border-color: var(--color-1);
+            box-shadow: 0 0 0 4px rgba(103, 42, 147, 0.12);
+        }
+
+        .file-input-wrap {
+            padding: 16px;
+            background: #fff;
+            border: 1.5px dashed #c8afd6;
+            border-radius: 12px;
+        }
+
+        .file-input-wrap input {
+            padding: 0;
+            border: none;
+            border-radius: 0;
+            box-shadow: none;
+        }
+
+        .file-hint {
+            display: block;
+            margin-top: 8px;
+            color: #65566f;
+            font-size: 0.88rem;
+            line-height: 1.4;
+        }
+
+        .contest-message {
+            display: none;
+            padding: 14px;
+            border-radius: 10px;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .contest-message.success {
+            display: block;
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .contest-message.error {
+            display: block;
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        @media (max-width: 820px) {
+            .concursos-topbar,
+            .concursos-panel,
+            .form-grid,
+            .participant-mode,
+            .lookup-actions {
+                grid-template-columns: 1fr;
+            }
+
+            .concursos-topbar {
+                align-items: flex-start;
+            }
+
+            .concursos-hero,
+            .contest-form-card {
+                padding: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="background-elements">
+        <div class="parallax-layer" data-speed="-2">
+            <div class="shape shape-1"></div>
+        </div>
+        <div class="parallax-layer" data-speed="1.5">
+            <div class="shape shape-2"></div>
+        </div>
+        <div class="parallax-layer" data-speed="3">
+            <div class="shape shape-3"></div>
+        </div>
+    </div>
+
+    <main class="concursos-page">
+        <nav class="concursos-topbar" aria-label="Navegação">
+            <a href="index.html" class="concursos-brand">
+                <img src="icon.png" alt="">
+                <span>I SIMOL</span>
+            </a>
+            <a href="index.html" class="home-link">Voltar para a página inicial</a>
+        </nav>
+
+        <section class="concursos-hero">
+            <p class="concursos-kicker">Inscrições especiais</p>
+            <h1>Concursos SIMOL</h1>
+            <p>As inscrições para Minha Tese em 3 Minutos estão abertas. Leia o edital, preencha seus dados e confirme sua participação. Os demais concursos serão liberados em breve.</p>
+        </section>
+
+        <section class="concursos-panel">
+            <div class="contest-list" aria-label="Modalidades de concurso">
+                <button type="button" class="contest-card selected" data-contest="Minha Tese em 3 Minutos">
+                    <strong>Minha Tese em 3 Minutos</strong>
+                    <span>Apresente sua pesquisa de forma clara, direta e envolvente para o público do SIMOL.</span>
+                </button>
+                <button type="button" class="contest-card closed" data-contest="Concurso de Bolos" disabled aria-disabled="true">
+                    <strong>Concurso de Bolos</strong>
+                    <span>Inscrições ainda não abertas.</span>
+                </button>
+                <button type="button" class="contest-card closed" data-contest="Concurso de Imagens" disabled aria-disabled="true">
+                    <strong>Concurso de Imagens</strong>
+                    <span>Inscrições ainda não abertas.</span>
+                </button>
+            </div>
+
+            <div class="contest-form-card">
+                <h2>Ficha de inscrição</h2>
+                <p class="selected-label" id="selected-contest-label">Minha Tese em 3 Minutos</p>
+                <div class="edital-download">
+                    <span>Leia o edital antes de enviar sua inscrição.</span>
+                    <a href="Edital%20-%20Sua%20tese%20em%203%20minutos%20(I%20SIMOL).pdf" download>Baixar edital</a>
+                </div>
+
+                <div class="participant-mode" aria-label="Tipo de participante">
+                    <button type="button" class="mode-button active" data-mode="inscrito">Já sou inscrito no SIMOL</button>
+                    <button type="button" class="mode-button" data-mode="externo">Não sou inscrito</button>
+                </div>
+
+                <div class="lookup-panel visible" id="lookup-panel">
+                    <div class="lookup-actions">
+                        <div>
+                            <label for="lookup-cpf">Buscar dados pelo CPF *</label>
+                            <input type="text" id="lookup-cpf" inputmode="numeric" maxlength="14" placeholder="Somente números">
+                        </div>
+                        <button type="button" class="lookup-button" id="lookup-button">Buscar dados</button>
+                    </div>
+                </div>
+
+                <form id="contest-form" class="contest-form">
+                    <input type="hidden" id="contest-selected" value="Minha Tese em 3 Minutos">
+                    <input type="hidden" id="contest-origin" value="Inscrito SIMOL">
+
+                    <div>
+                        <label for="contest-name">Nome completo *</label>
+                        <input type="text" id="contest-name" required autocomplete="name">
+                    </div>
+
+                    <div class="form-grid">
+                        <div>
+                            <label for="contest-cpf">CPF *</label>
+                            <input type="text" id="contest-cpf" required inputmode="numeric" maxlength="14" placeholder="Somente números">
+                        </div>
+                        <div>
+                            <label for="contest-category">Vínculo *</label>
+                            <select id="contest-category" required>
+                                <option value="">Selecione</option>
+                                <option>Inscrito SIMOL</option>
+                                <option>Graduação</option>
+                                <option>Pós-graduação</option>
+                                <option>Docente/Pesquisador(a)</option>
+                                <option>Comunidade externa</option>
+                                <option>Outro</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-grid">
+                        <div>
+                            <label for="contest-email">E-mail *</label>
+                            <input type="email" id="contest-email" required autocomplete="email">
+                        </div>
+                        <div>
+                            <label for="contest-phone">Telefone *</label>
+                            <input type="tel" id="contest-phone" required autocomplete="tel">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="contest-title">Título da tese ou apresentação</label>
+                        <input type="text" id="contest-title" placeholder="Informe o título da sua tese ou apresentação">
+                    </div>
+
+                    <div>
+                        <label for="contest-notes">Observações</label>
+                        <textarea id="contest-notes" placeholder="Use este espaço para detalhes importantes sobre sua inscrição."></textarea>
+                    </div>
+
+                    <div>
+                        <label for="contest-video">Vídeo da apresentação *</label>
+                        <div class="file-input-wrap">
+                            <input type="file" id="contest-video" accept="video/*" required>
+                            <span class="file-hint">Envie o arquivo de vídeo conforme as orientações do edital.</span>
+                        </div>
+                    </div>
+
+                    <div class="contest-message" id="contest-message"></div>
+
+                    <button type="submit" class="submit-btn" id="contest-submit-btn">
+                        <span>Enviar inscrição</span>
+                        <div class="spinner" style="display: none;"></div>
+                    </button>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const CONTEST_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby2MQRVSJrdrnmln3kD_qhXYiNBLMzqbhO1yYyucq-zcBZHupITjh-lO-HlbpA-sefH6g/exec';
+
+        const contestCards = document.querySelectorAll('.contest-card');
+        const selectedInput = document.getElementById('contest-selected');
+        const selectedLabel = document.getElementById('selected-contest-label');
+        const form = document.getElementById('contest-form');
+        const messageBox = document.getElementById('contest-message');
+        const submitBtn = document.getElementById('contest-submit-btn');
+        const submitSpinner = submitBtn.querySelector('.spinner');
+        const submitText = submitBtn.querySelector('span');
+        const modeButtons = document.querySelectorAll('.mode-button');
+        const lookupPanel = document.getElementById('lookup-panel');
+        const lookupCpfInput = document.getElementById('lookup-cpf');
+        const lookupButton = document.getElementById('lookup-button');
+        const originInput = document.getElementById('contest-origin');
+        const nameInput = document.getElementById('contest-name');
+        const cpfInput = document.getElementById('contest-cpf');
+        const categoryInput = document.getElementById('contest-category');
+        const emailInput = document.getElementById('contest-email');
+        const phoneInput = document.getElementById('contest-phone');
+        const titleInput = document.getElementById('contest-title');
+        const notesInput = document.getElementById('contest-notes');
+        const videoInput = document.getElementById('contest-video');
+
+        function onlyDigits(value) {
+            return String(value || '').replace(/\D/g, '');
+        }
+
+        function showMessage(text, type) {
+            messageBox.textContent = text;
+            messageBox.className = 'contest-message ' + type;
+        }
+
+        function setParticipantMode(mode) {
+            const isInscrito = mode === 'inscrito';
+            modeButtons.forEach(button => button.classList.toggle('active', button.dataset.mode === mode));
+            lookupPanel.classList.toggle('visible', isInscrito);
+            originInput.value = isInscrito ? 'Inscrito SIMOL' : 'Não inscrito';
+            categoryInput.value = isInscrito ? 'Inscrito SIMOL' : '';
+            [nameInput, cpfInput, emailInput, phoneInput].forEach(input => {
+                input.readOnly = isInscrito;
+            });
+            if (!isInscrito) {
+                lookupCpfInput.value = '';
+                nameInput.value = '';
+                cpfInput.value = '';
+                emailInput.value = '';
+                phoneInput.value = '';
+            }
+            messageBox.className = 'contest-message';
+            messageBox.textContent = '';
+        }
+
+        function readFileAsBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = event => resolve(String(event.target.result || '').split(',')[1] || '');
+                reader.onerror = () => reject(new Error('Não foi possível ler o arquivo de vídeo.'));
+                reader.readAsDataURL(file);
+            });
+        }
+
+        modeButtons.forEach(button => {
+            button.addEventListener('click', () => setParticipantMode(button.dataset.mode));
+        });
+
+        lookupButton.addEventListener('click', () => {
+            const cpf = onlyDigits(lookupCpfInput.value);
+            if (cpf.length !== 11) {
+                showMessage('Informe um CPF com 11 números para buscar seus dados.', 'error');
+                return;
+            }
+
+            lookupButton.disabled = true;
+            lookupButton.textContent = 'Buscando...';
+            fetch(CONTEST_SCRIPT_URL + '?action=buscarInscritoConcurso&cpf=' + encodeURIComponent(cpf), { method: 'GET' })
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.encontrado) {
+                        throw new Error('Não encontramos inscrição no SIMOL para este CPF. Use a opção "Não sou inscrito".');
+                    }
+                    nameInput.value = data.nome || '';
+                    cpfInput.value = data.cpf || cpf;
+                    emailInput.value = data.email || '';
+                    phoneInput.value = data.telefone || '';
+                    categoryInput.value = 'Inscrito SIMOL';
+                    showMessage('Dados encontrados. Confira as informações e envie seu vídeo.', 'success');
+                })
+                .catch(error => {
+                    showMessage(error.message || 'Não foi possível buscar seus dados.', 'error');
+                })
+                .finally(() => {
+                    lookupButton.disabled = false;
+                    lookupButton.textContent = 'Buscar dados';
+                });
+        });
+
+        contestCards.forEach(card => {
+            card.addEventListener('click', () => {
+                if (card.disabled || card.classList.contains('closed')) return;
+                contestCards.forEach(item => item.classList.toggle('selected', item === card));
+                selectedInput.value = card.dataset.contest;
+                selectedLabel.textContent = card.dataset.contest;
+            });
+        });
+
+        form.addEventListener('submit', event => {
+            event.preventDefault();
+            const cpf = onlyDigits(cpfInput.value);
+            if (cpf.length !== 11) {
+                showMessage('Informe um CPF com 11 números.', 'error');
+                return;
+            }
+            if (!videoInput.files.length) {
+                showMessage('Envie o vídeo da sua apresentação.', 'error');
+                return;
+            }
+            const videoFile = videoInput.files[0];
+            if (!videoFile.type || !videoFile.type.startsWith('video/')) {
+                showMessage('Envie um arquivo de vídeo válido.', 'error');
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitSpinner.style.display = 'block';
+            submitText.textContent = 'Enviando...';
+            messageBox.className = 'contest-message';
+            messageBox.textContent = '';
+
+            readFileAsBase64(videoFile).then(base64Video => {
+                const formData = new URLSearchParams();
+                formData.append('action', 'inscreverConcurso');
+                formData.append('concurso', selectedInput.value);
+                formData.append('origem', originInput.value);
+                formData.append('nome', nameInput.value.trim());
+                formData.append('cpf', cpf);
+                formData.append('vinculo', categoryInput.value);
+                formData.append('email', emailInput.value.trim());
+                formData.append('telefone', phoneInput.value.trim());
+                formData.append('titulo', titleInput.value.trim());
+                formData.append('observacoes', notesInput.value.trim());
+                formData.append('filename', videoFile.name);
+                formData.append('mimeType', videoFile.type);
+                formData.append('fileData', base64Video);
+
+                return fetch(CONTEST_SCRIPT_URL, {
+                method: 'POST',
+                body: formData,
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+                });
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.result !== 'success') {
+                        throw new Error(data.message || data.error || 'Não foi possível enviar a inscrição.');
+                    }
+                    showMessage('Inscrição confirmada! Recebemos sua inscrição no concurso Minha Tese em 3 Minutos. Enviamos uma confirmação para seu e-mail; aguarde novas informações da organização.', 'success');
+                    messageBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    form.reset();
+                    lookupCpfInput.value = '';
+                    setParticipantMode(originInput.value === 'Inscrito SIMOL' ? 'inscrito' : 'externo');
+                    selectedInput.value = selectedLabel.textContent;
+                })
+                .catch(error => {
+                    showMessage(error.message || 'Erro ao enviar inscrição. Tente novamente.', 'error');
+                })
+                .finally(() => {
+                    submitBtn.disabled = false;
+                    submitSpinner.style.display = 'none';
+                    submitText.textContent = 'Enviar inscrição';
+                });
+        });
+    </script>
+</body>
+</html>

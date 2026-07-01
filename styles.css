@@ -439,6 +439,19 @@ body {
     -webkit-backdrop-filter: blur(12px);
 }
 
+.concursos-preview-callout {
+    margin-bottom: 22px;
+    border-left-color: #b88716;
+}
+
+.concursos-preview-callout .callout-kicker {
+    color: #8a6111 !important;
+}
+
+.concursos-preview-callout .callout-button::after {
+    background: #b88716;
+}
+
 .minicursos-preview-callout .callout-kicker {
     margin-bottom: 8px;
     color: var(--color-1) !important;
