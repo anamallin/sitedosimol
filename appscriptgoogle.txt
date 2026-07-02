@@ -26,7 +26,7 @@ const VAGAS_MINICURSOS = {
   'Análise Eletroforética de Proteínas por SDS-PAGE': 15,
   'Otimizando a Bioatividade de Polissacarídeos via Síntese Orgânica': 8,
   'Biologia Sintética: Do design á síntese': 12,
-  'Bioinovação: fundamens de inovação, modelagem de negócios e pitch (teoria e prática)': null,
+  'Bioinovação: fundamentos de inovação, modelagem de negócios e pitch (teoria e prática)': 30,
   'Metabolismo e viabilidade de células tumorais: modelos In vitro e In vivo no estudo do câncer': 12,
   'Genes e Medicamentos: uma introdução à farmacogenética e farmacogenômica': 20,
   'Cultivo Celular e suas Aplicações': 15,
@@ -56,7 +56,7 @@ const CRONOGRAMA_MINICURSOS = {
   'Análise Eletroforética de Proteínas por SDS-PAGE': { days: [1], period: 'morning' },
   'Otimizando a Bioatividade de Polissacarídeos via Síntese Orgânica': { days: [3], period: 'morning' },
   'Biologia Sintética: Do design á síntese': { days: [1, 2, 3], period: 'morning' },
-  'Bioinovação: fundamens de inovação, modelagem de negócios e pitch (teoria e prática)': { days: [1, 2], period: 'night' },
+  'Bioinovação: fundamentos de inovação, modelagem de negócios e pitch (teoria e prática)': { days: [1, 2], period: 'night' },
   'Metabolismo e viabilidade de células tumorais: models In vitro e In vivo no estudo do câncer': { days: [2, 3], period: 'morning' },
   'Genes e Medicamentos: uma introdução à farmacogenética e farmacogenômica': { days: [1], period: 'night' },
   'Cultivo Celular e suas Aplicações': { days: [2, 3], period: 'morning' },
@@ -666,6 +666,11 @@ function enviarEmailConfirmacaoConcurso_(email, nome, concurso) {
   });
 }
 
+function contarPalavras_(value) {
+  const text = (value || '').toString().trim();
+  return text ? text.split(/\s+/).filter(function(word) { return word; }).length : 0;
+}
+
 function initialSetup () {
   scriptProp.setProperty('key', '1Hilxni9Z-Vq7YtHQ2d7u05B7rVRkzJI8e2Upm5P9dQw');
 }
@@ -1273,7 +1278,8 @@ function doPost(e) {
         inscricao: { status: 'Não encontrada' },
         minicursos: [],
         festa: { inscrito: false },
-        submissoes: []
+        submissoes: [],
+        concursos: []
       };
 
       // 6.1 Dados da Inscrição Principal
@@ -1337,7 +1343,49 @@ function doPost(e) {
         }
       }
 
-      // 6.4 Dados de Submissões
+      // 6.4 Dados de Concursos
+      const sheetConcursosDash = doc.getSheetByName('concursos');
+      if (sheetConcursosDash) {
+        const dataConcursosDash = sheetConcursosDash.getDataRange().getValues();
+        if (dataConcursosDash.length > 1) {
+          const headersConcursos = dataConcursosDash[0].map(function(h) { return h.toString().toLowerCase().trim(); });
+          const dataColC = getHeaderIndex_(headersConcursos, ['data']);
+          const concursoColC = getHeaderIndex_(headersConcursos, ['concurso']);
+          const cpfColC = getHeaderIndex_(headersConcursos, ['cpf']);
+          const vinculoColC = getHeaderIndex_(headersConcursos, ['vinculo', 'vínculo']);
+          const origemColC = getHeaderIndex_(headersConcursos, ['origem']);
+          const tituloColC = getHeaderIndex_(headersConcursos, ['titulo', 'título']);
+          const observacoesColC = getHeaderIndex_(headersConcursos, ['observacoes', 'observações']);
+          const videoNomeColC = getHeaderIndex_(headersConcursos, ['video_nome', 'vídeo_nome', 'arquivo_nome']);
+          const videoUrlColC = getHeaderIndex_(headersConcursos, ['video_url', 'vídeo_url', 'arquivo_url']);
+          const statusColC = getHeaderIndex_(headersConcursos, ['status']);
+          const categoriaImagemColC = getHeaderIndex_(headersConcursos, ['categoria_imagem']);
+          const legendaImagemColC = getHeaderIndex_(headersConcursos, ['legenda_imagem']);
+
+          if (cpfColC !== -1) {
+            for (var c = dataConcursosDash.length - 1; c > 0; c--) {
+              const cpfSheetC = normalizarCpf_(dataConcursosDash[c][cpfColC]);
+              if (cpfSheetC === cpfBusca) {
+                data.concursos.push({
+                  data: dataColC !== -1 ? dataConcursosDash[c][dataColC] : '',
+                  concurso: concursoColC !== -1 ? dataConcursosDash[c][concursoColC] : '',
+                  vinculo: vinculoColC !== -1 ? dataConcursosDash[c][vinculoColC] : '',
+                  origem: origemColC !== -1 ? dataConcursosDash[c][origemColC] : '',
+                  titulo: tituloColC !== -1 ? dataConcursosDash[c][tituloColC] : '',
+                  observacoes: observacoesColC !== -1 ? dataConcursosDash[c][observacoesColC] : '',
+                  video_nome: videoNomeColC !== -1 ? dataConcursosDash[c][videoNomeColC] : '',
+                  video_url: videoUrlColC !== -1 ? dataConcursosDash[c][videoUrlColC] : '',
+                  categoria_imagem: categoriaImagemColC !== -1 ? dataConcursosDash[c][categoriaImagemColC] : '',
+                  legenda_imagem: legendaImagemColC !== -1 ? dataConcursosDash[c][legendaImagemColC] : '',
+                  status: statusColC !== -1 && dataConcursosDash[c][statusColC] ? dataConcursosDash[c][statusColC] : 'Inscrito'
+                });
+              }
+            }
+          }
+        }
+      }
+
+      // 6.5 Dados de Submissões
       const sheetSub = doc.getSheetByName('submissoes');
       if (sheetSub) {
         const dataSub = sheetSub.getDataRange().getValues();
@@ -1404,9 +1452,11 @@ function doPost(e) {
     // ====== 7. INSCRIÇÃO NOS CONCURSOS ======
     else if (action === 'inscreverConcurso') {
       const concursosPermitidos = [
-        'Minha Tese em 3 Minutos'
+        'Minha Tese em 3 Minutos',
+        'Concurso de Imagens de Microscopia'
       ];
       const concurso = (e.parameter.concurso || '').toString().trim();
+      const isConcursoImagem = concurso === 'Concurso de Imagens de Microscopia';
       const nome = (e.parameter.nome || '').toString().trim();
       const cpfLimpo = normalizarCpf_(e.parameter.cpf);
       const email = isEmailValido_(e.parameter.email);
@@ -1415,9 +1465,12 @@ function doPost(e) {
       const origem = (e.parameter.origem || '').toString().trim() || 'Não informado';
       const titulo = (e.parameter.titulo || '').toString().trim();
       const observacoes = (e.parameter.observacoes || '').toString().trim();
-      const filenameVideo = (e.parameter.filename || '').toString().trim();
-      const fileDataVideoBase64 = (e.parameter.fileData || '').toString().trim();
-      const mimeTypeVideo = e.parameter.mimeType || 'application/octet-stream';
+      const categoriaImagem = (e.parameter.categoria_imagem || '').toString().trim();
+      const legendaImagem = (e.parameter.legenda_imagem || '').toString().trim();
+      const termoCessao = (e.parameter.termo_cessao || '').toString().trim();
+      const filenameArquivo = (e.parameter.filename || '').toString().trim();
+      const fileDataBase64 = (e.parameter.fileData || '').toString().trim();
+      const mimeTypeArquivo = e.parameter.mimeType || 'application/octet-stream';
 
       if (concursosPermitidos.indexOf(concurso) === -1) {
         throw new Error('Concurso inválido.');
@@ -1425,26 +1478,42 @@ function doPost(e) {
       if (!nome || !cpfLimpo || !email || !telefone || !vinculo) {
         throw new Error('Dados obrigatórios da inscrição não enviados.');
       }
-      if (!filenameVideo || !fileDataVideoBase64) {
-        throw new Error('Vídeo da inscrição não enviado.');
+      if (!filenameArquivo || !fileDataBase64) {
+        throw new Error(isConcursoImagem ? 'Imagem da inscrição não enviada.' : 'Vídeo da inscrição não enviado.');
       }
       if (FOLDER_ID_VIDEOS_CONCURSOS === 'COLE_AQUI_O_ID_DA_PASTA_DE_VIDEOS') {
-        throw new Error('Pasta de vídeos dos concursos ainda não configurada no Apps Script.');
+        throw new Error('Pasta de arquivos dos concursos ainda não configurada no Apps Script.');
       }
-      if (!/^video\//i.test(mimeTypeVideo)) {
+      if (isConcursoImagem) {
+        if (!titulo || contarPalavras_(titulo) > 6) {
+          throw new Error('Informe um título da imagem com no máximo 6 palavras.');
+        }
+        if (!categoriaImagem) {
+          throw new Error('Informe a categoria da imagem.');
+        }
+        if (!legendaImagem || contarPalavras_(legendaImagem) > 100) {
+          throw new Error('Informe uma legenda da imagem com no máximo 100 palavras.');
+        }
+        if (termoCessao !== 'Sim') {
+          throw new Error('Confirme o termo de cessão de uso da imagem.');
+        }
+        if (!/^image\/(jpeg|tiff)$/i.test(mimeTypeArquivo) && !/\.(jpe?g|tiff?)$/i.test(filenameArquivo)) {
+          throw new Error('Envie uma imagem em JPEG ou TIFF.');
+        }
+      } else if (!/^video\//i.test(mimeTypeArquivo)) {
         throw new Error('Envie um arquivo de vídeo válido.');
       }
 
       const folderVideosConcursos = DriveApp.getFolderById(FOLDER_ID_VIDEOS_CONCURSOS);
-      const fileDataVideo = Utilities.base64Decode(fileDataVideoBase64);
-      if (!fileDataVideo || fileDataVideo.length === 0) {
-        throw new Error('O arquivo de vídeo está vazio.');
+      const fileData = Utilities.base64Decode(fileDataBase64);
+      if (!fileData || fileData.length === 0) {
+        throw new Error(isConcursoImagem ? 'O arquivo de imagem está vazio.' : 'O arquivo de vídeo está vazio.');
       }
-      const videoBlob = Utilities.newBlob(fileDataVideo, mimeTypeVideo, 'CONCURSO - ' + concurso + ' - ' + nome + ' - ' + filenameVideo);
-      const videoFile = folderVideosConcursos.createFile(videoBlob);
-      const videoUrl = videoFile.getUrl();
+      const arquivoBlob = Utilities.newBlob(fileData, mimeTypeArquivo, 'CONCURSO - ' + concurso + ' - ' + nome + ' - ' + filenameArquivo);
+      const arquivoFile = folderVideosConcursos.createFile(arquivoBlob);
+      const arquivoUrl = arquivoFile.getUrl();
 
-      const concursosHeaders = ['Data', 'Concurso', 'Nome', 'CPF', 'Vinculo', 'Origem', 'Email', 'Telefone', 'Titulo', 'Observacoes', 'Video_nome', 'Video_url', 'Status'];
+      const concursosHeaders = ['Data', 'Concurso', 'Nome', 'CPF', 'Vinculo', 'Origem', 'Email', 'Telefone', 'Titulo', 'Observacoes', 'Video_nome', 'Video_url', 'Status', 'Categoria_imagem', 'Legenda_imagem', 'Termo_cessao'];
       let sheetConcursos = doc.getSheetByName('concursos');
       if (!sheetConcursos) {
         sheetConcursos = doc.insertSheet('concursos');
@@ -1463,7 +1532,8 @@ function doPost(e) {
       for (var i = dataConcursos.length - 1; i > 0; i--) {
         const cpfSheet = normalizarCpf_(dataConcursos[i][3]);
         const concursoSheet = (dataConcursos[i][1] || '').toString().trim();
-        if (cpfSheet === cpfLimpo && concursoSheet === concurso) {
+        const categoriaSheet = (dataConcursos[i][13] || '').toString().trim();
+        if (cpfSheet === cpfLimpo && concursoSheet === concurso && (!isConcursoImagem || categoriaSheet === categoriaImagem)) {
           rowToUpdate = i + 1;
           break;
         }
@@ -1480,9 +1550,12 @@ function doPost(e) {
         telefone,
         titulo,
         observacoes,
-        videoFile.getName(),
-        videoUrl,
-        'Inscrito'
+        arquivoFile.getName(),
+        arquivoUrl,
+        'Inscrito',
+        categoriaImagem,
+        legendaImagem,
+        termoCessao
       ];
 
       if (rowToUpdate !== -1) {

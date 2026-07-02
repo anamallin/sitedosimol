@@ -332,6 +332,11 @@
                     </div>
                 </div>
 
+                <div class="status-card" style="margin-bottom: 15px;">
+                    <h4>Concursos</h4>
+                    <div id="concursos-list" style="font-size: 0.9rem; color: #555;">Nenhuma inscrição em concurso encontrada.</div>
+                </div>
+
                 <div class="status-card" style="margin-bottom: 25px;">
                     <h4>Submissões de Resumos</h4>
                     <div id="submissoes-list" style="font-size: 0.9rem; color: #555;">Nenhuma submissão encontrada.</div>
@@ -355,7 +360,7 @@
     </div>
 
     <script>
-        const scriptURL = 'https://script.google.com/macros/s/AKfycby2MQRVSJrdrnmln3kD_qhXYiNBLMzqbhO1yYyucq-zcBZHupITjh-lO-HlbpA-sefH6g/exec';
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbyRDHkVMkJFGTrV7fiojpReHqzixsdJa1CMKJAGXhkGh4SRkndSVnbKIjYfdbCpQBKaQg/exec';
 
         function switchTab(tab) {
             document.getElementById('dashboard-tab').style.display = tab === 'dashboard' ? 'block' : 'none';
@@ -491,7 +496,27 @@
                 ` : '');
             }
 
-            // 4. Submissões
+            // 4. Concursos
+            const concursosList = document.getElementById('concursos-list');
+            if (data.concursos && data.concursos.length > 0) {
+                concursosList.innerHTML = data.concursos.map(c => `
+                    <div style="margin-bottom: 10px; padding: 10px; background: #fafafa; border-radius: 8px;">
+                        <div style="font-weight: 700; color: var(--color-1); margin-bottom: 5px;">${escapeHTML(c.concurso || 'Concurso')}</div>
+                        <div style="font-size: 0.8rem; color: #666; line-height: 1.5; margin-bottom: 8px;">
+                            ${c.data ? `<div><strong>Inscrição enviada em:</strong> ${formatSubmissionDate(c.data)}</div>` : ''}
+                            ${c.vinculo ? `<div><strong>Vínculo:</strong> ${escapeHTML(c.vinculo)}</div>` : ''}
+                            ${c.titulo ? `<div><strong>Título/tema:</strong> ${escapeHTML(c.titulo)}</div>` : ''}
+                            ${c.categoria_imagem ? `<div><strong>Categoria:</strong> ${escapeHTML(c.categoria_imagem)}</div>` : ''}
+                            ${c.legenda_imagem ? `<div><strong>Legenda:</strong> ${escapeHTML(c.legenda_imagem)}</div>` : ''}
+                            ${c.origem ? `<div><strong>Origem:</strong> ${escapeHTML(c.origem)}</div>` : ''}
+                            ${c.video_url ? `<div><strong>Arquivo:</strong> <a href="${escapeHTML(c.video_url)}" target="_blank" rel="noopener">${escapeHTML(c.video_nome || 'Abrir arquivo')}</a></div>` : ''}
+                        </div>
+                        <span class="badge ${c.status === 'Inscrito' || c.status === 'Confirmado' ? 'badge-success' : 'badge-neutral'}">${escapeHTML(c.status || 'Inscrito')}</span>
+                    </div>
+                `).join('');
+            }
+
+            // 5. Submissões
             const subList = document.getElementById('submissoes-list');
             if (data.submissoes.length > 0) {
                 subList.innerHTML = data.submissoes.map(s => `

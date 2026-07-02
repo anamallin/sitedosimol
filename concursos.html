@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Concursos - I SIMOL</title>
-    <meta name="description" content="Inscreva-se no concurso Minha Tese em 3 Minutos do I SIMOL.">
+    <meta name="description" content="Inscreva-se nos concursos Minha Tese em 3 Minutos e Imagens de Microscopia do I SIMOL.">
     <link rel="icon" type="image/png" href="Icone_Proteina_Óculos.png">
     <link rel="stylesheet" href="styles.css">
     <style>
@@ -316,6 +316,31 @@
             resize: vertical;
         }
 
+        .contest-specific {
+            display: none;
+        }
+
+        .contest-specific.visible {
+            display: block;
+        }
+
+        .terms-check {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 14px;
+            color: #3a2d16;
+            background: #fff8e8;
+            border: 1px solid rgba(184, 135, 22, 0.24);
+            border-radius: 12px;
+            line-height: 1.45;
+        }
+
+        .terms-check input {
+            width: auto;
+            margin-top: 3px;
+        }
+
         .contest-form input:focus,
         .contest-form select:focus,
         .contest-form textarea:focus,
@@ -413,7 +438,7 @@
         <section class="concursos-hero">
             <p class="concursos-kicker">Inscrições especiais</p>
             <h1>Concursos SIMOL</h1>
-            <p>As inscrições para Minha Tese em 3 Minutos estão abertas. Leia o edital, preencha seus dados e confirme sua participação. Os demais concursos serão liberados em breve.</p>
+            <p>As inscrições para Minha Tese em 3 Minutos e para o Concurso de Imagens de Microscopia estão abertas. Leia o edital, preencha seus dados e confirme sua participação.</p>
         </section>
 
         <section class="concursos-panel">
@@ -426,9 +451,9 @@
                     <strong>Concurso de Bolos</strong>
                     <span>Inscrições ainda não abertas.</span>
                 </button>
-                <button type="button" class="contest-card closed" data-contest="Concurso de Imagens" disabled aria-disabled="true">
-                    <strong>Concurso de Imagens</strong>
-                    <span>Inscrições ainda não abertas.</span>
+                <button type="button" class="contest-card" data-contest="Concurso de Imagens de Microscopia">
+                    <strong>Concurso de Imagens de Microscopia</strong>
+                    <span>Envie uma micrografia científica em JPEG ou TIFF, com título, legenda e categoria.</span>
                 </button>
             </div>
 
@@ -437,7 +462,7 @@
                 <p class="selected-label" id="selected-contest-label">Minha Tese em 3 Minutos</p>
                 <div class="edital-download">
                     <span>Leia o edital antes de enviar sua inscrição.</span>
-                    <a href="Edital%20-%20Sua%20tese%20em%203%20minutos%20(I%20SIMOL).pdf" download>Baixar edital</a>
+                    <a id="edital-link" href="Edital%20-%20Sua%20tese%20em%203%20minutos%20(I%20SIMOL).pdf" download>Baixar edital</a>
                 </div>
 
                 <div class="participant-mode" aria-label="Tipo de participante">
@@ -499,18 +524,38 @@
                         <input type="text" id="contest-title" placeholder="Informe o título da sua tese ou apresentação">
                     </div>
 
+                    <div class="contest-specific" id="image-category-wrap">
+                        <label for="image-category">Categoria da imagem *</label>
+                        <select id="image-category">
+                            <option value="">Selecione</option>
+                            <option>Microscopia de Luz – Campo claro</option>
+                            <option>Microscopia de Luz – Fluorescência</option>
+                            <option>Microscopia Eletrônica</option>
+                        </select>
+                    </div>
+
+                    <div class="contest-specific" id="image-caption-wrap">
+                        <label for="image-caption">Legenda da imagem *</label>
+                        <textarea id="image-caption" placeholder="Descreva a estrutura e a técnica em até 100 palavras."></textarea>
+                    </div>
+
                     <div>
                         <label for="contest-notes">Observações</label>
                         <textarea id="contest-notes" placeholder="Use este espaço para detalhes importantes sobre sua inscrição."></textarea>
                     </div>
 
                     <div>
-                        <label for="contest-video">Vídeo da apresentação *</label>
+                        <label for="contest-file" id="contest-file-label">Vídeo da apresentação *</label>
                         <div class="file-input-wrap">
-                            <input type="file" id="contest-video" accept="video/*" required>
-                            <span class="file-hint">Envie o arquivo de vídeo conforme as orientações do edital.</span>
+                            <input type="file" id="contest-file" accept="video/*" required>
+                            <span class="file-hint" id="contest-file-hint">Envie o arquivo de vídeo conforme as orientações do edital.</span>
                         </div>
                     </div>
+
+                    <label class="terms-check contest-specific" id="image-terms-wrap">
+                        <input type="checkbox" id="image-terms">
+                        <span>Declaro que li o edital e possuo autorização para submeter a imagem, cedendo o direito de uso conforme o termo do concurso.</span>
+                    </label>
 
                     <div class="contest-message" id="contest-message"></div>
 
@@ -524,7 +569,7 @@
     </main>
 
     <script>
-        const CONTEST_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby2MQRVSJrdrnmln3kD_qhXYiNBLMzqbhO1yYyucq-zcBZHupITjh-lO-HlbpA-sefH6g/exec';
+        const CONTEST_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyRDHkVMkJFGTrV7fiojpReHqzixsdJa1CMKJAGXhkGh4SRkndSVnbKIjYfdbCpQBKaQg/exec';
 
         const contestCards = document.querySelectorAll('.contest-card');
         const selectedInput = document.getElementById('contest-selected');
@@ -546,7 +591,37 @@
         const phoneInput = document.getElementById('contest-phone');
         const titleInput = document.getElementById('contest-title');
         const notesInput = document.getElementById('contest-notes');
-        const videoInput = document.getElementById('contest-video');
+        const contestFileInput = document.getElementById('contest-file');
+        const contestFileLabel = document.getElementById('contest-file-label');
+        const contestFileHint = document.getElementById('contest-file-hint');
+        const editalLink = document.getElementById('edital-link');
+        const imageCategoryWrap = document.getElementById('image-category-wrap');
+        const imageCategoryInput = document.getElementById('image-category');
+        const imageCaptionWrap = document.getElementById('image-caption-wrap');
+        const imageCaptionInput = document.getElementById('image-caption');
+        const imageTermsWrap = document.getElementById('image-terms-wrap');
+        const imageTermsInput = document.getElementById('image-terms');
+
+        const contestConfigs = {
+            'Minha Tese em 3 Minutos': {
+                edital: 'Edital%20-%20Sua%20tese%20em%203%20minutos%20(I%20SIMOL).pdf',
+                titleLabel: 'Título da tese ou apresentação',
+                titlePlaceholder: 'Informe o título da sua tese ou apresentação',
+                fileLabel: 'Vídeo da apresentação *',
+                fileHint: 'Envie o arquivo de vídeo conforme as orientações do edital.',
+                accept: 'video/*',
+                success: 'Inscrição confirmada! Recebemos sua inscrição no concurso Minha Tese em 3 Minutos. Enviamos uma confirmação para seu e-mail; aguarde novas informações da organização.'
+            },
+            'Concurso de Imagens de Microscopia': {
+                edital: 'Edital%20concurso%20de%20imagens%20-%20I%20SIMOL.pdf',
+                titleLabel: 'Título da imagem *',
+                titlePlaceholder: 'Use no máximo 6 palavras',
+                fileLabel: 'Imagem de microscopia *',
+                fileHint: 'Envie a micrografia em JPEG ou TIFF, com barra de escala na margem inferior.',
+                accept: 'image/jpeg,image/tiff,.jpg,.jpeg,.tif,.tiff',
+                success: 'Inscrição confirmada! Recebemos sua imagem para o Concurso de Imagens de Microscopia. Enviamos uma confirmação para seu e-mail; aguarde novas informações da organização.'
+            }
+        };
 
         function onlyDigits(value) {
             return String(value || '').replace(/\D/g, '');
@@ -577,11 +652,46 @@
             messageBox.textContent = '';
         }
 
+        function countWords(value) {
+            return String(value || '').trim().split(/\s+/).filter(Boolean).length;
+        }
+
+        function isImageContest() {
+            return selectedInput.value === 'Concurso de Imagens de Microscopia';
+        }
+
+        function applyContestConfig(contest) {
+            const config = contestConfigs[contest] || contestConfigs['Minha Tese em 3 Minutos'];
+            selectedInput.value = contest;
+            selectedLabel.textContent = contest;
+            editalLink.href = config.edital;
+            contestFileLabel.textContent = config.fileLabel;
+            contestFileHint.textContent = config.fileHint;
+            contestFileInput.accept = config.accept;
+            contestFileInput.value = '';
+            titleInput.previousElementSibling.textContent = config.titleLabel;
+            titleInput.placeholder = config.titlePlaceholder;
+            const showImageFields = contest === 'Concurso de Imagens de Microscopia';
+            imageCategoryWrap.classList.toggle('visible', showImageFields);
+            imageCaptionWrap.classList.toggle('visible', showImageFields);
+            imageTermsWrap.classList.toggle('visible', showImageFields);
+            imageCategoryInput.required = showImageFields;
+            imageCaptionInput.required = showImageFields;
+            imageTermsInput.required = showImageFields;
+            if (!showImageFields) {
+                imageCategoryInput.value = '';
+                imageCaptionInput.value = '';
+                imageTermsInput.checked = false;
+            }
+            messageBox.className = 'contest-message';
+            messageBox.textContent = '';
+        }
+
         function readFileAsBase64(file) {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
                 reader.onload = event => resolve(String(event.target.result || '').split(',')[1] || '');
-                reader.onerror = () => reject(new Error('Não foi possível ler o arquivo de vídeo.'));
+                reader.onerror = () => reject(new Error('Não foi possível ler o arquivo selecionado.'));
                 reader.readAsDataURL(file);
             });
         }
@@ -610,7 +720,7 @@
                     emailInput.value = data.email || '';
                     phoneInput.value = data.telefone || '';
                     categoryInput.value = 'Inscrito SIMOL';
-                    showMessage('Dados encontrados. Confira as informações e envie seu vídeo.', 'success');
+                    showMessage('Dados encontrados. Confira as informações e envie seu arquivo.', 'success');
                 })
                 .catch(error => {
                     showMessage(error.message || 'Não foi possível buscar seus dados.', 'error');
@@ -625,8 +735,7 @@
             card.addEventListener('click', () => {
                 if (card.disabled || card.classList.contains('closed')) return;
                 contestCards.forEach(item => item.classList.toggle('selected', item === card));
-                selectedInput.value = card.dataset.contest;
-                selectedLabel.textContent = card.dataset.contest;
+                applyContestConfig(card.dataset.contest);
             });
         });
 
@@ -637,12 +746,44 @@
                 showMessage('Informe um CPF com 11 números.', 'error');
                 return;
             }
-            if (!videoInput.files.length) {
-                showMessage('Envie o vídeo da sua apresentação.', 'error');
+            if (isImageContest()) {
+                if (!titleInput.value.trim()) {
+                    showMessage('Informe o título da imagem.', 'error');
+                    return;
+                }
+                if (countWords(titleInput.value) > 6) {
+                    showMessage('O título da imagem deve ter no máximo 6 palavras.', 'error');
+                    return;
+                }
+                if (!imageCategoryInput.value) {
+                    showMessage('Selecione a categoria da imagem.', 'error');
+                    return;
+                }
+                if (!imageCaptionInput.value.trim()) {
+                    showMessage('Informe a legenda da imagem.', 'error');
+                    return;
+                }
+                if (countWords(imageCaptionInput.value) > 100) {
+                    showMessage('A legenda da imagem deve ter no máximo 100 palavras.', 'error');
+                    return;
+                }
+                if (!imageTermsInput.checked) {
+                    showMessage('Confirme o termo de cessão de uso da imagem.', 'error');
+                    return;
+                }
+            }
+            if (!contestFileInput.files.length) {
+                showMessage(isImageContest() ? 'Envie a imagem de microscopia.' : 'Envie o vídeo da sua apresentação.', 'error');
                 return;
             }
-            const videoFile = videoInput.files[0];
-            if (!videoFile.type || !videoFile.type.startsWith('video/')) {
+            const contestFile = contestFileInput.files[0];
+            const fileName = contestFile.name || '';
+            const validImageFile = /^image\/(jpeg|tiff)$/i.test(contestFile.type || '') || /\.(jpe?g|tiff?)$/i.test(fileName);
+            if (isImageContest() && !validImageFile) {
+                showMessage('Envie uma imagem em JPEG ou TIFF.', 'error');
+                return;
+            }
+            if (!isImageContest() && (!contestFile.type || !contestFile.type.startsWith('video/'))) {
                 showMessage('Envie um arquivo de vídeo válido.', 'error');
                 return;
             }
@@ -653,7 +794,7 @@
             messageBox.className = 'contest-message';
             messageBox.textContent = '';
 
-            readFileAsBase64(videoFile).then(base64Video => {
+            readFileAsBase64(contestFile).then(base64File => {
                 const formData = new URLSearchParams();
                 formData.append('action', 'inscreverConcurso');
                 formData.append('concurso', selectedInput.value);
@@ -665,9 +806,12 @@
                 formData.append('telefone', phoneInput.value.trim());
                 formData.append('titulo', titleInput.value.trim());
                 formData.append('observacoes', notesInput.value.trim());
-                formData.append('filename', videoFile.name);
-                formData.append('mimeType', videoFile.type);
-                formData.append('fileData', base64Video);
+                formData.append('categoria_imagem', imageCategoryInput.value);
+                formData.append('legenda_imagem', imageCaptionInput.value.trim());
+                formData.append('termo_cessao', imageTermsInput.checked ? 'Sim' : '');
+                formData.append('filename', contestFile.name);
+                formData.append('mimeType', contestFile.type);
+                formData.append('fileData', base64File);
 
                 return fetch(CONTEST_SCRIPT_URL, {
                 method: 'POST',
@@ -680,12 +824,13 @@
                     if (data.result !== 'success') {
                         throw new Error(data.message || data.error || 'Não foi possível enviar a inscrição.');
                     }
-                    showMessage('Inscrição confirmada! Recebemos sua inscrição no concurso Minha Tese em 3 Minutos. Enviamos uma confirmação para seu e-mail; aguarde novas informações da organização.', 'success');
+                    showMessage((contestConfigs[selectedInput.value] || contestConfigs['Minha Tese em 3 Minutos']).success, 'success');
                     messageBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    const selectedContest = selectedInput.value;
                     form.reset();
                     lookupCpfInput.value = '';
                     setParticipantMode(originInput.value === 'Inscrito SIMOL' ? 'inscrito' : 'externo');
-                    selectedInput.value = selectedLabel.textContent;
+                    applyContestConfig(selectedContest);
                 })
                 .catch(error => {
                     showMessage(error.message || 'Erro ao enviar inscrição. Tente novamente.', 'error');
@@ -696,6 +841,8 @@
                     submitText.textContent = 'Enviar inscrição';
                 });
         });
+
+        applyContestConfig(selectedInput.value);
     </script>
 </body>
 </html>
