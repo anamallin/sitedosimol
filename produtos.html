@@ -868,6 +868,11 @@
             </model-viewer>
         </section>
 
+        <div class="sales-warning" id="sales-warning">
+            <strong>Compras de produtos encerradas</strong>
+            As compras de produtos do SIMOL foram fechadas. Novos pedidos enviados por esta p&aacute;gina n&atilde;o ser&atilde;o aceitos.
+        </div>
+
         <section class="entry-panel" id="entry-panel">
             <h2>Antes de comprar</h2>
             <div class="entry-actions">
@@ -998,6 +1003,8 @@
     <script>
         const PRODUCT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyWcq3wuzz5RjTBiSQhC0cvsAqjGYZJSie1OQ38K09fEt7-bm8-bcxWVc0pCxQ8oFpqWQ/exec';
         const PIX_KEY = 'simol.simposiointegrado@gmail.com';
+        const PRODUCTS_SALES_OPEN = false;
+        const PRODUCTS_CLOSED_MESSAGE = 'As compras de produtos do SIMOL foram fechadas. Novos pedidos nao serao aceitos.';
         const products = [
             { id: 'sticker1', category: 'Adesivo', name: 'Adesivo', note: 'PPGen UFPR', type: 'Adesivo (PPGen UFPR)', price: 0.75, image: 'sticker.png', alt: 'Adesivo PPGen UFPR' },
             { id: 'sticker2', category: 'Adesivo', name: 'Adesivo', note: 'PPGBioCelMol UFPR', type: 'Adesivo (PPGBioCelMol UFPR)', price: 0.75, image: 'sticker (1).png', alt: 'Adesivo PPGBioCelMol UFPR' },
@@ -1121,6 +1128,12 @@
         }
 
         function unlockStore(mode) {
+            if (!PRODUCTS_SALES_OPEN) {
+                buyerMode = '';
+                storeLayout.classList.add('is-locked');
+                showEntryMessage(PRODUCTS_CLOSED_MESSAGE, 'error');
+                return;
+            }
             buyerMode = mode;
             storeLayout.classList.remove('is-locked');
             if (mode === 'inscrito') {
@@ -1199,6 +1212,12 @@
                     </div>
                 </article>
             `).join('');
+            if (!PRODUCTS_SALES_OPEN) {
+                productGrid.querySelectorAll('.add-cart-btn').forEach(button => {
+                    button.disabled = true;
+                    button.textContent = 'Compras encerradas';
+                });
+            }
         }
 
         function openProductDetail(productId) {
@@ -1235,6 +1254,10 @@
         }
 
         function addToCart(productId, button) {
+            if (!PRODUCTS_SALES_OPEN) {
+                showMessage(PRODUCTS_CLOSED_MESSAGE, 'error');
+                return;
+            }
             const product = products.find(item => item.id === productId);
             if (!product) return;
             const size = getSelectedProductSize(product);
@@ -1321,8 +1344,8 @@
         }
 
         function updateSubmitState() {
-            submitBtn.disabled = !cart.length || !selectedFile;
-            submitText.textContent = 'Enviar pedido';
+            submitBtn.disabled = !PRODUCTS_SALES_OPEN || !cart.length || !selectedFile;
+            submitText.textContent = PRODUCTS_SALES_OPEN ? 'Enviar pedido' : 'Compras encerradas';
         }
 
         function formatFileSize(bytes) {
@@ -1531,6 +1554,10 @@
 
         document.getElementById('product-order-form').addEventListener('submit', event => {
             event.preventDefault();
+            if (!PRODUCTS_SALES_OPEN) {
+                showMessage(PRODUCTS_CLOSED_MESSAGE, 'error');
+                return;
+            }
             const name = nameInput.value.trim();
             const cpf = cpfInput.value.trim();
             const email = emailInput.value.trim();
