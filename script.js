@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     const INSCRICOES_SIMOL_FECHAMENTO_TS = Date.parse('2026-07-04T02:59:00.000Z');
-    const INSCRICOES_SIMOL_ENCERRADAS_MESSAGE = 'As inscrições do SIMOL foram encerradas em 03/07/2026 às 23:59. Os concursos permanecem abertos conforme seus editais.';
+    const INSCRICOES_SIMOL_ENCERRADAS_MESSAGE = 'As inscrições gerais do SIMOL foram encerradas em 03/07/2026 às 23:59. Minicursos e concursos permanecem abertos conforme suas regras.';
     const isInscricoesSimolEncerradas = () => Date.now() >= INSCRICOES_SIMOL_FECHAMENTO_TS;
 
     // Background Parallax Effect
