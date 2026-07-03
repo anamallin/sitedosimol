@@ -360,7 +360,7 @@
     </div>
 
     <script>
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbw1MFuGBbOniuvEfBtrwdM7Si_DqrkOxCQBVFssC4sqN6oyB6x8dS7GzqJK8EVKFfh-lA/exec';
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbyWcq3wuzz5RjTBiSQhC0cvsAqjGYZJSie1OQ38K09fEt7-bm8-bcxWVc0pCxQ8oFpqWQ/exec';
 
         function switchTab(tab) {
             document.getElementById('dashboard-tab').style.display = tab === 'dashboard' ? 'block' : 'none';
@@ -508,6 +508,10 @@
                             ${c.titulo ? `<div><strong>Título/tema:</strong> ${escapeHTML(c.titulo)}</div>` : ''}
                             ${c.categoria_imagem ? `<div><strong>Categoria:</strong> ${escapeHTML(c.categoria_imagem)}</div>` : ''}
                             ${c.legenda_imagem ? `<div><strong>Legenda:</strong> ${escapeHTML(c.legenda_imagem)}</div>` : ''}
+                            ${c.nome_bolo ? `<div><strong>Nome do bolo:</strong> ${escapeHTML(c.nome_bolo)}</div>` : ''}
+                            ${c.ingredientes_bolo ? `<div><strong>Ingredientes:</strong> ${escapeHTML(c.ingredientes_bolo)}</div>` : ''}
+                            ${c.alergenicos_bolo ? `<div><strong>Restrições/alergênicos:</strong> ${escapeHTML(c.alergenicos_bolo)}</div>` : ''}
+                            ${c.responsavel_bolo ? `<div><strong>Responsável pela entrega:</strong> ${escapeHTML(c.responsavel_bolo)}</div>` : ''}
                             ${c.origem ? `<div><strong>Origem:</strong> ${escapeHTML(c.origem)}</div>` : ''}
                             ${c.video_url ? `<div><strong>Arquivo:</strong> <a href="${escapeHTML(c.video_url)}" target="_blank" rel="noopener">${escapeHTML(c.video_nome || 'Abrir arquivo')}</a></div>` : ''}
                         </div>

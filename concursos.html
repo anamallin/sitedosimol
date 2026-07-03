@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Concursos - I SIMOL</title>
-    <meta name="description" content="Inscreva-se nos concursos Minha Tese em 3 Minutos e Imagens de Microscopia do I SIMOL.">
+    <meta name="description" content="Inscreva-se nos concursos Minha Tese em 3 Minutos, Bolos e Imagens de Microscopia do I SIMOL.">
     <link rel="icon" type="image/png" href="Icone_Proteina_Óculos.png">
     <link rel="stylesheet" href="styles.css">
     <style>
@@ -438,7 +438,7 @@
         <section class="concursos-hero">
             <p class="concursos-kicker">Inscrições especiais</p>
             <h1>Concursos SIMOL</h1>
-            <p>As inscrições para Minha Tese em 3 Minutos e para o Concurso de Imagens de Microscopia estão abertas. Leia o edital, preencha seus dados e confirme sua participação.</p>
+            <p>As inscrições para Minha Tese em 3 Minutos, Concurso de Bolos e Concurso de Imagens de Microscopia estão abertas. Leia o edital, preencha seus dados e confirme sua participação.</p>
         </section>
 
         <section class="concursos-panel">
@@ -447,9 +447,9 @@
                     <strong>Minha Tese em 3 Minutos</strong>
                     <span>Apresente sua pesquisa de forma clara, direta e envolvente para o público do SIMOL.</span>
                 </button>
-                <button type="button" class="contest-card closed" data-contest="Concurso de Bolos" disabled aria-disabled="true">
+                <button type="button" class="contest-card" data-contest="Concurso de Bolos">
                     <strong>Concurso de Bolos</strong>
-                    <span>Inscrições ainda não abertas.</span>
+                    <span>Inscrições gratuitas de 03 a 17 de julho, exclusivas para participantes vinculados ao evento.</span>
                 </button>
                 <button type="button" class="contest-card" data-contest="Concurso de Imagens de Microscopia">
                     <strong>Concurso de Imagens de Microscopia</strong>
@@ -539,6 +539,26 @@
                         <textarea id="image-caption" placeholder="Descreva a estrutura e a técnica em até 100 palavras."></textarea>
                     </div>
 
+                    <div class="contest-specific" id="cake-name-wrap">
+                        <label for="cake-name">Nome criativo do bolo *</label>
+                        <input type="text" id="cake-name" placeholder="Informe o nome criativo do bolo">
+                    </div>
+
+                    <div class="contest-specific" id="cake-ingredients-wrap">
+                        <label for="cake-ingredients">Lista completa de ingredientes *</label>
+                        <textarea id="cake-ingredients" placeholder="Liste todos os ingredientes utilizados no bolo."></textarea>
+                    </div>
+
+                    <div class="contest-specific" id="cake-allergens-wrap">
+                        <label for="cake-allergens">Restrições alimentares e alergênicos *</label>
+                        <textarea id="cake-allergens" placeholder="Informe se contém leite, lactose, glúten, ovos, castanhas/amendoim/nozes/avelã, se é vegano e se contém ou pode conter outros alergênicos."></textarea>
+                    </div>
+
+                    <div class="contest-specific" id="cake-responsible-wrap">
+                        <label for="cake-responsible">Responsável pela entrega, identificação e retirada *</label>
+                        <input type="text" id="cake-responsible" placeholder="Nome do responsável">
+                    </div>
+
                     <div>
                         <label for="contest-notes">Observações</label>
                         <textarea id="contest-notes" placeholder="Use este espaço para detalhes importantes sobre sua inscrição."></textarea>
@@ -569,7 +589,7 @@
     </main>
 
     <script>
-        const CONTEST_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw1MFuGBbOniuvEfBtrwdM7Si_DqrkOxCQBVFssC4sqN6oyB6x8dS7GzqJK8EVKFfh-lA/exec';
+        const CONTEST_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyWcq3wuzz5RjTBiSQhC0cvsAqjGYZJSie1OQ38K09fEt7-bm8-bcxWVc0pCxQ8oFpqWQ/exec';
 
         const contestCards = document.querySelectorAll('.contest-card');
         const selectedInput = document.getElementById('contest-selected');
@@ -601,6 +621,14 @@
         const imageCaptionInput = document.getElementById('image-caption');
         const imageTermsWrap = document.getElementById('image-terms-wrap');
         const imageTermsInput = document.getElementById('image-terms');
+        const cakeNameWrap = document.getElementById('cake-name-wrap');
+        const cakeNameInput = document.getElementById('cake-name');
+        const cakeIngredientsWrap = document.getElementById('cake-ingredients-wrap');
+        const cakeIngredientsInput = document.getElementById('cake-ingredients');
+        const cakeAllergensWrap = document.getElementById('cake-allergens-wrap');
+        const cakeAllergensInput = document.getElementById('cake-allergens');
+        const cakeResponsibleWrap = document.getElementById('cake-responsible-wrap');
+        const cakeResponsibleInput = document.getElementById('cake-responsible');
 
         const contestConfigs = {
             'Minha Tese em 3 Minutos': {
@@ -611,6 +639,16 @@
                 fileHint: 'Envie o arquivo de vídeo conforme as orientações do edital.',
                 accept: 'video/*',
                 success: 'Inscrição confirmada! Recebemos sua inscrição no concurso Minha Tese em 3 Minutos. Enviamos uma confirmação para seu e-mail; aguarde novas informações da organização.'
+            },
+            'Concurso de Bolos': {
+                edital: 'Edital%20concurso%20de%20bolo%20-%20I%20SIMOL%20.pdf',
+                titleLabel: 'Participante ou grupo responsável *',
+                titlePlaceholder: 'Informe o nome do participante ou grupo responsável',
+                fileLabel: 'Arquivo',
+                fileHint: 'O edital não exige envio de arquivo para o Concurso de Bolos.',
+                accept: '',
+                noFile: true,
+                success: 'Inscrição confirmada! Recebemos sua inscrição no Concurso de Bolos. Enviamos uma confirmação para seu e-mail; aguarde novas informações da organização.'
             },
             'Concurso de Imagens de Microscopia': {
                 edital: 'Edital%20concurso%20de%20imagens%20-%20I%20SIMOL.pdf',
@@ -660,6 +698,10 @@
             return selectedInput.value === 'Concurso de Imagens de Microscopia';
         }
 
+        function isCakeContest() {
+            return selectedInput.value === 'Concurso de Bolos';
+        }
+
         function applyContestConfig(contest) {
             const config = contestConfigs[contest] || contestConfigs['Minha Tese em 3 Minutos'];
             selectedInput.value = contest;
@@ -668,20 +710,40 @@
             contestFileLabel.textContent = config.fileLabel;
             contestFileHint.textContent = config.fileHint;
             contestFileInput.accept = config.accept;
+            contestFileInput.required = !config.noFile;
+            contestFileInput.closest('div').parentElement.style.display = config.noFile ? 'none' : 'block';
             contestFileInput.value = '';
             titleInput.previousElementSibling.textContent = config.titleLabel;
             titleInput.placeholder = config.titlePlaceholder;
             const showImageFields = contest === 'Concurso de Imagens de Microscopia';
+            const showCakeFields = contest === 'Concurso de Bolos';
             imageCategoryWrap.classList.toggle('visible', showImageFields);
             imageCaptionWrap.classList.toggle('visible', showImageFields);
             imageTermsWrap.classList.toggle('visible', showImageFields);
+            cakeNameWrap.classList.toggle('visible', showCakeFields);
+            cakeIngredientsWrap.classList.toggle('visible', showCakeFields);
+            cakeAllergensWrap.classList.toggle('visible', showCakeFields);
+            cakeResponsibleWrap.classList.toggle('visible', showCakeFields);
             imageCategoryInput.required = showImageFields;
             imageCaptionInput.required = showImageFields;
             imageTermsInput.required = showImageFields;
+            cakeNameInput.required = showCakeFields;
+            cakeIngredientsInput.required = showCakeFields;
+            cakeAllergensInput.required = showCakeFields;
+            cakeResponsibleInput.required = showCakeFields;
             if (!showImageFields) {
                 imageCategoryInput.value = '';
                 imageCaptionInput.value = '';
                 imageTermsInput.checked = false;
+            }
+            if (!showCakeFields) {
+                cakeNameInput.value = '';
+                cakeIngredientsInput.value = '';
+                cakeAllergensInput.value = '';
+                cakeResponsibleInput.value = '';
+            }
+            if (showCakeFields && originInput.value !== 'Inscrito SIMOL') {
+                setParticipantMode('inscrito');
             }
             messageBox.className = 'contest-message';
             messageBox.textContent = '';
@@ -772,18 +834,44 @@
                     return;
                 }
             }
-            if (!contestFileInput.files.length) {
+            if (isCakeContest()) {
+                if (originInput.value !== 'Inscrito SIMOL') {
+                    showMessage('O Concurso de Bolos é exclusivo para participantes vinculados ao evento. Busque seus dados pelo CPF antes de enviar.', 'error');
+                    return;
+                }
+                if (!titleInput.value.trim()) {
+                    showMessage('Informe o participante ou grupo responsável.', 'error');
+                    return;
+                }
+                if (!cakeNameInput.value.trim()) {
+                    showMessage('Informe o nome criativo do bolo.', 'error');
+                    return;
+                }
+                if (!cakeIngredientsInput.value.trim()) {
+                    showMessage('Informe a lista completa de ingredientes.', 'error');
+                    return;
+                }
+                if (!cakeAllergensInput.value.trim()) {
+                    showMessage('Informe as restrições alimentares e possíveis alergênicos.', 'error');
+                    return;
+                }
+                if (!cakeResponsibleInput.value.trim()) {
+                    showMessage('Informe o responsável pela entrega, identificação e retirada dos materiais.', 'error');
+                    return;
+                }
+            }
+            if (!isCakeContest() && !contestFileInput.files.length) {
                 showMessage(isImageContest() ? 'Envie a imagem de microscopia.' : 'Envie o vídeo da sua apresentação.', 'error');
                 return;
             }
             const contestFile = contestFileInput.files[0];
-            const fileName = contestFile.name || '';
-            const validImageFile = /^image\/(jpeg|tiff)$/i.test(contestFile.type || '') || /\.(jpe?g|tiff?)$/i.test(fileName);
+            const fileName = contestFile ? contestFile.name || '' : '';
+            const validImageFile = /^image\/(jpeg|tiff)$/i.test(contestFile ? contestFile.type || '' : '') || /\.(jpe?g|tiff?)$/i.test(fileName);
             if (isImageContest() && !validImageFile) {
                 showMessage('Envie uma imagem em JPEG ou TIFF.', 'error');
                 return;
             }
-            if (!isImageContest() && (!contestFile.type || !contestFile.type.startsWith('video/'))) {
+            if (!isImageContest() && !isCakeContest() && (!contestFile.type || !contestFile.type.startsWith('video/'))) {
                 showMessage('Envie um arquivo de vídeo válido.', 'error');
                 return;
             }
@@ -794,7 +882,7 @@
             messageBox.className = 'contest-message';
             messageBox.textContent = '';
 
-            readFileAsBase64(contestFile).then(base64File => {
+            Promise.resolve(isCakeContest() ? '' : readFileAsBase64(contestFile)).then(base64File => {
                 const formData = new URLSearchParams();
                 formData.append('action', 'inscreverConcurso');
                 formData.append('concurso', selectedInput.value);
@@ -809,8 +897,12 @@
                 formData.append('categoria_imagem', imageCategoryInput.value);
                 formData.append('legenda_imagem', imageCaptionInput.value.trim());
                 formData.append('termo_cessao', imageTermsInput.checked ? 'Sim' : '');
-                formData.append('filename', contestFile.name);
-                formData.append('mimeType', contestFile.type);
+                formData.append('nome_bolo', cakeNameInput.value.trim());
+                formData.append('ingredientes_bolo', cakeIngredientsInput.value.trim());
+                formData.append('alergenicos_bolo', cakeAllergensInput.value.trim());
+                formData.append('responsavel_bolo', cakeResponsibleInput.value.trim());
+                formData.append('filename', contestFile ? contestFile.name : '');
+                formData.append('mimeType', contestFile ? contestFile.type : '');
                 formData.append('fileData', base64File);
 
                 return fetch(CONTEST_SCRIPT_URL, {
