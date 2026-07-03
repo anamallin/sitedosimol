@@ -146,6 +146,9 @@
         const type = urlParams.get('type');
 
         const scriptURL = 'https://script.google.com/macros/s/AKfycbyWcq3wuzz5RjTBiSQhC0cvsAqjGYZJSie1OQ38K09fEt7-bm8-bcxWVc0pCxQ8oFpqWQ/exec';
+        const INSCRICOES_SIMOL_FECHAMENTO_TS = Date.parse('2026-07-04T02:59:00.000Z');
+        const INSCRICOES_SIMOL_ENCERRADAS_MESSAGE = 'As inscrições do SIMOL foram encerradas em 03/07/2026 às 23:59. Os concursos permanecem abertos conforme seus editais.';
+        const isInscricoesSimolEncerradas = () => Date.now() >= INSCRICOES_SIMOL_FECHAMENTO_TS;
 
         document.getElementById('total-value').innerText = parseFloat(value).toFixed(2).replace('.', ',');
         document.getElementById('course-count').innerText = count;
@@ -156,15 +159,24 @@
         const fileNameDisplay = document.getElementById('file-name');
         const uploadBtn = document.getElementById('upload-btn');
 
+        if (isInscricoesSimolEncerradas()) {
+            alert(INSCRICOES_SIMOL_ENCERRADAS_MESSAGE);
+        }
+
         fileInput.addEventListener('change', function(e) {
             if (this.files && this.files[0]) {
                 fileNameDisplay.innerText = "Arquivo: " + this.files[0].name;
-                uploadBtn.disabled = false;
+                uploadBtn.disabled = isInscricoesSimolEncerradas();
             }
         });
 
         // Lógica de Upload
         uploadBtn.addEventListener('click', function() {
+            if (isInscricoesSimolEncerradas()) {
+                alert(INSCRICOES_SIMOL_ENCERRADAS_MESSAGE);
+                return;
+            }
+
             const file = fileInput.files[0];
             if (!file) return;
 

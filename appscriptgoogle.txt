@@ -13,6 +13,8 @@ const LIMITE_INSCRICOES_NORMAIS_REABERTAS = 260;
 const PROP_INSCRICOES_NORMAIS_REABERTAS_USADAS = 'inscricoes_normais_reabertas_usadas';
 const AREA_INSCRITO_URL = 'https://www.simol2026.com.br/area-inscrito.html';
 const ORGANIZADOR_SECRET_CODE = 'SIMOL_ORG_2026_PREVIEW';
+const INSCRICOES_SIMOL_FECHAMENTO_TS = Date.parse('2026-07-04T02:59:00.000Z'); // 03/07/2026 23:59 em Sao Paulo
+const INSCRICOES_SIMOL_ENCERRADAS_MESSAGE = 'As inscrições do SIMOL foram encerradas em 03/07/2026 às 23:59. Os concursos permanecem abertos conforme seus editais.';
 const VAGAS_MINICURSOS = {
   'Expressão e purificação de Proteínas': 6,
   'Toxicologia Celular': 10,
@@ -41,6 +43,17 @@ const VAGAS_MINICURSOS = {
 
 function getLimiteMinicurso_(curso) {
   return Object.prototype.hasOwnProperty.call(VAGAS_MINICURSOS, curso) ? VAGAS_MINICURSOS[curso] : 10;
+}
+
+function isInscricoesSimolEncerradas_() {
+  return Date.now() >= INSCRICOES_SIMOL_FECHAMENTO_TS;
+}
+
+function inscricoesSimolEncerradasResponse_() {
+  return ContentService.createTextOutput(JSON.stringify({
+    result: 'error',
+    message: INSCRICOES_SIMOL_ENCERRADAS_MESSAGE
+  })).setMimeType(ContentService.MimeType.JSON);
 }
 
 const CRONOGRAMA_MINICURSOS = {
@@ -692,6 +705,8 @@ function doPost(e) {
 
     // ====== 1. INSCRIÇÃO EM MINICURSOS ======
     if (action === 'inscreverMinicursos') {
+      if (isInscricoesSimolEncerradas_()) return inscricoesSimolEncerradasResponse_();
+
       const conflito = verificarConflitosMinicursos_(e.parameter.minicursos);
       if (conflito) {
         const diaNome = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta'][conflito.dia];
@@ -785,6 +800,8 @@ function doPost(e) {
 
     // ====== 1.1. TROCAR MINICURSOS QUANDO ESTIVER NA LISTA DE ESPERA ======
     else if (action === 'atualizarMinicursos') {
+      if (isInscricoesSimolEncerradas_()) return inscricoesSimolEncerradasResponse_();
+
       const conflito = verificarConflitosMinicursos_(e.parameter.minicursos);
       if (conflito) {
         const diaNome = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta'][conflito.dia];
@@ -835,6 +852,8 @@ function doPost(e) {
 
     // ====== 1.2. PRÉVIA DE RANKING SEM GRAVAR NA PLANILHA ======
     else if (action === 'previewRankingMinicursos') {
+      if (isInscricoesSimolEncerradas_()) return inscricoesSimolEncerradasResponse_();
+
       const conflito = verificarConflitosMinicursos_(e.parameter.minicursos);
       if (conflito) {
         const diaNome = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta'][conflito.dia];
@@ -894,7 +913,9 @@ function doPost(e) {
       return ContentService.createTextOutput(JSON.stringify({ 
         result: 'success', 
         vagas: contagem, 
-        limites: VAGAS_MINICURSOS 
+        limites: VAGAS_MINICURSOS,
+        inscricoesAbertas: !isInscricoesSimolEncerradas_(),
+        message: isInscricoesSimolEncerradas_() ? INSCRICOES_SIMOL_ENCERRADAS_MESSAGE : ''
       })).setMimeType(ContentService.MimeType.JSON);
     }
 
@@ -1040,6 +1061,8 @@ function doPost(e) {
 
     // ====== 3. UPLOAD DE COMPROVANTE (MINICURSOS) ======
     else if (action === 'uploadMinicurso') {
+      if (isInscricoesSimolEncerradas_()) return inscricoesSimolEncerradasResponse_();
+
       const folder = DriveApp.getFolderById(FOLDER_ID_MINICURSOS);
       const fileData = Utilities.base64Decode(e.parameter.fileData);
       const blob = Utilities.newBlob(fileData, e.parameter.mimeType, "MINICURSO - " + e.parameter.nome + " - " + e.parameter.filename);
@@ -1069,6 +1092,8 @@ function doPost(e) {
 
     // ====== 4. UPLOAD DE COMPROVANTE (Inscrição Normal) ======
     else if (action === 'upload') {
+      if (isInscricoesSimolEncerradas_()) return inscricoesSimolEncerradasResponse_();
+
       const sheet = doc.getSheetByName(sheetName);
       const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0].map(h => h.toString().toLowerCase().trim());
       const data = sheet.getDataRange().getValues();
@@ -1246,10 +1271,12 @@ function doPost(e) {
           if (cpfSheet === cpfBusca) { encontrado = true; break; }
         }
       }
+      const inscricoesEncerradas = isInscricoesSimolEncerradas_();
       return ContentService.createTextOutput(JSON.stringify({
         encontrado: encontrado,
-        inscricoesAbertas: isInscricaoNormalReabertaDisponivel_(),
-        vagasRestantes: getVagasInscricoesNormaisReabertasRestantes_()
+        inscricoesAbertas: !inscricoesEncerradas && isInscricaoNormalReabertaDisponivel_(),
+        vagasRestantes: inscricoesEncerradas ? 0 : getVagasInscricoesNormaisReabertasRestantes_(),
+        message: inscricoesEncerradas ? INSCRICOES_SIMOL_ENCERRADAS_MESSAGE : ''
       })).setMimeType(ContentService.MimeType.JSON);
     }
 

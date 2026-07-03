@@ -1,4 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
+    const INSCRICOES_SIMOL_FECHAMENTO_TS = Date.parse('2026-07-04T02:59:00.000Z');
+    const INSCRICOES_SIMOL_ENCERRADAS_MESSAGE = 'As inscrições do SIMOL foram encerradas em 03/07/2026 às 23:59. Os concursos permanecem abertos conforme seus editais.';
+    const isInscricoesSimolEncerradas = () => Date.now() >= INSCRICOES_SIMOL_FECHAMENTO_TS;
+
     // Background Parallax Effect
     const parallaxLayers = document.querySelectorAll('.parallax-layer');
 
@@ -114,8 +118,18 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Ao submeter o formulário, mostra o modal de aviso primeiro
+        if (isInscricoesSimolEncerradas()) {
+            submitBtn.disabled = true;
+            showMessage(INSCRICOES_SIMOL_ENCERRADAS_MESSAGE, 'error');
+        }
+
         form.addEventListener('submit', e => {
             e.preventDefault();
+
+            if (isInscricoesSimolEncerradas()) {
+                showMessage(INSCRICOES_SIMOL_ENCERRADAS_MESSAGE, 'error');
+                return;
+            }
 
             if (scriptURL === 'COLE_SEU_LINK_AQUI') {
                 showMessage('Erro: O link do Google Sheets ainda não foi configurado pelo administrador.', 'error');
@@ -183,7 +197,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             confirmBtnText.textContent = 'Entendi, prosseguir para pagamento';
                         } else if (result.inscricoesAbertas === false) {
                             avisoPagamentoModal.style.display = 'none';
-                            showMessage(SOLD_OUT_MESSAGE, 'error');
+                            showMessage(result.message || SOLD_OUT_MESSAGE, 'error');
                             confirmPagamentoBtn.disabled = false;
                             confirmSpinner.style.display = 'none';
                             confirmBtnText.textContent = 'Entendi, prosseguir para pagamento';
@@ -286,6 +300,10 @@ document.addEventListener('DOMContentLoaded', () => {
             showUploadMessage('Nao encontrei os dados da inscricao neste aparelho. Volte ao formulario de inscricao e preencha novamente antes de enviar o comprovante.', 'error');
         }
 
+        if (isInscricoesSimolEncerradas()) {
+            showUploadMessage(INSCRICOES_SIMOL_ENCERRADAS_MESSAGE, 'error');
+        }
+
         // Abrir seletor ao clicar
         dropArea.addEventListener('click', () => fileInput.click());
 
@@ -321,12 +339,17 @@ document.addEventListener('DOMContentLoaded', () => {
             if (files.length > 0) {
                 selectedFile = files[0];
                 fileNameDisplay.textContent = 'Arquivo selecionado: ' + selectedFile.name;
-                uploadBtn.disabled = false; // Habilitar botão
+                uploadBtn.disabled = isInscricoesSimolEncerradas();
             }
         }
 
         uploadForm.addEventListener('submit', e => {
             e.preventDefault();
+
+            if (isInscricoesSimolEncerradas()) {
+                showUploadMessage(INSCRICOES_SIMOL_ENCERRADAS_MESSAGE, 'error');
+                return;
+            }
 
             if (uploadScriptURL === 'COLE_SEU_LINK_AQUI') {
                 showUploadMessage('Erro: O link do Google Sheets ainda não foi configurado pelo administrador.', 'error');

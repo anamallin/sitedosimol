@@ -401,6 +401,9 @@
         const scriptURL = 'https://script.google.com/macros/s/AKfycbyWcq3wuzz5RjTBiSQhC0cvsAqjGYZJSie1OQ38K09fEt7-bm8-bcxWVc0pCxQ8oFpqWQ/exec';
         const pageParams = new URLSearchParams(window.location.search);
         const isChangeMode = pageParams.get('troca') === '1';
+        const INSCRICOES_SIMOL_FECHAMENTO_TS = Date.parse('2026-07-04T02:59:00.000Z');
+        const INSCRICOES_SIMOL_ENCERRADAS_MESSAGE = 'As inscrições do SIMOL foram encerradas em 03/07/2026 às 23:59. Os concursos permanecem abertos conforme seus editais.';
+        const isInscricoesSimolEncerradas = () => Date.now() >= INSCRICOES_SIMOL_FECHAMENTO_TS;
 
         const courses = [
             { id: 1, dept: 'BIOCEL', ppgLabel: 'PPG em Biologia Celular e Molecular', title: 'Expressão e purificação de Proteínas', days: [1, 2, 3], period: 'morning', limit: 6, format: 'Presencial', instructors: 'Milena Biguetti dos Santos; Zelinda Schemczssen', syllabus: 'Introdução às proteínas recombinantes, clonagem molecular, vetores de expressão, sistemas de expressão, purificação cromatográfica e análise de qualidade proteica, com atividades práticas de expressão, purificação e SDS-PAGE.' },
@@ -499,6 +502,11 @@
         const realFinishBtn = document.getElementById('real-finish-btn');
 
         finalConfirmBtn.addEventListener('click', () => {
+            if (isInscricoesSimolEncerradas()) {
+                alert(INSCRICOES_SIMOL_ENCERRADAS_MESSAGE);
+                return;
+            }
+
             if (selectedCourses.length === 0) {
                 alert('Por favor, selecione ao menos um minicurso antes de finalizar.');
                 return;
@@ -511,6 +519,12 @@
         }
 
         realFinishBtn.addEventListener('click', () => {
+            if (isInscricoesSimolEncerradas()) {
+                alert(INSCRICOES_SIMOL_ENCERRADAS_MESSAGE);
+                closeConfirmModal();
+                return;
+            }
+
             realFinishBtn.disabled = true;
             realFinishBtn.innerText = 'Calculando posição...';
 
@@ -692,6 +706,11 @@
         externalRegBtn.addEventListener('click', () => toggleForms(false));
 
         function proceedExternal() {
+            if (isInscricoesSimolEncerradas()) {
+                alert(INSCRICOES_SIMOL_ENCERRADAS_MESSAGE);
+                return;
+            }
+
             const nome = document.getElementById('ext-name').value.trim();
             const email = document.getElementById('ext-email').value.trim();
             const cpf = document.getElementById('ext-cpf').value.trim();
@@ -873,6 +892,11 @@
         }
 
         function addCourse(id) {
+            if (isInscricoesSimolEncerradas()) {
+                alert(INSCRICOES_SIMOL_ENCERRADAS_MESSAGE);
+                return;
+            }
+
             const course = courses.find(c => c.id === id);
             if (!course) return;
 
