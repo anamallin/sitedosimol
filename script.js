@@ -959,4 +959,32 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 1700);
     }
 
+    // Lógica das Abas do Cronograma / Programação de Palestras
+    (function setupScheduleTabs() {
+        const tabBtns = document.querySelectorAll('.schedule-tab-btn');
+        const panels = document.querySelectorAll('.schedule-panel');
+        if (tabBtns.length === 0 || panels.length === 0) return;
+
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const target = btn.dataset.target;
+
+                // Desativar botões e abas ativos
+                tabBtns.forEach(b => {
+                    b.classList.remove('active');
+                    b.setAttribute('aria-selected', 'false');
+                });
+                panels.forEach(p => p.classList.remove('active'));
+
+                // Ativar o botão clicado e painel correspondente
+                btn.classList.add('active');
+                btn.setAttribute('aria-selected', 'true');
+                const activePanel = document.getElementById(target);
+                if (activePanel) {
+                    activePanel.classList.add('active');
+                }
+            });
+        });
+    })();
+
 });
