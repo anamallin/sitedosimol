@@ -937,7 +937,17 @@ function criarHtmlComprovanteMinicurso_(participante, ranking, detalhes, logoDat
     '</div></body></html>';
 }
 
-function gerarPdfsComprovantesMinicursos() {
+function getNomesArquivosDaPasta_(folder) {
+  const nomes = {};
+  const files = folder.getFiles();
+  while (files.hasNext()) {
+    nomes[files.next().getName()] = true;
+  }
+  return nomes;
+}
+
+function gerarPdfsComprovantesMinicursos(options) {
+  options = options || {};
   const spreadsheetId = scriptProp.getProperty('key') || SpreadsheetApp.getActiveSpreadsheet().getId();
   const doc = SpreadsheetApp.openById(spreadsheetId);
   const sheetPrincipal = doc.getSheetByName(sheetName);
@@ -946,29 +956,39 @@ function gerarPdfsComprovantesMinicursos() {
   const ranking = calcularRankingMinicursos_(sheetPrincipal, sheetMinicursos);
   const dataGeracao = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd HH-mm');
   const baseFolder = DriveApp.getFolderById(FOLDER_ID_MINICURSOS);
-  const parentFolder = baseFolder.createFolder('Comprovantes minicursos SIMOL - ' + dataGeracao);
+  const parentFolder = options.folderId ? DriveApp.getFolderById(options.folderId) : baseFolder.createFolder('Comprovantes minicursos SIMOL - ' + dataGeracao);
+  const maxPdfs = Math.max(1, parseInt(options.maxPdfs || '25', 10) || 25);
   const logoDataUri = getLogoSimolDataUri_();
   const resultado = {
     result: 'success',
     folderUrl: parentFolder.getUrl(),
     folderId: parentFolder.getId(),
     totalPdfs: 0,
+    puladosExistentes: 0,
+    pendentes: 0,
+    finalizado: true,
     cursos: []
   };
 
-  Object.keys(ranking.cursos || {}).sort().forEach(function(curso) {
+  const cursosOrdenados = Object.keys(ranking.cursos || {}).sort();
+  for (var c = 0; c < cursosOrdenados.length; c++) {
+    const curso = cursosOrdenados[c];
     const inscritos = ranking.cursos[curso] || [];
     const limite = getLimiteMinicurso_(curso);
     const classificados = limite === null ? inscritos : inscritos.slice(0, limite);
     const detalhes = getDetalhesMinicurso_(curso);
     const cursoFolder = getOuCriarSubpasta_(parentFolder, normalizarNomeArquivo_(curso).substring(0, 99));
+    const arquivosExistentes = getNomesArquivosDaPasta_(cursoFolder);
     const cursoResultado = {
       curso: curso,
       folderUrl: cursoFolder.getUrl(),
-      totalPdfs: 0
+      totalPdfs: 0,
+      puladosExistentes: 0,
+      pendentes: 0
     };
 
-    classificados.forEach(function(item, index) {
+    for (var index = 0; index < classificados.length; index++) {
+      const item = classificados[index];
       const rankingItem = {
         posicao: index + 1,
         inscritos: inscritos.length
@@ -977,24 +997,47 @@ function gerarPdfsComprovantesMinicursos() {
         nome: item.nome || 'Participante',
         cpf: item.cpf || ''
       };
+      const nomePdf = normalizarNomeArquivo_(
+        'Comprovante - ' + curso + ' - ' + participante.nome + ' - ' + normalizarCpf_(participante.cpf)
+      ) + '.pdf';
+
+      if (arquivosExistentes[nomePdf]) {
+        cursoResultado.puladosExistentes++;
+        resultado.puladosExistentes++;
+        continue;
+      }
+
+      if (resultado.totalPdfs >= maxPdfs) {
+        cursoResultado.pendentes++;
+        resultado.pendentes++;
+        resultado.finalizado = false;
+        continue;
+      }
+
       const html = criarHtmlComprovanteMinicurso_(participante, rankingItem, detalhes, logoDataUri);
       const blob = Utilities.newBlob(html, 'text/html', 'comprovante.html')
         .getAs(MimeType.PDF)
-        .setName(
-          normalizarNomeArquivo_(
-            'Comprovante - ' + curso + ' - ' + participante.nome + ' - ' + normalizarCpf_(participante.cpf)
-          ) + '.pdf'
-        );
+        .setName(nomePdf);
       cursoFolder.createFile(blob);
+      arquivosExistentes[nomePdf] = true;
       cursoResultado.totalPdfs++;
       resultado.totalPdfs++;
-    });
+    }
 
     resultado.cursos.push(cursoResultado);
-  });
+  }
+
+  if (!resultado.finalizado) {
+    resultado.message = 'Ainda ha PDFs pendentes. Execute novamente com o mesmo folderId para continuar.';
+  }
 
   console.log(JSON.stringify(resultado));
   return resultado;
+}
+
+function dispararEmailsEntradaVagasFarmacogenetica() {
+  // Compatibilidade com o seletor antigo do Apps Script: agora isso só gera PDFs.
+  return gerarPdfsComprovantesMinicursos();
 }
 
 function isInscricaoLiberada_(params) {
@@ -1113,11 +1156,13 @@ function doGet(e) {
 function doPost(e) {
   const lock = LockService.getScriptLock();
   let lockAcquired = false;
+  const action = e.parameter.action;
 
   try {
-    lock.waitLock(30000);
-    lockAcquired = true;
-    const action = e.parameter.action;
+    if (action !== 'gerarPdfsComprovantesMinicursos') {
+      lock.waitLock(30000);
+      lockAcquired = true;
+    }
     const spreadsheetId = scriptProp.getProperty('key') || SpreadsheetApp.getActiveSpreadsheet().getId();
     const doc = SpreadsheetApp.openById(spreadsheetId);
 
@@ -1732,7 +1777,10 @@ function doPost(e) {
       }
 
       return ContentService.createTextOutput(JSON.stringify(
-        gerarPdfsComprovantesMinicursos()
+        gerarPdfsComprovantesMinicursos({
+          folderId: (e.parameter.folderId || '').toString().trim(),
+          maxPdfs: e.parameter.maxPdfs || 25
+        })
       )).setMimeType(ContentService.MimeType.JSON);
     }
 
@@ -2188,4 +2236,1971 @@ function doPost(e) {
   } finally {
     if (lockAcquired) lock.releaseLock();
   }
+}
+
+// ====== ENVIO DE COMPROVANTES DE MINICURSO PELA BREVO ======
+//
+// Cole este bloco no final do seu Apps Script, substituindo a versão anterior
+// de envio de comprovantes.
+//
+// PRÉ-REQUISITO:
+// Nas Propriedades do script, deve existir:
+//   BREVO_API_KEY = sua chave de API da Brevo (começa com xkeysib-)
+//
+// REMETENTE CONFIGURADO:
+//   SIMOL 2026 <inscricoes@simol2026.com.br>
+//
+// RESPOSTAS:
+//   simol.simposiointegrado@gmail.com
+//
+// COMO USAR:
+//
+// 1. Simular sem enviar e sem alterar o registro:
+//    testarEnvioComprovantes();
+//
+// 2. Enviar normalmente, usando a pasta de comprovantes mais recente:
+//    enviarComprovantesMinicursosPorEmail();
+//
+// 3. Enviar usando uma pasta raiz específica:
+//    enviarComprovantesMinicursosPorEmail({
+//      folderId: 'ID_DA_PASTA_RAIZ'
+//    });
+//
+// 4. Limitar a execução a uma quantidade menor:
+//    enviarComprovantesMinicursosPorEmail({
+//      maxEmails: 40
+//    });
+//
+// 5. Reenviar somente um PDF específico:
+//    enviarComprovantesMinicursosPorEmail({
+//      folderId: 'ID_DA_PASTA_RAIZ',
+//      fileId: 'ID_DO_ARQUIVO_PDF',
+//      forcarReenvio: true,
+//      maxEmails: 1
+//    });
+//
+// IMPORTANTE:
+// - O padrão é enviar no máximo 50 e-mails por execução.
+// - Execute novamente para continuar; os já enviados são ignorados.
+// - Os 56 endereços informados como já enviados pelo Gmail/MailApp estão
+//   incluídos abaixo e serão pulados automaticamente.
+// - Não use forcarReenvio: true em um envio geral.
+// - Este código mantém a mesma propriedade comprovantes_enviados_v1 da versão
+//   anterior, preservando o registro dos PDFs já enviados.
+//
+// ESTRUTURA ESPERADA:
+//
+// Pasta raiz da geração
+// ├── Nome do minicurso 1
+// │   ├── comprovante1.pdf
+// │   └── comprovante2.pdf
+// └── Nome do minicurso 2
+//     └── comprovante3.pdf
+//
+// DEPENDÊNCIAS JÁ EXISTENTES NO PROJETO:
+//
+// ID_PLANILHA_MINICURSOS
+// FOLDER_ID_MINICURSOS
+// AREA_INSCRITO_URL
+// escapeHtml_()
+// normalizarCpf_()
+// normalizarTexto_()
+// isEmailValido_()
+// parseListaMinicursos_()
+
+
+// ─────────────────────────────────────────────────────────────────────────────
+// CONFIGURAÇÃO BREVO
+// ─────────────────────────────────────────────────────────────────────────────
+
+var BREVO_API_URL_COMPROVANTES = 'https://api.brevo.com/v3/smtp/email';
+var BREVO_REMETENTE_NOME_COMPROVANTES = 'SIMOL 2026';
+var BREVO_REMETENTE_EMAIL_COMPROVANTES = 'inscricoes@simol2026.com.br';
+var BREVO_REPLY_TO_NOME_COMPROVANTES = 'SIMOL 2026';
+var BREVO_REPLY_TO_EMAIL_COMPROVANTES = 'simol.simposiointegrado@gmail.com';
+
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 56 E-MAILS JÁ ENVIADOS PELO SIMOL FORA DA BREVO
+// ─────────────────────────────────────────────────────────────────────────────
+//
+// Esses endereços serão pulados mesmo que o PDF ainda não esteja registrado
+// em comprovantes_enviados_v1. Ao encontrá-los em uma execução real, o código
+// também registra o respectivo PDF como enviado, evitando tentativas futuras.
+
+var EMAILS_JA_ENVIADOS_MANUALMENTE_SIMOL = [
+  "cesarwkp@gmail.com",
+  "marinasiqueiralima@gmail.com",
+  "rufinoanaclaragoes@gmail.com",
+  "thaynaralara51@gmail.com",
+  "sabinabeganovic@ufpr.br",
+  "analuisamenoncin@gmail.com",
+  "contatomaitemeira@gmail.com",
+  "fefeinfante@gmail.com",
+  "gabrielromeiro@ufpr.br",
+  "annabeatriz_torres@hotmail.com",
+  "mrsmih09@gmail.com",
+  "kathlny91@gmail.com",
+  "henrique.gabardo@ufpr.br",
+  "slompluis@gmail.com",
+  "manolthales4@gmail.com",
+  "emanuellevitoria4674@gmail.com",
+  "leiteseboldanakarolina@gmail.com",
+  "pedro.vergne@ufpr.br",
+  "eve.custodio12@gmail.com",
+  "juliaaquinio@ufpr.br",
+  "jorgedesouzafranciscojr@outlook.com",
+  "debora.rohrsetzer@gmail.com",
+  "isabelafdc1213@gmail.com",
+  "daniellesenabm@gmail.com",
+  "giovanna.smaia@outlook.com",
+  "joaogabrielfacl@gmail.com",
+  "juhselzelin@gmail.com",
+  "d.rafaeladias@gmail.com",
+  "giovananolli@hotmail.com",
+  "kellykarolineks@gmail.com",
+  "ana.gbcs@gmail.com",
+  "marceloengelferreiram@gmail.com",
+  "munizcarolina14@gmail.com",
+  "quezia.geromel@uel.br",
+  "jujusmartins2004@gmail.com",
+  "cjeancarlos051@gmail.com",
+  "wizenffatgabriela@gmail.com",
+  "junior2010@ufpr.br",
+  "felipesouzaschelb@outlook.com",
+  "adrieerie@gmail.com",
+  "valeriaribeirosilva1@outlook.com",
+  "micaela.gluck.galvao@gmail.com",
+  "lucasbernardoph@gmail.com",
+  "milena1310@outlook.com",
+  "veronicakribeiro@gmail.com",
+  "cynthiabonfimdossantos@gmail.com",
+  "laissamendes1134@gmail.com",
+  "natasha2803mikaela@gmail.com",
+  "isabele.andrioli@gmail.com",
+  "cancellierleticia@gmail.com",
+  "marindanisilva@hotmail.com",
+  "angela.felippi@ufpr.br",
+  "gabi.beckergama.1010@gmail.com",
+  "dudapesenti2053@gmail.com",
+  "lucianahugue@yahoo.com.br",
+  "mallin@ufpr.br"
+];
+
+
+/**
+ * Normaliza um endereço de e-mail para comparações.
+ *
+ * @param {string} email
+ * @return {string}
+ */
+function normalizarEmailComprovante_(email) {
+  return String(email || '').trim().toLowerCase();
+}
+
+
+/**
+ * Retorna um mapa dos e-mails já enviados fora da Brevo.
+ *
+ * @return {Object}
+ */
+function getMapaEmailsJaEnviadosManualmente_() {
+  var mapa = {};
+
+  EMAILS_JA_ENVIADOS_MANUALMENTE_SIMOL.forEach(function(email) {
+    var normalizado = normalizarEmailComprovante_(email);
+
+    if (normalizado) {
+      mapa[normalizado] = true;
+    }
+  });
+
+  return mapa;
+}
+
+
+/**
+ * Lê a chave de API da Brevo nas Propriedades do script.
+ *
+ * @return {string}
+ */
+function getBrevoApiKeyComprovantes_() {
+  var apiKey = PropertiesService
+    .getScriptProperties()
+    .getProperty('BREVO_API_KEY');
+
+  apiKey = String(apiKey || '').trim();
+
+  if (!apiKey) {
+    throw new Error(
+      'A propriedade BREVO_API_KEY não foi encontrada nas Propriedades do script.'
+    );
+  }
+
+  if (apiKey.indexOf('xsmtpsib-') === 0) {
+    throw new Error(
+      'BREVO_API_KEY contém uma chave SMTP. Use uma chave de API que começa com xkeysib-.'
+    );
+  }
+
+  return apiKey;
+}
+
+
+/**
+ * Monta o HTML do e-mail de confirmação.
+ *
+ * Data verificada: 20 a 24 de julho de 2026.
+ * Local: SEPT/UFPR, Rua Dr. Alcides Vieira Arcoverde, 1225.
+ *
+ * @param {string} nome
+ * @param {string} nomeMinicurso
+ * @return {string}
+ */
+function criarHtmlEmailComprovante_(nome, nomeMinicurso) {
+  var nomeEscapado = escapeHtml_(nome);
+  var minicursoEscapado = escapeHtml_(nomeMinicurso);
+  var areaInscritoUrlEscapada = escapeHtml_(AREA_INSCRITO_URL);
+
+  return '<!DOCTYPE html>' +
+    '<html lang="pt-BR">' +
+    '<head>' +
+    '<meta charset="UTF-8">' +
+    '<meta name="viewport" content="width=device-width, initial-scale=1.0">' +
+    '<style>' +
+    'body{margin:0;padding:0;background:#ede9fe;font-family:Arial,Helvetica,sans-serif;}' +
+    '.wrapper{max-width:600px;margin:32px auto;background:#ffffff;border-radius:14px;overflow:hidden;box-shadow:0 4px 24px rgba(109,40,217,.18);}' +
+    '.header{background:#5b21b6;padding:36px 40px 28px;text-align:center;}' +
+    '.logo{font-size:30px;font-weight:800;color:#ffffff;letter-spacing:.08em;margin-bottom:16px;}' +
+    '.header h1{margin:12px 0 4px;color:#fff;font-size:22px;letter-spacing:.03em;}' +
+    '.header p{margin:0;color:#ddd6fe;font-size:13px;}' +
+    '.badge{display:inline-block;background:#7c3aed;border:2px solid #c4b5fd;color:#fff;font-size:13px;font-weight:700;padding:6px 18px;border-radius:20px;margin:20px 0 0;letter-spacing:.04em;text-transform:uppercase;}' +
+    '.body{padding:36px 40px;}' +
+    '.body p{font-size:15px;color:#2c3e50;line-height:1.7;margin:0 0 16px;}' +
+    '.course-box{background:#f5f3ff;border-left:5px solid #6d28d9;border-radius:6px;padding:18px 22px;margin:24px 0;font-size:16px;color:#4c1d95;font-weight:700;line-height:1.5;}' +
+    '.course-box .label{font-size:11px;font-weight:400;color:#7c3aed;text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:6px;}' +
+    '.highlight{color:#5b21b6;font-weight:700;}' +
+    '.info-box{background:#f5f3ff;border-radius:8px;padding:16px 20px;margin:20px 0;font-size:13px;color:#4c1d95;line-height:1.6;border:1px solid #ddd6fe;}' +
+    '.info-box strong{color:#3b0764;}' +
+    '.btn{display:inline-block;background:#6d28d9;color:#fff!important;font-size:14px;font-weight:700;text-decoration:none;padding:13px 30px;border-radius:8px;margin-top:8px;letter-spacing:.02em;}' +
+    '.footer{background:#ede9fe;padding:20px 40px;text-align:center;font-size:12px;color:#7c3aed;border-top:1px solid #ddd6fe;}' +
+    '.footer a{color:#5b21b6;text-decoration:none;}' +
+    '@media only screen and (max-width:620px){.wrapper{margin:0;border-radius:0}.header,.body,.footer{padding-left:22px;padding-right:22px}}' +
+    '</style>' +
+    '</head>' +
+    '<body>' +
+    '<div class="wrapper">' +
+
+    '<div class="header">' +
+    '<div class="logo">SIMOL</div>' +
+    '<h1>Comprovante de Inscrição em Minicurso</h1>' +
+    '<p>I Simpósio Integrado de Genética, Biologia Celular e Bioquímica – UFPR · SIMOL 2026</p>' +
+    '<span class="badge">✅ Inscrição Confirmada</span>' +
+    '</div>' +
+
+    '<div class="body">' +
+    '<p>Olá, <span class="highlight">' + nomeEscapado + '</span>!</p>' +
+    '<p>Ficamos felizes em informar que sua inscrição no minicurso abaixo foi <strong>confirmada com sucesso</strong>. 🎉</p>' +
+
+    '<div class="course-box">' +
+    '<span class="label">Minicurso</span>' +
+    minicursoEscapado +
+    '</div>' +
+
+    '<p>Em anexo, você encontra o seu <strong>comprovante oficial de inscrição</strong> em PDF. Guarde-o para apresentar caso seja solicitado durante o evento.</p>' +
+
+    '<div class="info-box">' +
+    '<strong>📅 Data do evento</strong><br>' +
+    '20 a 24 de julho de 2026<br><br>' +
+    '<strong>📍 Local</strong><br>' +
+    'SEPT – Setor de Educação Profissional e Tecnológica da UFPR<br>' +
+    'Rua Dr. Alcides Vieira Arcoverde, 1225 – Jardim das Américas<br>' +
+    'Curitiba/PR – CEP 81520-260' +
+    '</div>' +
+
+    '<p>Acesse a Área do Inscrito para acompanhar sua situação e conferir informações do evento:</p>' +
+    '<a class="btn" href="' + areaInscritoUrlEscapada + '">Acessar Área do Inscrito</a>' +
+
+    '<p style="margin-top:28px;">Qualquer dúvida, responda a este e-mail ou entre em contato pelo endereço ' +
+    '<a href="mailto:simol.simposiointegrado@gmail.com">simol.simposiointegrado@gmail.com</a> ' +
+    'e pelas redes sociais <strong>@simol.ufpr</strong>.</p>' +
+
+    '<p>Até breve no SIMOL! 🧬</p>' +
+    '<p style="margin-top:24px;">Atenciosamente,<br><strong>Comissão Organizadora I SIMOL 2026</strong></p>' +
+    '</div>' +
+
+    '<div class="footer">' +
+    'Mensagem enviada automaticamente pelo SIMOL 2026.<br>' +
+    '<a href="mailto:simol.simposiointegrado@gmail.com">simol.simposiointegrado@gmail.com</a> · ' +
+    '<a href="https://www.simol2026.com.br">simol2026.com.br</a>' +
+    '</div>' +
+
+    '</div>' +
+    '</body>' +
+    '</html>';
+}
+
+
+/**
+ * Envia uma mensagem pela API transacional da Brevo.
+ *
+ * @param {Object} dados
+ * @param {string} dados.email
+ * @param {string} dados.nome
+ * @param {string} dados.assunto
+ * @param {string} dados.html
+ * @param {string} dados.texto
+ * @param {GoogleAppsScript.Base.Blob} dados.pdfBlob
+ * @param {string} dados.nomeArquivo
+ * @return {Object}
+ */
+function enviarEmailBrevoComprovante_(dados) {
+  var apiKey = getBrevoApiKeyComprovantes_();
+
+  var payload = {
+    sender: {
+      name: BREVO_REMETENTE_NOME_COMPROVANTES,
+      email: BREVO_REMETENTE_EMAIL_COMPROVANTES
+    },
+    to: [
+      {
+        email: dados.email,
+        name: dados.nome
+      }
+    ],
+    replyTo: {
+      name: BREVO_REPLY_TO_NOME_COMPROVANTES,
+      email: BREVO_REPLY_TO_EMAIL_COMPROVANTES
+    },
+    subject: dados.assunto,
+    htmlContent: dados.html,
+    textContent: dados.texto,
+    attachment: [
+      {
+        content: Utilities.base64Encode(dados.pdfBlob.getBytes()),
+        name: dados.nomeArquivo
+      }
+    ]
+  };
+
+  var resposta = UrlFetchApp.fetch(
+    BREVO_API_URL_COMPROVANTES,
+    {
+      method: 'post',
+      contentType: 'application/json',
+      headers: {
+        'api-key': apiKey,
+        'accept': 'application/json'
+      },
+      payload: JSON.stringify(payload),
+      muteHttpExceptions: true
+    }
+  );
+
+  var codigo = resposta.getResponseCode();
+  var conteudo = resposta.getContentText();
+  var respostaJson = null;
+
+  try {
+    respostaJson = JSON.parse(conteudo || '{}');
+  } catch (erroJson) {
+    respostaJson = null;
+  }
+
+  if (codigo < 200 || codigo >= 300) {
+    var mensagemBrevo = respostaJson && respostaJson.message
+      ? respostaJson.message
+      : conteudo;
+
+    var erro = new Error(
+      'Brevo HTTP ' + codigo + ': ' + mensagemBrevo
+    );
+
+    erro.brevoHttpCode = codigo;
+    erro.brevoResponse = conteudo;
+    throw erro;
+  }
+
+  return {
+    httpCode: codigo,
+    messageId: respostaJson && respostaJson.messageId
+      ? respostaJson.messageId
+      : ''
+  };
+}
+
+
+/**
+ * Envia uma mensagem transacional simples pela Brevo, sem anexos.
+ *
+ * @param {Object} dados
+ * @param {string} dados.email
+ * @param {string} dados.nome
+ * @param {string} dados.assunto
+ * @param {string} dados.html
+ * @param {string} dados.texto
+ * @return {Object}
+ */
+function enviarEmailBrevoSemAnexo_(dados) {
+  var apiKey = getBrevoApiKeyComprovantes_();
+
+  var payload = {
+    sender: {
+      name: BREVO_REMETENTE_NOME_COMPROVANTES,
+      email: BREVO_REMETENTE_EMAIL_COMPROVANTES
+    },
+    to: [
+      {
+        email: dados.email,
+        name: dados.nome
+      }
+    ],
+    replyTo: {
+      name: BREVO_REPLY_TO_NOME_COMPROVANTES,
+      email: BREVO_REPLY_TO_EMAIL_COMPROVANTES
+    },
+    subject: dados.assunto,
+    htmlContent: dados.html,
+    textContent: dados.texto
+  };
+
+  var resposta = UrlFetchApp.fetch(
+    BREVO_API_URL_COMPROVANTES,
+    {
+      method: 'post',
+      contentType: 'application/json',
+      headers: {
+        'api-key': apiKey,
+        'accept': 'application/json'
+      },
+      payload: JSON.stringify(payload),
+      muteHttpExceptions: true
+    }
+  );
+
+  var codigo = resposta.getResponseCode();
+  var conteudo = resposta.getContentText();
+  var respostaJson = null;
+
+  try {
+    respostaJson = JSON.parse(conteudo || '{}');
+  } catch (erroJson) {
+    respostaJson = null;
+  }
+
+  if (codigo < 200 || codigo >= 300) {
+    var mensagemBrevo = respostaJson && respostaJson.message
+      ? respostaJson.message
+      : conteudo;
+
+    var erro = new Error(
+      'Brevo HTTP ' + codigo + ': ' + mensagemBrevo
+    );
+
+    erro.brevoHttpCode = codigo;
+    erro.brevoResponse = conteudo;
+    throw erro;
+  }
+
+  return {
+    httpCode: codigo,
+    messageId: respostaJson && respostaJson.messageId
+      ? respostaJson.messageId
+      : ''
+  };
+}
+
+
+function extrairEmailDeTexto_(texto) {
+  var match = String(texto || '').match(/[^\s<>,;:()]+@[^\s<>,;:()]+\.[^\s<>,;:()]+/);
+  return match ? isEmailValido_(match[0]) : '';
+}
+
+
+function getMapaContatosSubmissoes_(doc) {
+  var contatos = {};
+  var sheetPrincipal = doc.getSheetByName(sheetName);
+
+  if (sheetPrincipal) {
+    var dataPrincipal = sheetPrincipal.getDataRange().getValues();
+
+    if (dataPrincipal.length > 1) {
+      var headersPrincipal = dataPrincipal[0].map(function(h) {
+        return h.toString().toLowerCase().trim();
+      });
+      var cpfCol = headersPrincipal.indexOf('cpf');
+      var nomeCol = headersPrincipal.indexOf('nome');
+      var emailCol = headersPrincipal.indexOf('email');
+
+      if (cpfCol !== -1) {
+        for (var i = 1; i < dataPrincipal.length; i++) {
+          var cpf = normalizarCpf_(dataPrincipal[i][cpfCol]);
+          var email = emailCol !== -1
+            ? isEmailValido_(dataPrincipal[i][emailCol])
+            : '';
+
+          if (cpf && email) {
+            contatos[cpf] = {
+              nome: nomeCol !== -1 ? dataPrincipal[i][nomeCol] : '',
+              email: normalizarEmailComprovante_(email)
+            };
+          }
+        }
+      }
+    }
+  }
+
+  try {
+    var ssMinicursos = SpreadsheetApp.openById(ID_PLANILHA_MINICURSOS);
+    var sheetMinicursos = ssMinicursos.getSheets()[0];
+    var dataMinicursos = sheetMinicursos.getDataRange().getValues();
+
+    for (var j = 1; j < dataMinicursos.length; j++) {
+      var cpfMini = normalizarCpf_(dataMinicursos[j][2]);
+      var emailMini = isEmailValido_(dataMinicursos[j][5]);
+
+      if (cpfMini && emailMini) {
+        contatos[cpfMini] = {
+          nome: dataMinicursos[j][1] || (contatos[cpfMini] && contatos[cpfMini].nome) || '',
+          email: normalizarEmailComprovante_(emailMini)
+        };
+      }
+    }
+  } catch (erroMinicursos) {
+    console.warn(
+      'Nao foi possivel consultar contatos da planilha de minicursos: ' +
+      erroMinicursos.toString()
+    );
+  }
+
+  return contatos;
+}
+
+
+function criarHtmlEmailConfirmacaoSubmissao_(nome, titulo) {
+  var nomeEscapado = escapeHtml_(nome || 'participante');
+  var tituloEscapado = escapeHtml_(titulo || 'trabalho submetido');
+
+  return '<!DOCTYPE html>' +
+    '<html lang="pt-BR">' +
+    '<head>' +
+    '<meta charset="UTF-8">' +
+    '<meta name="viewport" content="width=device-width, initial-scale=1.0">' +
+    '<style>' +
+    'body{margin:0;padding:0;background:#eef2f7;font-family:Arial,Helvetica,sans-serif;}' +
+    '.wrapper{max-width:600px;margin:32px auto;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 4px 22px rgba(30,41,59,.14);}' +
+    '.header{background:#184e77;padding:34px 40px 26px;text-align:center;}' +
+    '.logo{font-size:30px;font-weight:800;color:#ffffff;letter-spacing:.08em;margin-bottom:14px;}' +
+    '.header h1{margin:10px 0 4px;color:#fff;font-size:22px;}' +
+    '.header p{margin:0;color:#dbeafe;font-size:13px;}' +
+    '.badge{display:inline-block;background:#1d7a8c;border:2px solid #a7f3d0;color:#fff;font-size:13px;font-weight:700;padding:6px 18px;border-radius:20px;margin:20px 0 0;text-transform:uppercase;}' +
+    '.body{padding:34px 40px;}' +
+    '.body p{font-size:15px;color:#243447;line-height:1.7;margin:0 0 16px;}' +
+    '.title-box{background:#f0fdfa;border-left:5px solid #0f766e;border-radius:6px;padding:18px 22px;margin:24px 0;font-size:16px;color:#134e4a;font-weight:700;line-height:1.5;}' +
+    '.title-box .label{font-size:11px;font-weight:400;color:#0f766e;text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:6px;}' +
+    '.highlight{color:#0f766e;font-weight:700;}' +
+    '.footer{background:#eef2f7;padding:20px 40px;text-align:center;font-size:12px;color:#475569;border-top:1px solid #dbe3ee;}' +
+    '.footer a{color:#184e77;text-decoration:none;}' +
+    '@media only screen and (max-width:620px){.wrapper{margin:0;border-radius:0}.header,.body,.footer{padding-left:22px;padding-right:22px}}' +
+    '</style>' +
+    '</head>' +
+    '<body>' +
+    '<div class="wrapper">' +
+    '<div class="header">' +
+    '<div class="logo">SIMOL</div>' +
+    '<h1>Submiss&atilde;o recebida</h1>' +
+    '<p>I Simp&oacute;sio Integrado de Gen&eacute;tica, Biologia Celular e Bioqu&iacute;mica - UFPR</p>' +
+    '<span class="badge">Recebemos seu trabalho</span>' +
+    '</div>' +
+    '<div class="body">' +
+    '<p>Ol&aacute;, <span class="highlight">' + nomeEscapado + '</span>!</p>' +
+    '<p>Confirmamos o recebimento da sua submiss&atilde;o para o SIMOL 2026.</p>' +
+    '<div class="title-box">' +
+    '<span class="label">T&iacute;tulo da submiss&atilde;o</span>' +
+    tituloEscapado +
+    '</div>' +
+    '<p>A Comiss&atilde;o Organizadora entrar&aacute; em contato nos pr&oacute;ximos dias com as orienta&ccedil;&otilde;es e informa&ccedil;&otilde;es sobre a avalia&ccedil;&atilde;o.</p>' +
+    '<p>Em caso de d&uacute;vidas, responda a este e-mail ou entre em contato pelo endere&ccedil;o ' +
+    '<a href="mailto:simol.simposiointegrado@gmail.com">simol.simposiointegrado@gmail.com</a>.</p>' +
+    '<p style="margin-top:24px;">Atenciosamente,<br><strong>Comiss&atilde;o Organizadora I SIMOL 2026</strong></p>' +
+    '</div>' +
+    '<div class="footer">' +
+    'Mensagem enviada automaticamente pelo SIMOL 2026.<br>' +
+    '<a href="mailto:simol.simposiointegrado@gmail.com">simol.simposiointegrado@gmail.com</a> | ' +
+    '<a href="https://www.simol2026.com.br">simol2026.com.br</a>' +
+    '</div>' +
+    '</div>' +
+    '</body>' +
+    '</html>';
+}
+
+
+function criarTextoEmailConfirmacaoSubmissao_(nome, titulo) {
+  var nomeDestinatario = (nome || '').toString().trim() || 'participante';
+  var tituloSubmissao = (titulo || '').toString().trim() || 'trabalho submetido';
+
+  return 'Ola, ' + nomeDestinatario + '!\n\n' +
+    'Confirmamos o recebimento da sua submissao para o SIMOL 2026.\n\n' +
+    'Titulo da submissao: ' + tituloSubmissao + '\n\n' +
+    'A Comissao Organizadora entrara em contato nos proximos dias com as orientacoes e informacoes sobre a avaliacao.\n\n' +
+    'Duvidas: simol.simposiointegrado@gmail.com | @simol.ufpr\n\n' +
+    'Atenciosamente,\n' +
+    'Comissao Organizadora I SIMOL 2026';
+}
+
+
+function carregarRegistroEnviosSubmissoes_(scriptProp) {
+  try {
+    return JSON.parse(
+      scriptProp.getProperty('confirmacoes_submissoes_enviadas_v1') || '{}'
+    );
+  } catch (erroJson) {
+    console.warn(
+      'Nao foi possivel interpretar confirmacoes_submissoes_enviadas_v1: ' +
+      erroJson.toString()
+    );
+    return {};
+  }
+}
+
+
+function salvarRegistroEnviosSubmissoes_(scriptProp, enviados) {
+  scriptProp.setProperty(
+    'confirmacoes_submissoes_enviadas_v1',
+    JSON.stringify(enviados || {})
+  );
+}
+
+
+/**
+ * Envia pela Brevo a confirmacao de recebimento para quem ja submeteu resumo.
+ *
+ * Como usar:
+ * 1. testarEnvioConfirmacoesSubmissoes()
+ * 2. enviarConfirmacoesSubmissoesPorEmail({ maxEmails: 300 })
+ *
+ * @param {Object=} options
+ * @return {Object}
+ */
+function enviarConfirmacoesSubmissoesPorEmail(options) {
+  options = options || {};
+
+  var dryRun = options.dryRun === true;
+  var maxEmails = parseInt(options.maxEmails || 300, 10);
+  var forcarReenvio = options.forcarReenvio === true;
+
+  if (isNaN(maxEmails) || maxEmails <= 0) {
+    maxEmails = 300;
+  }
+
+  if (!dryRun) {
+    getBrevoApiKeyComprovantes_();
+  }
+
+  var scriptProp = PropertiesService.getScriptProperties();
+  var spreadsheetId = scriptProp.getProperty('key') ||
+    SpreadsheetApp.getActiveSpreadsheet().getId();
+  var doc = SpreadsheetApp.openById(spreadsheetId);
+  var sheetSubmissoes = doc.getSheetByName('submissoes');
+
+  if (!sheetSubmissoes) {
+    throw new Error('A aba "submissoes" nao foi encontrada.');
+  }
+
+  var data = sheetSubmissoes.getDataRange().getValues();
+
+  if (data.length < 2) {
+    return {
+      result: 'success',
+      dryRun: dryRun,
+      enviados: 0,
+      message: 'Nao ha submissoes para processar.'
+    };
+  }
+
+  var headers = data[0].map(function(h) {
+    return h.toString().toLowerCase().trim();
+  });
+  var nomeCol = headers.indexOf('nome');
+  var cpfCol = headers.indexOf('cpf');
+  var tituloCol = headers.indexOf('titulo');
+  var autorCorrespondenteCol = headers.indexOf('autor_correspondente');
+  var emailCol = headers.indexOf('email');
+  var statusCol = headers.indexOf('status');
+  var contatos = getMapaContatosSubmissoes_(doc);
+  var enviados = carregarRegistroEnviosSubmissoes_(scriptProp);
+
+  var resultado = {
+    result: 'success',
+    provedor: 'Brevo',
+    dryRun: dryRun,
+    linhas_processadas: 0,
+    enviados: 0,
+    enviados_brevo: 0,
+    pulados_ja_enviado: 0,
+    pulados_sem_email: 0,
+    pulados_sem_dados: 0,
+    pendentes: 0,
+    erros: 0,
+    finalizado: true,
+    interrompido_por_limite_brevo: false,
+    detalhes: []
+  };
+
+  for (var i = 1; i < data.length; i++) {
+    var row = data[i];
+    var linha = i + 1;
+    var nome = nomeCol !== -1 ? (row[nomeCol] || '').toString().trim() : '';
+    var cpf = cpfCol !== -1 ? normalizarCpf_(row[cpfCol]) : '';
+    var titulo = tituloCol !== -1 ? (row[tituloCol] || '').toString().trim() : '';
+    var autorCorrespondente = autorCorrespondenteCol !== -1
+      ? (row[autorCorrespondenteCol] || '').toString().trim()
+      : '';
+    var status = statusCol !== -1
+      ? (row[statusCol] || '').toString().trim()
+      : '';
+
+    resultado.linhas_processadas++;
+
+    if (!nome || !cpf || !titulo) {
+      resultado.pulados_sem_dados++;
+      resultado.detalhes.push({
+        linha: linha,
+        status: 'sem_dados_obrigatorios',
+        nome: nome,
+        cpf: cpf,
+        titulo: titulo
+      });
+      continue;
+    }
+
+    var chaveEnvio = cpf + '|' + normalizarTexto_(titulo);
+
+    if (!forcarReenvio && enviados[chaveEnvio]) {
+      resultado.pulados_ja_enviado++;
+      resultado.detalhes.push({
+        linha: linha,
+        status: 'ja_enviado',
+        nome: nome,
+        cpf: cpf,
+        titulo: titulo,
+        registro: enviados[chaveEnvio]
+      });
+      continue;
+    }
+
+    var email = '';
+
+    if (emailCol !== -1) {
+      email = isEmailValido_(row[emailCol]);
+    }
+
+    if (!email && contatos[cpf]) {
+      email = isEmailValido_(contatos[cpf].email);
+    }
+
+    if (!email) {
+      email = extrairEmailDeTexto_(autorCorrespondente);
+    }
+
+    if (!email) {
+      resultado.pulados_sem_email++;
+      resultado.detalhes.push({
+        linha: linha,
+        status: 'sem_email',
+        nome: nome,
+        cpf: cpf,
+        titulo: titulo,
+        autor_correspondente: autorCorrespondente
+      });
+      continue;
+    }
+
+    email = normalizarEmailComprovante_(email);
+
+    if (resultado.enviados_brevo >= maxEmails) {
+      resultado.pendentes++;
+      resultado.finalizado = false;
+      resultado.detalhes.push({
+        linha: linha,
+        status: 'pendente_limite_execucao',
+        email: email,
+        nome: nome,
+        titulo: titulo
+      });
+      continue;
+    }
+
+    try {
+      var retornoBrevo = {
+        httpCode: null,
+        messageId: ''
+      };
+
+      if (!dryRun) {
+        retornoBrevo = enviarEmailBrevoSemAnexo_({
+          email: email,
+          nome: nome,
+          assunto: 'Submissao recebida - SIMOL 2026',
+          html: criarHtmlEmailConfirmacaoSubmissao_(nome, titulo),
+          texto: criarTextoEmailConfirmacaoSubmissao_(nome, titulo)
+        });
+      }
+
+      enviados[chaveEnvio] = dryRun
+        ? 'SIMULADO'
+        : new Date().toISOString();
+
+      resultado.enviados++;
+      resultado.enviados_brevo++;
+      resultado.detalhes.push({
+        linha: linha,
+        status: dryRun ? 'simulado_brevo' : 'enviado_brevo',
+        email: email,
+        nome: nome,
+        cpf: cpf,
+        titulo: titulo,
+        statusSubmissao: status,
+        brevoHttpCode: retornoBrevo.httpCode,
+        brevoMessageId: retornoBrevo.messageId
+      });
+
+      console.log(
+        (dryRun ? '[DRY RUN] ' : '') +
+        'Confirmacao de submissao processada: ' +
+        email + ' -> ' + titulo +
+        (retornoBrevo.messageId
+          ? ' | messageId: ' + retornoBrevo.messageId
+          : '')
+      );
+
+      if (!dryRun) {
+        Utilities.sleep(150);
+      }
+
+    } catch (erroEmail) {
+      resultado.erros++;
+
+      var codigoBrevo = erroEmail.brevoHttpCode || null;
+      var textoErro = erroEmail.toString();
+
+      resultado.detalhes.push({
+        linha: linha,
+        status: 'erro_brevo',
+        email: email,
+        nome: nome,
+        cpf: cpf,
+        titulo: titulo,
+        brevoHttpCode: codigoBrevo,
+        erro: textoErro
+      });
+
+      console.error(
+        'Erro ao enviar confirmacao de submissao pela Brevo para ' +
+        email + ': ' + textoErro
+      );
+
+      if (
+        codigoBrevo === 429 ||
+        /quota|limit|credit|credits|not enough|too many/i.test(textoErro)
+      ) {
+        resultado.finalizado = false;
+        resultado.interrompido_por_limite_brevo = true;
+        resultado.pendentes++;
+        resultado.message =
+          'A Brevo indicou limite de envios, creditos ou requisicoes. ' +
+          'Execute novamente quando o limite estiver disponivel.';
+        break;
+      }
+    }
+  }
+
+  if (!dryRun) {
+    salvarRegistroEnviosSubmissoes_(scriptProp, enviados);
+  }
+
+  if (resultado.interrompido_por_limite_brevo) {
+    // Mantem a mensagem definida no erro.
+  } else if (!resultado.finalizado) {
+    resultado.message =
+      'O limite de ' + maxEmails +
+      ' e-mail(s) por execucao foi atingido. Execute novamente para continuar.';
+  } else if (dryRun) {
+    resultado.message =
+      'Simulacao concluida. Nenhum e-mail foi enviado e nenhuma propriedade foi alterada.';
+  } else {
+    resultado.message =
+      'Envio de confirmacoes de submissao concluido.';
+  }
+
+  console.log(JSON.stringify(resultado, null, 2));
+  return resultado;
+}
+
+
+function testarEnvioConfirmacoesSubmissoes() {
+  return enviarConfirmacoesSubmissoesPorEmail({
+    dryRun: true,
+    maxEmails: 999
+  });
+}
+
+
+function limparRegistroConfirmacoesSubmissoes() {
+  PropertiesService
+    .getScriptProperties()
+    .deleteProperty('confirmacoes_submissoes_enviadas_v1');
+
+  console.log(
+    'Registro de confirmacoes de submissao enviado foi apagado.'
+  );
+}
+
+
+
+/**
+ * Carrega o registro de comprovantes enviados.
+ *
+ * Mantém compatibilidade com a propriedade antiga comprovantes_enviados_v1
+ * e também lê o formato dividido em partes, usado para não ultrapassar o
+ * limite de tamanho de uma propriedade do Apps Script.
+ *
+ * @param {GoogleAppsScript.Properties.Properties} scriptProp
+ * @return {Object}
+ */
+function carregarRegistroEnviosComprovantes_(scriptProp) {
+  var enviados = {};
+
+  // Formato antigo.
+  var jsonAntigo = scriptProp.getProperty('comprovantes_enviados_v1');
+
+  if (jsonAntigo) {
+    try {
+      var registroAntigo = JSON.parse(jsonAntigo);
+
+      Object.keys(registroAntigo || {}).forEach(function(chave) {
+        enviados[chave] = registroAntigo[chave];
+      });
+    } catch (erroRegistroAntigo) {
+      console.warn(
+        'Não foi possível interpretar comprovantes_enviados_v1: ' +
+        erroRegistroAntigo.toString()
+      );
+    }
+  }
+
+  // Formato atual dividido em partes.
+  var quantidadePartes = parseInt(
+    scriptProp.getProperty('comprovantes_enviados_v2_partes') || '0',
+    10
+  );
+
+  if (!isNaN(quantidadePartes) && quantidadePartes > 0) {
+    var jsonParticionado = '';
+
+    for (var i = 0; i < quantidadePartes; i++) {
+      jsonParticionado +=
+        scriptProp.getProperty('comprovantes_enviados_v2_parte_' + i) || '';
+    }
+
+    if (jsonParticionado) {
+      try {
+        var registroParticionado = JSON.parse(jsonParticionado);
+
+        Object.keys(registroParticionado || {}).forEach(function(chave) {
+          enviados[chave] = registroParticionado[chave];
+        });
+      } catch (erroRegistroParticionado) {
+        console.warn(
+          'Não foi possível interpretar o registro particionado: ' +
+          erroRegistroParticionado.toString()
+        );
+      }
+    }
+  }
+
+  return enviados;
+}
+
+
+/**
+ * Salva o registro de comprovantes enviados em partes menores.
+ *
+ * @param {GoogleAppsScript.Properties.Properties} scriptProp
+ * @param {Object} enviados
+ */
+function salvarRegistroEnviosComprovantes_(scriptProp, enviados) {
+  var json = JSON.stringify(enviados || {});
+  var tamanhoParte = 7000;
+  var partes = [];
+
+  for (var inicio = 0; inicio < json.length; inicio += tamanhoParte) {
+    partes.push(json.substring(inicio, inicio + tamanhoParte));
+  }
+
+  if (!partes.length) {
+    partes.push('{}');
+  }
+
+  var quantidadeAnterior = parseInt(
+    scriptProp.getProperty('comprovantes_enviados_v2_partes') || '0',
+    10
+  );
+
+  if (isNaN(quantidadeAnterior)) {
+    quantidadeAnterior = 0;
+  }
+
+  for (var i = 0; i < partes.length; i++) {
+    scriptProp.setProperty(
+      'comprovantes_enviados_v2_parte_' + i,
+      partes[i]
+    );
+  }
+
+  // Remove partes antigas que sobraram após uma eventual redução do registro.
+  for (var j = partes.length; j < quantidadeAnterior; j++) {
+    scriptProp.deleteProperty(
+      'comprovantes_enviados_v2_parte_' + j
+    );
+  }
+
+  scriptProp.setProperty(
+    'comprovantes_enviados_v2_partes',
+    String(partes.length)
+  );
+
+  // Mantém o formato antigo apenas enquanto ele couber com segurança.
+  if (json.length <= 7000) {
+    scriptProp.setProperty('comprovantes_enviados_v1', json);
+  } else {
+    scriptProp.deleteProperty('comprovantes_enviados_v1');
+  }
+}
+
+
+/**
+ * Monta os mapas de contatos a partir da planilha de minicursos.
+ *
+ * @return {Object}
+ */
+function getMapaEmailMinicursos_() {
+  var ssMinicursos = SpreadsheetApp.openById(ID_PLANILHA_MINICURSOS);
+  var sheet = ssMinicursos.getSheets()[0];
+  var data = sheet.getDataRange().getValues();
+
+  var mapaCpf = {};
+  var mapaNome = {};
+  var porMinicurso = {};
+
+  // col 0: Data
+  // col 1: Nome
+  // col 2: CPF
+  // col 3: Minicursos
+  // col 4: Telefone
+  // col 5: Email
+  for (var i = 1; i < data.length; i++) {
+    var row = data[i];
+    var cpf = normalizarCpf_(row[2]);
+    var nome = (row[1] || '').toString().trim();
+    var email = isEmailValido_(row[5]);
+    var minicursosStr = (row[3] || '').toString();
+
+    if (!email) {
+      continue;
+    }
+
+    email = normalizarEmailComprovante_(email);
+
+    if (cpf) {
+      mapaCpf[cpf] = {
+        nome: nome,
+        email: email
+      };
+    }
+
+    if (nome) {
+      var chaveNome = normalizarTexto_(nome);
+
+      if (!mapaNome[chaveNome]) {
+        mapaNome[chaveNome] = {
+          nome: nome,
+          email: email
+        };
+      }
+    }
+
+    var listaMinicursos = parseListaMinicursos_(minicursosStr);
+
+    listaMinicursos.forEach(function(minicurso) {
+      var chaveMinicurso = normalizarTexto_(minicurso);
+
+      if (!chaveMinicurso) {
+        return;
+      }
+
+      if (!porMinicurso[chaveMinicurso]) {
+        porMinicurso[chaveMinicurso] = [];
+      }
+
+      porMinicurso[chaveMinicurso].push({
+        nome: nome,
+        nomeNorm: normalizarTexto_(nome),
+        email: email
+      });
+    });
+  }
+
+  return {
+    porCpf: mapaCpf,
+    porNome: mapaNome,
+    porMinicurso: porMinicurso
+  };
+}
+
+
+/**
+ * Procura um contato por nome parcial dentro do mesmo minicurso.
+ *
+ * @param {string} fragmentoNome
+ * @param {string} nomeMinicurso
+ * @param {Object} mapaEmail
+ * @return {Object|null}
+ */
+function buscarEmailPorNomeParcial_(fragmentoNome, nomeMinicurso, mapaEmail) {
+  var chaveMinicurso = normalizarTexto_(nomeMinicurso);
+  var lista = mapaEmail.porMinicurso[chaveMinicurso] || [];
+
+  if (!lista.length || !fragmentoNome) {
+    return null;
+  }
+
+  var fragmentoNormalizado = normalizarTexto_(fragmentoNome);
+
+  if (!fragmentoNormalizado) {
+    return null;
+  }
+
+  for (var i = 0; i < lista.length; i++) {
+    if (lista[i].nomeNorm === fragmentoNormalizado) {
+      return lista[i];
+    }
+  }
+
+  if (fragmentoNormalizado.length < 6) {
+    return null;
+  }
+
+  var candidatos = [];
+
+  for (var j = 0; j < lista.length; j++) {
+    if (lista[j].nomeNorm.indexOf(fragmentoNormalizado) === 0) {
+      candidatos.push(lista[j]);
+    }
+  }
+
+  if (candidatos.length === 1) {
+    return candidatos[0];
+  }
+
+  if (candidatos.length > 1) {
+    console.warn(
+      'Nome parcial ambíguo: "' + fragmentoNome + '" no minicurso "' +
+      nomeMinicurso + '". Foram encontrados ' + candidatos.length + ' candidatos.'
+    );
+  }
+
+  return null;
+}
+
+
+/**
+ * Extrai CPF e nome do nome do arquivo PDF.
+ *
+ * Formato esperado:
+ * "Comprovante - <minicurso> - <nome> - <cpf>.pdf"
+ *
+ * @param {string} nomeArquivo
+ * @param {string} nomeMinicurso
+ * @return {{cpf: string, nome: string, truncado: boolean}}
+ */
+function extrairDadosDoNomePdf_(nomeArquivo, nomeMinicurso) {
+  var base = String(nomeArquivo || '')
+    .replace(/\.pdf$/i, '')
+    .trim();
+
+  var prefixoExato = 'Comprovante - ' + nomeMinicurso + ' - ';
+  var conteudo = base;
+
+  // Formato normal gerado pelo sistema.
+  if (base.indexOf(prefixoExato) === 0) {
+    conteudo = base.substring(prefixoExato.length).trim();
+
+  } else if (base.indexOf('Comprovante - ') === 0) {
+    // Fallback para títulos de minicurso que sofreram pequenas alterações.
+    // Primeiro remove um CPF completo, incompleto ou um hífen vazio no final.
+    var resto = base.substring('Comprovante - '.length);
+    var restoSemSufixo = resto
+      .replace(/\s*-\s*\d{0,11}\s*$/, '')
+      .trim();
+
+    // Depois considera o trecho após o último separador como possível nome.
+    var ultimoSeparador = restoSemSufixo.lastIndexOf(' - ');
+
+    if (ultimoSeparador !== -1) {
+      conteudo = restoSemSufixo
+        .substring(ultimoSeparador + 3)
+        .trim();
+    } else {
+      // Quando o nome do arquivo foi cortado ainda no título do minicurso,
+      // não há informação suficiente para identificar a pessoa.
+      conteudo = '';
+    }
+  }
+
+  // Também aceita renomeações curtas feitas manualmente:
+  // "Nome Completo.pdf", "Nome Completo - CPF.pdf" ou "CPF.pdf".
+  var cpf = '';
+  var cpfMatch = conteudo.match(/(?:^|\s*-\s*)(\d{11})$/);
+
+  if (cpfMatch) {
+    cpf = cpfMatch[1];
+  }
+
+  var nomeParte = conteudo
+    // Remove CPF completo, CPF incompleto ou apenas o hífen final.
+    .replace(/\s*-\s*\d{0,11}\s*$/, '')
+    .trim();
+
+  // Caso o nome curto seja composto apenas pelo CPF.
+  if (/^\d{11}$/.test(conteudo)) {
+    cpf = conteudo;
+    nomeParte = '';
+  }
+
+  return {
+    cpf: cpf,
+    nome: nomeParte,
+    truncado: !nomeParte && !cpf
+  };
+}
+
+
+/**
+ * Percorre as subpastas e envia os PDFs pela Brevo.
+ *
+ * @param {Object=} options
+ * @return {Object}
+ */
+function enviarComprovantesMinicursosPorEmail(options) {
+  options = options || {};
+
+  var maxEmailsInformado = parseInt(options.maxEmails, 10);
+  var maxEmails = isNaN(maxEmailsInformado) || maxEmailsInformado < 1
+    ? 50
+    : maxEmailsInformado;
+
+  var forcarReenvio = !!options.forcarReenvio;
+  var dryRun = !!options.dryRun;
+  var fileId = String(options.fileId || '').trim();
+  var scriptProp = PropertiesService.getScriptProperties();
+
+  // Valida a chave antes de percorrer arquivos em uma execução real.
+  if (!dryRun) {
+    getBrevoApiKeyComprovantes_();
+  }
+
+  // ── 1. Localiza a pasta raiz ──
+  var pastaRaiz;
+
+  if (options.folderId) {
+    pastaRaiz = DriveApp.getFolderById(options.folderId);
+  } else {
+    var pastaMinicursos = DriveApp.getFolderById(FOLDER_ID_MINICURSOS);
+    var subpastas = pastaMinicursos.getFolders();
+    var pastaMaisRecente = null;
+    var dataMaisRecente = 0;
+
+    while (subpastas.hasNext()) {
+      var subpasta = subpastas.next();
+      var dataCriacao = subpasta.getDateCreated().getTime();
+
+      if (dataCriacao > dataMaisRecente) {
+        dataMaisRecente = dataCriacao;
+        pastaMaisRecente = subpasta;
+      }
+    }
+
+    if (!pastaMaisRecente) {
+      console.log('Nenhuma subpasta de comprovantes encontrada.');
+
+      return {
+        result: 'error',
+        message: 'Nenhuma pasta de comprovantes encontrada.'
+      };
+    }
+
+    pastaRaiz = pastaMaisRecente;
+  }
+
+  // ── 2. Contatos e exclusões ──
+  var mapaEmail = getMapaEmailMinicursos_();
+  var emailsJaEnviadosManualmente = getMapaEmailsJaEnviadosManualmente_();
+
+  // ── 3. Registro anterior ──
+  var enviados = carregarRegistroEnviosComprovantes_(scriptProp);
+
+  // ── 4. Resumo ──
+  var resultado = {
+    result: 'success',
+    provedor: 'Brevo',
+    pastaRaiz: pastaRaiz.getName(),
+    pastaRaizUrl: pastaRaiz.getUrl(),
+    filtroFileId: fileId || null,
+    arquivos_selecionados: 0,
+    enviados: 0,
+    enviados_brevo: 0,
+    pulados_ja_enviado: 0,
+    pulados_56_ja_enviados: 0,
+    pulados_sem_email: 0,
+    erros: 0,
+    pendentes: 0,
+    finalizado: true,
+    interrompido_por_limite_brevo: false,
+    dryRun: dryRun,
+    detalhes: []
+  };
+
+  var subpastasMinicurso = pastaRaiz.getFolders();
+
+  cursosLoop:
+  while (subpastasMinicurso.hasNext()) {
+    var pastaCurso = subpastasMinicurso.next();
+    var nomeCurso = pastaCurso.getName();
+    var arquivos = pastaCurso.getFilesByType(MimeType.PDF);
+
+    while (arquivos.hasNext()) {
+      var arquivo = arquivos.next();
+
+      if (fileId && arquivo.getId() !== fileId) {
+        continue;
+      }
+
+      resultado.arquivos_selecionados++;
+
+      var nomeArquivo = arquivo.getName();
+      var chaveEnvio = pastaCurso.getId() + '/' + nomeArquivo;
+
+      if (!forcarReenvio && enviados[chaveEnvio]) {
+        resultado.pulados_ja_enviado++;
+
+        resultado.detalhes.push({
+          arquivo: nomeArquivo,
+          curso: nomeCurso,
+          status: 'ja_enviado',
+          registro: enviados[chaveEnvio]
+        });
+
+        continue;
+      }
+
+      var dadosPdf = extrairDadosDoNomePdf_(nomeArquivo, nomeCurso);
+      var cpf = dadosPdf.cpf;
+      var nomePdf = dadosPdf.nome;
+      var contato = null;
+      var encontradoPor = '';
+
+      if (cpf && mapaEmail.porCpf[cpf]) {
+        contato = mapaEmail.porCpf[cpf];
+        encontradoPor = 'cpf';
+      }
+
+      if (!contato && nomePdf) {
+        contato = mapaEmail.porNome[normalizarTexto_(nomePdf)] || null;
+
+        if (contato) {
+          encontradoPor = 'nome_exato';
+        }
+      }
+
+      if (!contato && nomePdf) {
+        contato = buscarEmailPorNomeParcial_(
+          nomePdf,
+          nomeCurso,
+          mapaEmail
+        );
+
+        if (contato) {
+          encontradoPor = 'nome_parcial';
+        }
+      }
+
+      if (!contato || !contato.email) {
+        resultado.pulados_sem_email++;
+
+        resultado.detalhes.push({
+          arquivo: nomeArquivo,
+          curso: nomeCurso,
+          status: 'sem_email',
+          cpf: cpf,
+          nome: nomePdf,
+          nomeTruncado: dadosPdf.truncado
+        });
+
+        console.warn('E-mail não encontrado para: ' + nomeArquivo);
+        continue;
+      }
+
+      var emailNormalizado = normalizarEmailComprovante_(contato.email);
+
+      // Proteção explícita para os 56 endereços já enviados pelo SIMOL.
+      if (
+        !forcarReenvio &&
+        emailsJaEnviadosManualmente[emailNormalizado]
+      ) {
+        resultado.pulados_56_ja_enviados++;
+
+        resultado.detalhes.push({
+          arquivo: nomeArquivo,
+          curso: nomeCurso,
+          status: 'ja_enviado_fora_brevo',
+          email: emailNormalizado,
+          nome: contato.nome || nomePdf
+        });
+
+        // Em execução real, sincroniza o arquivo com o registro persistente.
+        if (!dryRun) {
+          enviados[chaveEnvio] =
+            'JA_ENVIADO_FORA_BREVO_2026-07-10';
+        }
+
+        console.log(
+          'Ignorado porque já foi enviado fora da Brevo: ' +
+          emailNormalizado + ' → ' + nomeArquivo
+        );
+
+        continue;
+      }
+
+      // O limite vale apenas para novos envios pela Brevo. Arquivos já
+      // enviados, endereços da lista dos 56 e casos sem e-mail são tratados
+      // antes desta verificação.
+      if (resultado.enviados_brevo >= maxEmails) {
+        resultado.pendentes++;
+        resultado.finalizado = false;
+
+        resultado.detalhes.push({
+          arquivo: nomeArquivo,
+          curso: nomeCurso,
+          status: 'pendente_limite_execucao',
+          email: emailNormalizado
+        });
+
+        continue;
+      }
+
+      var nomeDestinatario = contato.nome || nomePdf || 'participante';
+
+      var htmlBody = criarHtmlEmailComprovante_(
+        nomeDestinatario,
+        nomeCurso
+      );
+
+      var textBody =
+        'Olá, ' + nomeDestinatario + '!\n\n' +
+        'Sua inscrição no minicurso "' + nomeCurso + '" foi confirmada.\n\n' +
+        'Em anexo, você encontra o comprovante oficial em PDF.\n\n' +
+        'Data: 20 a 24 de julho de 2026.\n' +
+        'Local: SEPT – Setor de Educação Profissional e Tecnológica da UFPR.\n' +
+        'Rua Dr. Alcides Vieira Arcoverde, 1225 – Jardim das Américas, Curitiba/PR – CEP 81520-260.\n\n' +
+        'Área do Inscrito: ' + AREA_INSCRITO_URL + '\n\n' +
+        'Dúvidas: simol.simposiointegrado@gmail.com | @simol.ufpr\n\n' +
+        'Atenciosamente,\n' +
+        'Comissão Organizadora I SIMOL 2026';
+
+      try {
+        var retornoBrevo = {
+          httpCode: null,
+          messageId: ''
+        };
+
+        if (!dryRun) {
+          var pdfBlob = arquivo.getBlob().setName(nomeArquivo);
+
+          retornoBrevo = enviarEmailBrevoComprovante_({
+            email: emailNormalizado,
+            nome: nomeDestinatario,
+            assunto:
+              '✅ Sua inscrição no minicurso "' +
+              nomeCurso +
+              '" foi confirmada! | SIMOL 2026',
+            html: htmlBody,
+            texto: textBody,
+            pdfBlob: pdfBlob,
+            nomeArquivo: nomeArquivo
+          });
+        }
+
+        enviados[chaveEnvio] = dryRun
+          ? 'SIMULADO'
+          : new Date().toISOString();
+
+        resultado.enviados++;
+        resultado.enviados_brevo++;
+
+        resultado.detalhes.push({
+          arquivo: nomeArquivo,
+          curso: nomeCurso,
+          status: dryRun ? 'simulado_brevo' : 'enviado_brevo',
+          email: emailNormalizado,
+          nome: nomeDestinatario,
+          encontradoPor: encontradoPor,
+          brevoHttpCode: retornoBrevo.httpCode,
+          brevoMessageId: retornoBrevo.messageId
+        });
+
+        console.log(
+          (dryRun ? '[DRY RUN] ' : '') +
+          'Processado pela Brevo: ' +
+          emailNormalizado + ' → ' + nomeArquivo +
+          (retornoBrevo.messageId
+            ? ' | messageId: ' + retornoBrevo.messageId
+            : '')
+        );
+
+        // Pequena pausa para reduzir o risco de limite de requisições.
+        if (!dryRun) {
+          Utilities.sleep(150);
+        }
+
+      } catch (erroEmail) {
+        resultado.erros++;
+
+        var codigoBrevo = erroEmail.brevoHttpCode || null;
+        var textoErro = erroEmail.toString();
+
+        resultado.detalhes.push({
+          arquivo: nomeArquivo,
+          curso: nomeCurso,
+          status: 'erro_brevo',
+          email: emailNormalizado,
+          brevoHttpCode: codigoBrevo,
+          erro: textoErro
+        });
+
+        console.error(
+          'Erro ao enviar pela Brevo para ' +
+          emailNormalizado + ': ' + textoErro
+        );
+
+        // Para quando a Brevo indicar limite, excesso de requisições ou créditos.
+        if (
+          codigoBrevo === 429 ||
+          /quota|limit|credit|credits|not enough|too many/i.test(textoErro)
+        ) {
+          resultado.finalizado = false;
+          resultado.interrompido_por_limite_brevo = true;
+          resultado.pendentes++;
+          resultado.message =
+            'A Brevo indicou limite de envios, créditos ou requisições. ' +
+            'Execute novamente quando o limite estiver disponível.';
+
+          break cursosLoop;
+        }
+      }
+    }
+  }
+
+  // ── 5. Persiste enviados reais e os 56 sincronizados ──
+  if (!dryRun) {
+    try {
+      salvarRegistroEnviosComprovantes_(scriptProp, enviados);
+    } catch (erroSalvarPropriedade) {
+      console.warn(
+        'Não foi possível salvar o registro de enviados: ' +
+        erroSalvarPropriedade.toString()
+      );
+    }
+  }
+
+  if (fileId && resultado.arquivos_selecionados === 0) {
+    resultado.result = 'error';
+    resultado.finalizado = false;
+    resultado.message =
+      'O fileId informado não foi encontrado nas subpastas da pasta raiz.';
+  } else if (resultado.interrompido_por_limite_brevo) {
+    // Mantém a mensagem definida no momento da interrupção.
+  } else if (!resultado.finalizado) {
+    resultado.message =
+      'O limite de ' + maxEmails +
+      ' e-mail(s) por execução foi atingido. Execute novamente para continuar.';
+  } else if (dryRun) {
+    resultado.message =
+      'Simulação concluída. Nenhum e-mail foi enviado e nenhuma propriedade foi alterada.';
+  } else {
+    resultado.message =
+      'Execução concluída. Os e-mails anteriores e os 56 endereços informados foram ignorados.';
+  }
+
+  console.log(JSON.stringify(resultado, null, 2));
+  return resultado;
+}
+
+
+/**
+ * Simula o envio pela Brevo.
+ *
+ * Mostra quantos PDFs seriam enviados, quais já constam no registro e quais
+ * pertencem à lista dos 56 endereços já enviados.
+ */
+function testarEnvioComprovantes() {
+  return enviarComprovantesMinicursosPorEmail({
+    dryRun: true,
+    maxEmails: 999
+  });
+}
+
+
+/**
+ * Confirma se a chave de API da Brevo está disponível sem exibi-la.
+ */
+function verificarConfiguracaoBrevoComprovantes() {
+  var chave = getBrevoApiKeyComprovantes_();
+
+  console.log(
+    'BREVO_API_KEY encontrada. Tamanho: ' +
+    chave.length + ' caracteres.'
+  );
+
+  console.log(
+    'Remetente: ' +
+    BREVO_REMETENTE_NOME_COMPROVANTES +
+    ' <' + BREVO_REMETENTE_EMAIL_COMPROVANTES + '>'
+  );
+
+  console.log(
+    'Quantidade de e-mails protegidos como já enviados: ' +
+    EMAILS_JA_ENVIADOS_MANUALMENTE_SIMOL.length
+  );
+}
+
+
+/**
+ * Limpa apenas o registro persistente comprovantes_enviados_v1.
+ *
+ * ATENÇÃO:
+ * - Os 56 e-mails da lista fixa continuarão protegidos.
+ * - Depois desta limpeza, outros PDFs enviados anteriormente poderão ser
+ *   reenviados.
+ */
+function limparRegistroEnviados() {
+  var scriptProp = PropertiesService.getScriptProperties();
+
+  scriptProp.deleteProperty('comprovantes_enviados_v1');
+
+  var quantidadePartes = parseInt(
+    scriptProp.getProperty('comprovantes_enviados_v2_partes') || '0',
+    10
+  );
+
+  if (isNaN(quantidadePartes)) {
+    quantidadePartes = 0;
+  }
+
+  for (var i = 0; i < quantidadePartes; i++) {
+    scriptProp.deleteProperty(
+      'comprovantes_enviados_v2_parte_' + i
+    );
+  }
+
+  scriptProp.deleteProperty('comprovantes_enviados_v2_partes');
+
+  console.log(
+    'Registro de comprovantes enviado foi apagado. ' +
+    'A lista fixa dos 56 e-mails continua protegida.'
+  );
+}
+/**
+ * Cria/atualiza uma aba com os comprovantes que ainda não podem ser
+ * associados com segurança a um participante.
+ *
+ * COMO USAR:
+ * 1. Execute enviarComprovantesMinicursosPorEmail() uma vez com este código.
+ *    Os arquivos com nome legível e CPF incompleto serão enviados.
+ * 2. Execute gerarRelatorioPendenciasComprovantes().
+ * 3. Na aba "Pendências comprovantes", abra cada PDF pelo link e preencha
+ *    a coluna "Novo nome completo" com o nome que aparece dentro do PDF.
+ * 4. Execute aplicarRenomeacoesPendenciasComprovantes().
+ * 5. Execute enviarComprovantesMinicursosPorEmail() novamente.
+ *
+ * @param {Object=} options
+ * @return {Object}
+ */
+function gerarRelatorioPendenciasComprovantes(options) {
+  options = options || {};
+
+  var scriptProp = PropertiesService.getScriptProperties();
+  var pastaRaiz = obterPastaRaizPendenciasComprovantes_(options.folderId);
+  var mapaEmail = getMapaEmailMinicursos_();
+  var emailsJaEnviadosManualmente = getMapaEmailsJaEnviadosManualmente_();
+  var enviados = carregarRegistroEnviosComprovantes_(scriptProp);
+
+  var ss = SpreadsheetApp.openById(ID_PLANILHA_MINICURSOS);
+  var nomeAba = 'Pendências comprovantes';
+  var aba = ss.getSheetByName(nomeAba);
+
+  if (!aba) {
+    aba = ss.insertSheet(nomeAba);
+  }
+
+  aba.clear();
+
+  var cabecalhos = [[
+    'Minicurso',
+    'Nome atual do PDF',
+    'Link para abrir',
+    'File ID',
+    'CPF extraído',
+    'Nome extraído',
+    'Novo nome completo',
+    'Status / orientação'
+  ]];
+
+  aba.getRange(1, 1, 1, cabecalhos[0].length).setValues(cabecalhos);
+  aba.setFrozenRows(1);
+
+  var linhas = [];
+  var subpastas = pastaRaiz.getFolders();
+
+  while (subpastas.hasNext()) {
+    var pastaCurso = subpastas.next();
+    var nomeCurso = pastaCurso.getName();
+    var arquivos = pastaCurso.getFilesByType(MimeType.PDF);
+
+    while (arquivos.hasNext()) {
+      var arquivo = arquivos.next();
+      var nomeArquivo = arquivo.getName();
+      var chaveEnvio = pastaCurso.getId() + '/' + nomeArquivo;
+
+      if (enviados[chaveEnvio]) {
+        continue;
+      }
+
+      var dadosPdf = extrairDadosDoNomePdf_(nomeArquivo, nomeCurso);
+      var contato = null;
+
+      if (dadosPdf.cpf && mapaEmail.porCpf[dadosPdf.cpf]) {
+        contato = mapaEmail.porCpf[dadosPdf.cpf];
+      }
+
+      if (!contato && dadosPdf.nome) {
+        contato =
+          mapaEmail.porNome[normalizarTexto_(dadosPdf.nome)] ||
+          buscarEmailPorNomeParcial_(
+            dadosPdf.nome,
+            nomeCurso,
+            mapaEmail
+          );
+      }
+
+      // Se já conseguimos identificar, não é uma pendência de nome.
+      if (contato && contato.email) {
+        var emailNormalizado =
+          normalizarEmailComprovante_(contato.email);
+
+        if (emailsJaEnviadosManualmente[emailNormalizado]) {
+          continue;
+        }
+
+        // Está identificável e será tratado pela função de envio.
+        continue;
+      }
+
+      linhas.push([
+        nomeCurso,
+        nomeArquivo,
+        arquivo.getUrl(),
+        arquivo.getId(),
+        dadosPdf.cpf || '',
+        dadosPdf.nome || '',
+        '',
+        'Abra o PDF, confira o participante e preencha "Novo nome completo".'
+      ]);
+    }
+  }
+
+  if (linhas.length) {
+    aba.getRange(2, 1, linhas.length, cabecalhos[0].length)
+      .setValues(linhas);
+
+    aba.getRange(2, 3, linhas.length, 1)
+      .setRichTextValues(
+        linhas.map(function(linha) {
+          return [
+            SpreadsheetApp.newRichTextValue()
+              .setText('Abrir PDF')
+              .setLinkUrl(linha[2])
+              .build()
+          ];
+        })
+      );
+  }
+
+  aba.autoResizeColumns(1, cabecalhos[0].length);
+  aba.setColumnWidth(1, 260);
+  aba.setColumnWidth(2, 420);
+  aba.setColumnWidth(3, 110);
+  aba.setColumnWidth(7, 260);
+  aba.setColumnWidth(8, 360);
+
+  console.log(
+    linhas.length +
+    ' pendência(s) listada(s) na aba "' +
+    nomeAba + '".'
+  );
+
+  return {
+    result: 'success',
+    pastaRaiz: pastaRaiz.getName(),
+    aba: nomeAba,
+    pendencias: linhas.length,
+    planilhaUrl: ss.getUrl()
+  };
+}
+
+
+/**
+ * Renomeia os PDFs listados na aba "Pendências comprovantes".
+ *
+ * Preencha a coluna "Novo nome completo" antes de executar.
+ * O arquivo passa a se chamar apenas "Nome Completo.pdf"; a pasta já informa
+ * o minicurso e o novo extrator aceita esse formato curto.
+ *
+ * @return {Object}
+ */
+function aplicarRenomeacoesPendenciasComprovantes() {
+  var ss = SpreadsheetApp.openById(ID_PLANILHA_MINICURSOS);
+  var nomeAba = 'Pendências comprovantes';
+  var aba = ss.getSheetByName(nomeAba);
+
+  if (!aba) {
+    throw new Error(
+      'A aba "' + nomeAba +
+      '" não existe. Execute gerarRelatorioPendenciasComprovantes() primeiro.'
+    );
+  }
+
+  var ultimaLinha = aba.getLastRow();
+
+  if (ultimaLinha < 2) {
+    return {
+      result: 'success',
+      renomeados: 0,
+      message: 'Não há pendências na aba.'
+    };
+  }
+
+  var dados = aba
+    .getRange(2, 1, ultimaLinha - 1, 8)
+    .getValues();
+
+  var renomeados = 0;
+  var ignorados = 0;
+  var erros = 0;
+
+  for (var i = 0; i < dados.length; i++) {
+    var fileId = String(dados[i][3] || '').trim();
+    var novoNome = String(dados[i][6] || '').trim();
+    var statusAtual = String(dados[i][7] || '');
+
+    if (!fileId || !novoNome || /^renomeado/i.test(statusAtual)) {
+      ignorados++;
+      continue;
+    }
+
+    try {
+      var nomeSeguro = novoNome
+        .replace(/[\\\/:*?"<>|#%{}~]/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+
+      if (!nomeSeguro) {
+        throw new Error('O novo nome ficou vazio após a limpeza.');
+      }
+
+      var arquivo = DriveApp.getFileById(fileId);
+      arquivo.setName(nomeSeguro + '.pdf');
+
+      aba.getRange(i + 2, 8).setValue(
+        'Renomeado em ' +
+        Utilities.formatDate(
+          new Date(),
+          Session.getScriptTimeZone(),
+          'dd/MM/yyyy HH:mm:ss'
+        )
+      );
+
+      renomeados++;
+
+    } catch (erro) {
+      aba.getRange(i + 2, 8).setValue(
+        'ERRO: ' + erro.toString()
+      );
+      erros++;
+    }
+  }
+
+  console.log(
+    JSON.stringify({
+      renomeados: renomeados,
+      ignorados: ignorados,
+      erros: erros
+    }, null, 2)
+  );
+
+  return {
+    result: erros ? 'partial' : 'success',
+    renomeados: renomeados,
+    ignorados: ignorados,
+    erros: erros
+  };
+}
+
+
+/**
+ * Localiza a pasta raiz usada pelo relatório de pendências.
+ *
+ * @param {string=} folderId
+ * @return {GoogleAppsScript.Drive.Folder}
+ */
+function obterPastaRaizPendenciasComprovantes_(folderId) {
+  if (folderId) {
+    return DriveApp.getFolderById(folderId);
+  }
+
+  var pastaMinicursos = DriveApp.getFolderById(
+    FOLDER_ID_MINICURSOS
+  );
+
+  var subpastas = pastaMinicursos.getFolders();
+  var pastaMaisRecente = null;
+  var dataMaisRecente = 0;
+
+  while (subpastas.hasNext()) {
+    var subpasta = subpastas.next();
+    var dataCriacao = subpasta.getDateCreated().getTime();
+
+    if (dataCriacao > dataMaisRecente) {
+      dataMaisRecente = dataCriacao;
+      pastaMaisRecente = subpasta;
+    }
+  }
+
+  if (!pastaMaisRecente) {
+    throw new Error(
+      'Nenhuma pasta de comprovantes encontrada em FOLDER_ID_MINICURSOS.'
+    );
+  }
+
+  return pastaMaisRecente;
 }
