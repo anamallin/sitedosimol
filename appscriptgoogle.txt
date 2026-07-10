@@ -13,6 +13,7 @@ const LIMITE_INSCRICOES_NORMAIS_REABERTAS = 260;
 const PROP_INSCRICOES_NORMAIS_REABERTAS_USADAS = 'inscricoes_normais_reabertas_usadas';
 const AREA_INSCRITO_URL = 'https://www.simol2026.com.br/area-inscrito.html';
 const ORGANIZADOR_SECRET_CODE = 'SIMOL_ORG_2026_PREVIEW';
+const LOGO_SIMOL_URL = 'https://www.simol2026.com.br/Logo_Colorida_PNG.png';
 const INSCRICOES_SIMOL_FECHAMENTO_TS = Date.parse('2026-07-04T02:59:00.000Z'); // 03/07/2026 23:59 em Sao Paulo
 const INSCRICOES_SIMOL_ENCERRADAS_MESSAGE = 'As inscrições gerais do SIMOL foram encerradas em 03/07/2026 às 23:59. Minicursos e concursos permanecem abertos conforme suas regras.';
 const MINICURSO_FARMACOGENETICA_TITULO = 'Genes e Medicamentos: uma introdução à farmacogenética e farmacogenômica';
@@ -83,6 +84,124 @@ const CRONOGRAMA_MINICURSOS = {
   'Proteômica baseada em espectrometria de massas': { days: [2, 3], period: 'morning' },
   'Princípios e Aplicações da Extração de DNA': { days: [1, 2], period: 'morning' },
   'Inteligência Artificial e Dados Biológicos': { days: [2, 3], period: 'night' }
+};
+
+const DETALHES_MINICURSOS = {
+  'Expressão e purificação de Proteínas': {
+    departamento: 'PPG em Biologia Celular e Molecular',
+    formato: 'Presencial',
+    ministrantes: 'Milena Biguetti dos Santos; Zelinda Schemczssen'
+  },
+  'Toxicologia Celular': {
+    departamento: 'PPG em Biologia Celular e Molecular',
+    formato: 'Presencial',
+    ministrantes: 'Gabriel Elias Bueno, Prof. Dr. Francisco Filipak Neto, Laura Lima Verde e Deborah Helen Fabiano Ribeiro'
+  },
+  'Biomarcadores: da teoria à prática experimental': {
+    departamento: 'PPG em Biologia Celular e Molecular',
+    formato: 'Presencial',
+    ministrantes: 'Ana Paula da Silva, Felipe Schaly e Maritana Mela Prodocimo'
+  },
+  'Tópicos básicos em biologia molecular, bioinformática e cultivo celular': {
+    departamento: 'PPG em Biologia Celular e Molecular',
+    formato: 'Presencial',
+    ministrantes: 'Rhandria Sampaio de Souza, Geórgia Seifert Neves, Sabina Beganovic, Alan Miguel Brum da Silva e Tainara Marcansoni'
+  },
+  'Introdução a Biologia da Interação Patógeno-Hospedeiro': {
+    departamento: 'PPG em Biologia Celular e Molecular',
+    formato: 'Presencial',
+    ministrantes: 'Marcel Ramirez, Abel Sana, Fernanda Araujo Fernandes e Nusrat Sattar'
+  },
+  'Introdução ao cultivo celular': {
+    departamento: 'PPG em Biologia Celular e Molecular',
+    formato: 'Presencial',
+    ministrantes: 'Debora C. V. Del Grossi e Fabiana Lolis'
+  },
+  'Desvendando os Peixes Antárticos: Ecofisiologia e Biologia Celular e Molecular Aplicada': {
+    departamento: 'PPG em Biologia Celular e Molecular',
+    formato: 'Presencial',
+    ministrantes: 'Lucélia Donatti, Sun Tae Languinotti dos Santos Viana, Cesar Wisniewski Potuk, Ana Paula Nascimento Corrêa e Ananda Karla Alves Neundorf'
+  },
+  'Explorando a biologia através do nematoide C. elegans: aplicações como modelo animal em estudos biológicos, genéticos e comportamentais.': {
+    departamento: 'PPG em Bioquímica',
+    formato: 'Presencial',
+    ministrantes: 'Julia Anselmo da Luz Rico e Gustavo Passaglia Bruschi'
+  },
+  'Nanotecnologia em Saúde: De Nanopartículas a Vacinas': {
+    departamento: 'PPG em Bioquímica',
+    formato: 'Presencial',
+    ministrantes: 'Julia Teixeira Lucena, Mariana Vodiani, Isabela Pereira Dias, Marina Siqueira de Lima e Camila de Almeida Salvego'
+  },
+  'Análise Eletroforética de Proteínas por SDS-PAGE': {
+    departamento: 'PPG em Bioquímica',
+    formato: 'Presencial',
+    ministrantes: 'Rafaela Kriczinski e Lucas Passarin'
+  },
+  'Otimizando a Bioatividade de Polissacarídeos via Síntese Orgânica': {
+    departamento: 'PPG em Bioquímica',
+    formato: 'Presencial',
+    ministrantes: 'Emerson Spaki Rodrigues'
+  },
+  'Biologia Sintética: Do design á síntese': {
+    departamento: 'PPG em Bioquímica',
+    formato: 'Presencial',
+    ministrantes: 'Francisco José Teles Mota e Laura Witzler Ismael'
+  },
+  'Bioinovação: fundamentos de inovação, modelagem de negócios e pitch (teoria e prática)': {
+    departamento: 'PPG em Bioquímica',
+    formato: 'Presencial',
+    ministrantes: 'Juliany Torres Siqueira'
+  },
+  'Metabolismo e viabilidade de células tumorais: modelos In vitro e In vivo no estudo do câncer': {
+    departamento: 'PPG em Bioquímica',
+    formato: 'Presencial',
+    ministrantes: 'Douglas de Jesus da Silva Claudino, Ana Gabriela Jungles, Ana Luiza Provesi Hilgert, Bruna Isadora Pilger e Matheus D Avila Almeida'
+  },
+  'Genes e Medicamentos: uma introdução à farmacogenética e farmacogenômica': {
+    departamento: 'PPG em Genética',
+    formato: 'Presencial',
+    ministrantes: 'João Vitor Mello Hortega e Jeferson Machado Batista Sohn'
+  },
+  'Cultivo Celular e suas Aplicações': {
+    departamento: 'PPG em Genética',
+    formato: 'Presencial',
+    ministrantes: 'Vitória Colucci de Oliveira, Hugo Catiano Paes Junior e Milena Rocha Sampaio'
+  },
+  'Fungos endofíticos: estratégias de isolamento e prospecção enzimática': {
+    departamento: 'PPG em Genética',
+    formato: 'Presencial',
+    ministrantes: 'Vinícius da Luz Redígolo e Vanessa Merlo Kava'
+  },
+  'Clinical Interpretation of Genomic Variants: Application of ACMG Criteria in Exome Sequencing Data. (Interpretação Clínica de Variantes Genômicas: Aplicação dos Critérios do ACMG em Dados de Sequenciamento do Exoma.)': {
+    departamento: 'PPG em Genética',
+    formato: 'Remoto',
+    ministrantes: 'Dr. Tiago Fernando Chaves, Daniel Pacheco Bruschi e Juliane Heyde dos Santos'
+  },
+  'Epigenética e Exposoma relacionado ao DOHaD (Developmental origins of health and disease)': {
+    departamento: 'PPG em Genética',
+    formato: 'Remoto',
+    ministrantes: 'Angelica Beate Winter Boldt, Stephanie Rubianne Silva Carvalhal, Ana Cláudia Thomaz, Ana Paolla Protachevicz, Fernanda Vitório da Silva e Raphaela Ohanna Schmitz Rios'
+  },
+  'Genotoxicidade em Organismos Aquáticos: Fundamentos e Aplicações do Ensaio Cometa': {
+    departamento: 'PPG em Genética',
+    formato: 'Presencial',
+    ministrantes: 'Luis Phelipe de Souza Miranda, Gabriel da Silva e Gustavo Martello Wiener'
+  },
+  'Proteômica baseada em espectrometria de massas': {
+    departamento: 'PPG em Genética',
+    formato: 'Presencial',
+    ministrantes: 'Ana Carolina Mallin, João Vitor Mello Hortega, Talita Helen Bombardelli Gomig, Isadora Fantaloche, Ana Júlia P. de Lima e Juliana da Costa Moraes'
+  },
+  'Princípios e Aplicações da Extração de DNA': {
+    departamento: 'PPG em Genética',
+    formato: 'Presencial',
+    ministrantes: 'Gabriel Valaski Grzegorczyk, Ana Carolina Mallin e João Vitor Mello Hortega'
+  },
+  'Inteligência Artificial e Dados Biológicos': {
+    departamento: 'PPG em Genética',
+    formato: 'Remoto',
+    ministrantes: 'Ana Carolina Mallin'
+  }
 };
 
 function parseListaMinicursos_(minicursosStr) {
@@ -827,6 +946,170 @@ function gerarExcelClassificadosMinicursos() {
   };
 }
 
+function getDiaMinicursoNome_(dia) {
+  return ['domingo', 'segunda-feira', 'terça-feira', 'quarta-feira', 'quinta-feira', 'sexta-feira', 'sábado'][dia] || ('dia ' + dia);
+}
+
+function getPeriodoMinicursoTexto_(periodo) {
+  return periodo === 'morning' ? 'Manhã (8h às 12h)' : 'Noite (18h30 às 21h30)';
+}
+
+function getHorarioMinicursoTexto_(curso) {
+  const cronograma = CRONOGRAMA_MINICURSOS[curso] || {};
+  const dias = (cronograma.days || []).map(getDiaMinicursoNome_).join(', ');
+  const periodo = getPeriodoMinicursoTexto_(cronograma.period);
+  return dias ? dias + ' - ' + periodo : periodo;
+}
+
+function getDetalhesMinicurso_(curso) {
+  const detalhes = DETALHES_MINICURSOS[curso] || {};
+  return {
+    titulo: curso,
+    departamento: detalhes.departamento || 'Não informado',
+    ministrantes: detalhes.ministrantes || 'Não informado',
+    formato: detalhes.formato || 'Não informado',
+    horario: getHorarioMinicursoTexto_(curso),
+    limite: getLimiteMinicurso_(curso)
+  };
+}
+
+function formatarCpfPublico_(cpf) {
+  const digits = normalizarCpf_(cpf);
+  if (digits.length !== 11) return cpf || '';
+  return digits.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+}
+
+function normalizarNomeArquivo_(value) {
+  return (value || '').toString()
+    .replace(/[\\/:*?"<>|]/g, '-')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .substring(0, 140) || 'arquivo';
+}
+
+function getLogoSimolDataUri_() {
+  try {
+    const response = UrlFetchApp.fetch(LOGO_SIMOL_URL, { muteHttpExceptions: true });
+    if (response.getResponseCode() >= 200 && response.getResponseCode() < 300) {
+      const blob = response.getBlob();
+      return 'data:' + blob.getContentType() + ';base64,' + Utilities.base64Encode(blob.getBytes());
+    }
+  } catch (error) {
+    console.error('Erro ao carregar logo SIMOL: ' + error.toString());
+  }
+  return '';
+}
+
+function getOuCriarSubpasta_(parentFolder, nome) {
+  const folders = parentFolder.getFoldersByName(nome);
+  if (folders.hasNext()) return folders.next();
+  return parentFolder.createFolder(nome);
+}
+
+function criarHtmlComprovanteMinicurso_(participante, ranking, detalhes, logoDataUri) {
+  const dataGeracao = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'dd/MM/yyyy HH:mm');
+  const limiteTexto = detalhes.limite === null ? 'Sem limite de vagas' : detalhes.limite + ' vagas';
+  const logoHtml = logoDataUri ? '<img class="logo" src="' + logoDataUri + '" alt="SIMOL">' : '<div class="logo-text">SIMOL</div>';
+
+  return '<!doctype html>' +
+    '<html><head><meta charset="UTF-8"><style>' +
+    '@page{size:A4;margin:28mm 22mm;}' +
+    'body{font-family:Arial,sans-serif;color:#1d2733;margin:0;line-height:1.45;}' +
+    '.sheet{border:2px solid #16425b;border-radius:12px;padding:28px;min-height:860px;position:relative;}' +
+    '.header{text-align:center;border-bottom:2px solid #e5eef2;padding-bottom:20px;margin-bottom:28px;}' +
+    '.logo{max-width:190px;max-height:95px;margin-bottom:14px;}' +
+    '.logo-text{font-size:32px;font-weight:700;color:#16425b;margin-bottom:14px;}' +
+    'h1{font-size:24px;color:#16425b;margin:8px 0 4px;text-transform:uppercase;letter-spacing:.04em;}' +
+    '.subtitle{font-size:14px;color:#597181;margin:0;}' +
+    '.statement{font-size:16px;margin:28px 0;}' +
+    '.name{font-size:22px;font-weight:700;color:#0c5c78;margin:8px 0 2px;}' +
+    '.cpf{font-size:15px;color:#34495e;margin:0 0 24px;}' +
+    '.course-title{font-size:18px;font-weight:700;color:#16425b;margin:8px 0 16px;}' +
+    '.details{width:100%;border-collapse:collapse;margin-top:10px;font-size:13px;}' +
+    '.details th{width:31%;background:#f0f6f8;color:#16425b;text-align:left;padding:10px;border:1px solid #d7e5ea;}' +
+    '.details td{padding:10px;border:1px solid #d7e5ea;}' +
+    '.footer{position:absolute;left:28px;right:28px;bottom:24px;border-top:1px solid #d7e5ea;padding-top:14px;font-size:12px;color:#657b89;text-align:center;}' +
+    '</style></head><body><div class="sheet">' +
+    '<div class="header">' + logoHtml +
+    '<h1>Comprovante de inscrição em minicurso</h1>' +
+    '<p class="subtitle">I Simpósio Integrado de Genética, Biologia Celular e Bioquímica - UFPR (SIMOL 2026)</p>' +
+    '</div>' +
+    '<p class="statement">Declaramos, para os devidos fins, que a pessoa abaixo está inscrita e classificada dentro das vagas disponíveis para o minicurso indicado.</p>' +
+    '<p class="name">' + escapeHtml_(participante.nome) + '</p>' +
+    '<p class="cpf">CPF: ' + escapeHtml_(formatarCpfPublico_(participante.cpf)) + '</p>' +
+    '<p class="course-title">' + escapeHtml_(detalhes.titulo) + '</p>' +
+    '<table class="details">' +
+    '<tr><th>Departamento/Programa</th><td>' + escapeHtml_(detalhes.departamento) + '</td></tr>' +
+    '<tr><th>Ministrante(s)</th><td>' + escapeHtml_(detalhes.ministrantes) + '</td></tr>' +
+    '<tr><th>Horário</th><td>' + escapeHtml_(detalhes.horario) + '</td></tr>' +
+    '<tr><th>Formato</th><td>' + escapeHtml_(detalhes.formato) + '</td></tr>' +
+    '<tr><th>Posição</th><td>' + ranking.posicao + ' de ' + ranking.inscritos + ' inscritos</td></tr>' +
+    '<tr><th>Vagas</th><td>' + escapeHtml_(limiteTexto) + '</td></tr>' +
+    '</table>' +
+    '<div class="footer">Documento gerado automaticamente em ' + escapeHtml_(dataGeracao) + '. Comissão Organizadora do I SIMOL 2026.</div>' +
+    '</div></body></html>';
+}
+
+function gerarPdfsComprovantesMinicursos() {
+  const spreadsheetId = scriptProp.getProperty('key') || SpreadsheetApp.getActiveSpreadsheet().getId();
+  const doc = SpreadsheetApp.openById(spreadsheetId);
+  const sheetPrincipal = doc.getSheetByName(sheetName);
+  const ssMinicursos = SpreadsheetApp.openById(ID_PLANILHA_MINICURSOS);
+  const sheetMinicursos = ssMinicursos.getSheets()[0];
+  const ranking = calcularRankingMinicursos_(sheetPrincipal, sheetMinicursos);
+  const dataGeracao = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd HH-mm');
+  const baseFolder = DriveApp.getFolderById(FOLDER_ID_MINICURSOS);
+  const parentFolder = baseFolder.createFolder('Comprovantes minicursos SIMOL - ' + dataGeracao);
+  const logoDataUri = getLogoSimolDataUri_();
+  const resultado = {
+    result: 'success',
+    folderUrl: parentFolder.getUrl(),
+    folderId: parentFolder.getId(),
+    totalPdfs: 0,
+    cursos: []
+  };
+
+  Object.keys(ranking.cursos || {}).sort().forEach(function(curso) {
+    const inscritos = ranking.cursos[curso] || [];
+    const limite = getLimiteMinicurso_(curso);
+    const classificados = limite === null ? inscritos : inscritos.slice(0, limite);
+    const detalhes = getDetalhesMinicurso_(curso);
+    const cursoFolder = getOuCriarSubpasta_(parentFolder, normalizarNomeArquivo_(curso).substring(0, 99));
+    const cursoResultado = {
+      curso: curso,
+      folderUrl: cursoFolder.getUrl(),
+      totalPdfs: 0
+    };
+
+    classificados.forEach(function(item, index) {
+      const rankingItem = {
+        posicao: index + 1,
+        inscritos: inscritos.length
+      };
+      const participante = {
+        nome: item.nome || 'Participante',
+        cpf: item.cpf || ''
+      };
+      const html = criarHtmlComprovanteMinicurso_(participante, rankingItem, detalhes, logoDataUri);
+      const blob = Utilities.newBlob(html, 'text/html', 'comprovante.html')
+        .getAs(MimeType.PDF)
+        .setName(
+          normalizarNomeArquivo_(
+            'Comprovante - ' + curso + ' - ' + participante.nome + ' - ' + normalizarCpf_(participante.cpf)
+          ) + '.pdf'
+        );
+      cursoFolder.createFile(blob);
+      cursoResultado.totalPdfs++;
+      resultado.totalPdfs++;
+    });
+
+    resultado.cursos.push(cursoResultado);
+  });
+
+  console.log(JSON.stringify(resultado));
+  return resultado;
+}
+
 function isInscricaoLiberada_(params) {
   return (
     params.TIPO_INSCRICAO === 'Pós-Graduação Participante' &&
@@ -1566,6 +1849,21 @@ function doPost(e) {
 
       return ContentService.createTextOutput(JSON.stringify(
         gerarExcelClassificadosMinicursos()
+      )).setMimeType(ContentService.MimeType.JSON);
+    }
+
+    // ====== 5.9. GERAR PDFs DE COMPROVANTES DOS CLASSIFICADOS NOS MINICURSOS ======
+    else if (action === 'gerarPdfsComprovantesMinicursos') {
+      const codigo = (e.parameter.codigo || '').toString().trim().toUpperCase();
+      if (codigo !== ORGANIZADOR_SECRET_CODE) {
+        return ContentService.createTextOutput(JSON.stringify({
+          result: 'error',
+          message: 'Código de organizador inválido.'
+        })).setMimeType(ContentService.MimeType.JSON);
+      }
+
+      return ContentService.createTextOutput(JSON.stringify(
+        gerarPdfsComprovantesMinicursos()
       )).setMimeType(ContentService.MimeType.JSON);
     }
 
