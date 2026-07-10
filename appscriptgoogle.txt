@@ -15,6 +15,9 @@ const AREA_INSCRITO_URL = 'https://www.simol2026.com.br/area-inscrito.html';
 const ORGANIZADOR_SECRET_CODE = 'SIMOL_ORG_2026_PREVIEW';
 const INSCRICOES_SIMOL_FECHAMENTO_TS = Date.parse('2026-07-04T02:59:00.000Z'); // 03/07/2026 23:59 em Sao Paulo
 const INSCRICOES_SIMOL_ENCERRADAS_MESSAGE = 'As inscrições gerais do SIMOL foram encerradas em 03/07/2026 às 23:59. Minicursos e concursos permanecem abertos conforme suas regras.';
+const MINICURSO_FARMACOGENETICA_TITULO = 'Genes e Medicamentos: uma introdução à farmacogenética e farmacogenômica';
+const MINICURSO_FARMACOGENETICA_LIMITE_ANTIGO = 20;
+const MINICURSO_FARMACOGENETICA_LIMITE_NOVO = 32;
 const VAGAS_MINICURSOS = {
   'Expressão e purificação de Proteínas': 6,
   'Toxicologia Celular': 10,
@@ -30,7 +33,7 @@ const VAGAS_MINICURSOS = {
   'Biologia Sintética: Do design á síntese': 12,
   'Bioinovação: fundamentos de inovação, modelagem de negócios e pitch (teoria e prática)': 30,
   'Metabolismo e viabilidade de células tumorais: modelos In vitro e In vivo no estudo do câncer': 12,
-  'Genes e Medicamentos: uma introdução à farmacogenética e farmacogenômica': 20,
+  'Genes e Medicamentos: uma introdução à farmacogenética e farmacogenômica': MINICURSO_FARMACOGENETICA_LIMITE_NOVO,
   'Cultivo Celular e suas Aplicações': 15,
   'Fungos endofíticos: estratégias de isolamento e prospecção enzimática': 12,
   'Clinical Interpretation of Genomic Variants: Application of ACMG Criteria in Exome Sequencing Data. (Interpretação Clínica de Variantes Genômicas: Aplicação dos Critérios do ACMG em Dados de Sequenciamento do Exoma.)': 12,
@@ -430,6 +433,118 @@ function detectarSaidasDasVagas_(rankingAntes, rankingDepois) {
   });
 
   return saidasPorCpf;
+}
+
+function detectarEntradasDasVagas_(rankingAntes, rankingDepois, cursoAlvo) {
+  const entradasPorCpf = {};
+  const porCpfDepois = rankingDepois.porCpf || {};
+
+  Object.keys(porCpfDepois).forEach(function(cpf) {
+    const depois = (porCpfDepois[cpf] || []).find(function(item) { return item.curso === cursoAlvo; });
+    if (!depois || !depois.dentroDasVagas) return;
+
+    const antes = ((rankingAntes.porCpf || {})[cpf] || []).find(function(item) { return item.curso === cursoAlvo; });
+    if (antes && !antes.dentroDasVagas) {
+      entradasPorCpf[cpf] = depois;
+    }
+  });
+
+  return entradasPorCpf;
+}
+
+function calcularRankingFarmacogeneticaComLimite_(sheetPrincipal, sheetMinicursos, limite) {
+  const limiteOriginal = VAGAS_MINICURSOS[MINICURSO_FARMACOGENETICA_TITULO];
+  VAGAS_MINICURSOS[MINICURSO_FARMACOGENETICA_TITULO] = limite;
+  try {
+    return calcularRankingMinicursos_(sheetPrincipal, sheetMinicursos);
+  } finally {
+    VAGAS_MINICURSOS[MINICURSO_FARMACOGENETICA_TITULO] = limiteOriginal;
+  }
+}
+
+function enviarEmailsEntradaVagasFarmacogenetica_(sheetPrincipal, sheetMinicursos) {
+  const rankingAntes = calcularRankingFarmacogeneticaComLimite_(
+    sheetPrincipal,
+    sheetMinicursos,
+    MINICURSO_FARMACOGENETICA_LIMITE_ANTIGO
+  );
+  const rankingDepois = calcularRankingFarmacogeneticaComLimite_(
+    sheetPrincipal,
+    sheetMinicursos,
+    MINICURSO_FARMACOGENETICA_LIMITE_NOVO
+  );
+  const entradasPorCpf = detectarEntradasDasVagas_(
+    rankingAntes,
+    rankingDepois,
+    MINICURSO_FARMACOGENETICA_TITULO
+  );
+  const cpfs = Object.keys(entradasPorCpf);
+  if (!cpfs.length) return { enviados: 0, semEmail: 0, erros: 0, cpfs: [] };
+
+  const contatos = getMapaContatosParticipantes_(sheetPrincipal, sheetMinicursos);
+  const resultado = { enviados: 0, semEmail: 0, erros: 0, cpfs: cpfs };
+
+  cpfs.forEach(function(cpf) {
+    const contato = contatos[cpf] || {};
+    const email = isEmailValido_(contato.email);
+    if (!email) {
+      resultado.semEmail++;
+      return;
+    }
+
+    const nome = contato.nome || 'participante';
+    const ranking = entradasPorCpf[cpf];
+    const subject = 'Confirmação de vaga em minicurso do I SIMOL';
+    const body =
+      'Prezada(o) ' + nome + ',\n\n' +
+      'A Comissão Organizadora do I SIMOL informa que, em razão da ampliação do número de vagas do minicurso "' + MINICURSO_FARMACOGENETICA_TITULO + '" de ' + MINICURSO_FARMACOGENETICA_LIMITE_ANTIGO + ' para ' + MINICURSO_FARMACOGENETICA_LIMITE_NOVO + ' vagas, sua inscrição passou a estar contemplada dentro das vagas disponíveis.\n\n' +
+      'Dessa forma, sua participação no referido minicurso encontra-se confirmada, observada a manutenção das condições de inscrição e pagamento eventualmente aplicáveis.\n\n' +
+      'Dados atualizados do ranking:\n' +
+      '- Minicurso: ' + ranking.curso + '\n' +
+      '- Posição atual: ' + ranking.posicao + ' de ' + ranking.inscritos + ' inscritos\n' +
+      '- Número atual de vagas: ' + ranking.limite + '\n\n' +
+      'Permanecemos à disposição para eventuais esclarecimentos.\n\n' +
+      'Atenciosamente,\nComissão Organizadora do I SIMOL';
+    const htmlBody =
+      '<p>Prezada(o) ' + escapeHtml_(nome) + ',</p>' +
+      '<p>A Comissão Organizadora do I SIMOL informa que, em razão da ampliação do número de vagas do minicurso <strong>' + escapeHtml_(MINICURSO_FARMACOGENETICA_TITULO) + '</strong> de ' + MINICURSO_FARMACOGENETICA_LIMITE_ANTIGO + ' para ' + MINICURSO_FARMACOGENETICA_LIMITE_NOVO + ' vagas, sua inscrição passou a estar contemplada dentro das vagas disponíveis.</p>' +
+      '<p>Dessa forma, sua participação no referido minicurso encontra-se confirmada, observada a manutenção das condições de inscrição e pagamento eventualmente aplicáveis.</p>' +
+      '<p><strong>Dados atualizados do ranking:</strong></p>' +
+      '<ul>' +
+      '<li><strong>Minicurso:</strong> ' + escapeHtml_(ranking.curso) + '</li>' +
+      '<li><strong>Posição atual:</strong> ' + ranking.posicao + ' de ' + ranking.inscritos + ' inscritos</li>' +
+      '<li><strong>Número atual de vagas:</strong> ' + ranking.limite + '</li>' +
+      '</ul>' +
+      '<p>Permanecemos à disposição para eventuais esclarecimentos.</p>' +
+      '<p>Atenciosamente,<br>Comissão Organizadora do I SIMOL</p>';
+
+    try {
+      MailApp.sendEmail({
+        to: email,
+        subject: subject,
+        body: body,
+        htmlBody: htmlBody,
+        name: 'SIMOL'
+      });
+      resultado.enviados++;
+    } catch (emailError) {
+      resultado.erros++;
+      console.error('Erro ao enviar aviso de entrada nas vagas para ' + cpf + ': ' + emailError.toString());
+    }
+  });
+
+  return resultado;
+}
+
+function dispararEmailsEntradaVagasFarmacogenetica() {
+  const spreadsheetId = scriptProp.getProperty('key') || SpreadsheetApp.getActiveSpreadsheet().getId();
+  const doc = SpreadsheetApp.openById(spreadsheetId);
+  const sheetPrincipal = doc.getSheetByName(sheetName);
+  const ssMinicursos = SpreadsheetApp.openById(ID_PLANILHA_MINICURSOS);
+  const sheetMinicursos = ssMinicursos.getSheets()[0];
+  const resultado = enviarEmailsEntradaVagasFarmacogenetica_(sheetPrincipal, sheetMinicursos);
+  console.log(JSON.stringify(resultado));
+  return resultado;
 }
 
 function enviarEmailsSaidaVagasMinicursos_(sheetPrincipal, sheetMinicursos, rankingAntes, rankingDepois) {
@@ -1286,6 +1401,24 @@ function doPost(e) {
       return ContentService.createTextOutput(JSON.stringify(
         getOrganizerStats_(sheetPrincipal, sheetMinicursos)
       )).setMimeType(ContentService.MimeType.JSON);
+    }
+
+    // ====== 5.7. NOTIFICAR ENTRADA NAS VAGAS DE FARMACOGENÉTICA ======
+    else if (action === 'notificarEntradaFarmacogenetica') {
+      const codigo = (e.parameter.codigo || '').toString().trim().toUpperCase();
+      if (codigo !== ORGANIZADOR_SECRET_CODE) {
+        return ContentService.createTextOutput(JSON.stringify({
+          result: 'error',
+          message: 'CÃ³digo de organizador invÃ¡lido.'
+        })).setMimeType(ContentService.MimeType.JSON);
+      }
+
+      const sheetPrincipal = doc.getSheetByName(sheetName);
+      const ssMinicursos = SpreadsheetApp.openById(ID_PLANILHA_MINICURSOS);
+      const sheetMinicursos = ssMinicursos.getSheets()[0];
+      const resultado = enviarEmailsEntradaVagasFarmacogenetica_(sheetPrincipal, sheetMinicursos);
+      resultado.result = 'success';
+      return ContentService.createTextOutput(JSON.stringify(resultado)).setMimeType(ContentService.MimeType.JSON);
     }
 
     // ====== 6. BUSCAR DADOS COMPLETOS DO PARTICIPANTE (DASHBOARD) ======
