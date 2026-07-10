@@ -25,6 +25,35 @@
         }
 
         .code-input-container { display: flex; flex-direction: column; gap: 15px; width: 100%; }
+        .closed-gate {
+            max-width: 620px;
+            margin: 70px auto 30px;
+            background: white;
+            padding: 36px;
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.08);
+            border: 1px solid rgba(103, 42, 147, 0.12);
+            text-align: center;
+        }
+        .closed-gate h2 { color: var(--color-4); margin-bottom: 12px; }
+        .closed-gate p { color: #555; line-height: 1.55; margin-bottom: 20px; }
+        .closed-gate input {
+            width: 100%;
+            padding: 13px;
+            border: 1.5px solid #eee;
+            border-radius: 10px;
+            margin-bottom: 12px;
+        }
+        .closed-gate button {
+            width: 100%;
+            background: var(--color-1);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+        }
         #main-content {
             display: block;
             width: 100%;
@@ -223,8 +252,16 @@
             </div>
         </header>
 
+        <section id="closed-gate" class="closed-gate">
+            <h2>InscriÃ§Ãµes em minicursos encerradas</h2>
+            <p>O perÃ­odo de inscriÃ§Ãµes e alteraÃ§Ãµes de minicursos foi encerrado. O acesso a esta pÃ¡gina estÃ¡ restrito Ã  organizaÃ§Ã£o.</p>
+            <input type="password" id="organizer-access-code" placeholder="CÃ³digo de organizador">
+            <button type="button" id="organizer-access-btn">Acessar como organizador</button>
+            <div id="organizer-access-error" style="display: none; color: #c62828; margin-top: 12px; font-weight: 600;">CÃ³digo invÃ¡lido.</div>
+        </section>
+
         <!-- Seção de Verificação de Inscrição -->
-        <section id="verification-section" style="max-width: 600px; margin: 30px auto; background: white; padding: 35px; border-radius: 24px; box-shadow: 0 15px 40px rgba(0,0,0,0.08); text-align: center; border: 1px solid rgba(103, 42, 147, 0.1);">
+        <section id="verification-section" style="display: none; max-width: 600px; margin: 30px auto; background: white; padding: 35px; border-radius: 24px; box-shadow: 0 15px 40px rgba(0,0,0,0.08); text-align: center; border: 1px solid rgba(103, 42, 147, 0.1);">
             <h3 style="color: var(--color-4); margin-bottom: 15px;">Verifique sua Inscrição no SIMOL</h3>
 
             <!-- Aviso de Taxas -->
@@ -401,6 +438,26 @@
         const scriptURL = 'https://script.google.com/macros/s/AKfycbwJIWarONxdGwfBig-HD4VoUgrc5MMOJ_ZcmqmsBXZCf2WtneofrLwVPHlZ4Xpny0G_XA/exec';
         const pageParams = new URLSearchParams(window.location.search);
         const isChangeMode = pageParams.get('troca') === '1';
+        const ORGANIZER_SECRET_CODE = 'SIMOL_ORG_2026_PREVIEW';
+        const organizerGate = document.getElementById('closed-gate');
+        const organizerAccessCode = document.getElementById('organizer-access-code');
+        const organizerAccessBtn = document.getElementById('organizer-access-btn');
+        const organizerAccessError = document.getElementById('organizer-access-error');
+
+        function unlockOrganizerAccess() {
+            organizerGate.style.display = 'none';
+            verificationSection.style.display = 'block';
+        }
+
+        function checkOrganizerAccess() {
+            if ((organizerAccessCode.value || '').trim().toUpperCase() === ORGANIZER_SECRET_CODE) {
+                sessionStorage.setItem('simol_minicursos_organizador', '1');
+                organizerAccessError.style.display = 'none';
+                unlockOrganizerAccess();
+            } else {
+                organizerAccessError.style.display = 'block';
+            }
+        }
 
         const courses = [
             { id: 1, dept: 'BIOCEL', ppgLabel: 'PPG em Biologia Celular e Molecular', title: 'Expressão e purificação de Proteínas', days: [1, 2, 3], period: 'morning', limit: 6, format: 'Presencial', instructors: 'Milena Biguetti dos Santos; Zelinda Schemczssen', syllabus: 'Introdução às proteínas recombinantes, clonagem molecular, vetores de expressão, sistemas de expressão, purificação cromatográfica e análise de qualidade proteica, com atividades práticas de expressão, purificação e SDS-PAGE.' },
@@ -447,6 +504,14 @@
         const verificationSection = document.getElementById('verification-section');
         const greetingArea = document.getElementById('greeting-area');
         const userGreeting = document.getElementById('user-greeting');
+
+        organizerAccessBtn.addEventListener('click', checkOrganizerAccess);
+        organizerAccessCode.addEventListener('keydown', event => {
+            if (event.key === 'Enter') checkOrganizerAccess();
+        });
+        if (sessionStorage.getItem('simol_minicursos_organizador') === '1' || pageParams.get('organizador') === ORGANIZER_SECRET_CODE) {
+            unlockOrganizerAccess();
+        }
 
         checkRegBtn.addEventListener('click', () => {
             const nome = verifyName.value.trim();

@@ -694,6 +694,139 @@ function getOrganizerStats_(sheetPrincipal, sheetMinicursos) {
   };
 }
 
+function normalizarNomeAba_(nome, usados) {
+  var base = (nome || 'Minicurso').toString()
+    .replace(/[\[\]\*\?\/\\:]/g, '-')
+    .replace(/\s+/g, ' ')
+    .trim();
+  if (!base) base = 'Minicurso';
+  base = base.substring(0, 99);
+
+  var nomeFinal = base;
+  var contador = 2;
+  while (usados[nomeFinal]) {
+    var sufixo = ' ' + contador;
+    nomeFinal = base.substring(0, 99 - sufixo.length) + sufixo;
+    contador++;
+  }
+  usados[nomeFinal] = true;
+  return nomeFinal;
+}
+
+function getHeadersComFallback_(data, prefixo) {
+  if (!data.length) return [];
+  return data[0].map(function(header, index) {
+    var text = (header || '').toString().trim();
+    return text || (prefixo + '_' + (index + 1));
+  });
+}
+
+function montarDadosClassificadosMinicursos_(sheetPrincipal, sheetMinicursos) {
+  const dataPrincipal = sheetPrincipal.getDataRange().getValues();
+  const dataMinicursos = sheetMinicursos.getDataRange().getValues();
+  const headersPrincipal = getHeadersComFallback_(dataPrincipal, 'principal');
+  const headersMinicursos = getHeadersComFallback_(dataMinicursos, 'minicursos');
+  const ranking = calcularRankingMinicursos_(sheetPrincipal, sheetMinicursos);
+  const principalPorCpf = {};
+
+  const cpfColPrincipal = headersPrincipal.map(function(h) { return h.toString().toLowerCase().trim(); }).indexOf('cpf');
+  if (cpfColPrincipal !== -1) {
+    for (var i = 1; i < dataPrincipal.length; i++) {
+      const cpfPrincipal = normalizarCpf_(dataPrincipal[i][cpfColPrincipal]);
+      if (cpfPrincipal && !principalPorCpf[cpfPrincipal]) {
+        principalPorCpf[cpfPrincipal] = dataPrincipal[i];
+      }
+    }
+  }
+
+  const cabecalho = [
+    'Minicurso',
+    'Posição',
+    'Limite de vagas',
+    'Total de inscritos no minicurso',
+    'Status no ranking',
+    'Pagamento prioritário'
+  ].concat(
+    headersMinicursos.map(function(h) { return 'Minicursos - ' + h; }),
+    headersPrincipal.map(function(h) { return 'Inscrição SIMOL - ' + h; })
+  );
+
+  const cursos = {};
+  Object.keys(ranking.cursos || {}).sort().forEach(function(curso) {
+    const inscritos = ranking.cursos[curso] || [];
+    const limite = getLimiteMinicurso_(curso);
+    const classificados = limite === null ? inscritos : inscritos.slice(0, limite);
+    cursos[curso] = {
+      limite: limite,
+      totalInscritos: inscritos.length,
+      linhas: classificados.map(function(item, index) {
+        const rowMini = (dataMinicursos[item.rowIndex] || []).slice();
+        const rowPrincipal = (principalPorCpf[item.cpf] || []).slice();
+        while (rowMini.length < headersMinicursos.length) rowMini.push('');
+        while (rowPrincipal.length < headersPrincipal.length) rowPrincipal.push('');
+        return [
+          curso,
+          index + 1,
+          limite === null ? 'Sem limite' : limite,
+          inscritos.length,
+          'Dentro das vagas',
+          item.pagamentoPrioritario ? 'Sim' : 'Não'
+        ].concat(rowMini, rowPrincipal);
+      })
+    };
+  });
+
+  return {
+    cabecalho: cabecalho,
+    cursos: cursos
+  };
+}
+
+function gerarExcelClassificadosMinicursos() {
+  const spreadsheetId = scriptProp.getProperty('key') || SpreadsheetApp.getActiveSpreadsheet().getId();
+  const doc = SpreadsheetApp.openById(spreadsheetId);
+  const sheetPrincipal = doc.getSheetByName(sheetName);
+  const ssMinicursos = SpreadsheetApp.openById(ID_PLANILHA_MINICURSOS);
+  const sheetMinicursos = ssMinicursos.getSheets()[0];
+  const dados = montarDadosClassificadosMinicursos_(sheetPrincipal, sheetMinicursos);
+  const nomeArquivo = 'Classificados minicursos SIMOL - ' + Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd HH-mm');
+  const exportSs = SpreadsheetApp.create(nomeArquivo);
+  const abasUsadas = {};
+  const primeiraAba = exportSs.getSheets()[0];
+  var primeiraUsada = false;
+
+  Object.keys(dados.cursos).forEach(function(curso) {
+    const cursoData = dados.cursos[curso];
+    const abaNome = normalizarNomeAba_(curso, abasUsadas);
+    const sheet = primeiraUsada ? exportSs.insertSheet(abaNome) : primeiraAba.setName(abaNome);
+    primeiraUsada = true;
+
+    const linhas = [dados.cabecalho].concat(cursoData.linhas);
+    sheet.getRange(1, 1, linhas.length, dados.cabecalho.length).setValues(linhas);
+    sheet.setFrozenRows(1);
+    sheet.autoResizeColumns(1, dados.cabecalho.length);
+  });
+
+  SpreadsheetApp.flush();
+  const exportUrl = 'https://www.googleapis.com/drive/v3/files/' + exportSs.getId() + '/export?mimeType=application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+  const response = UrlFetchApp.fetch(exportUrl, {
+    headers: { Authorization: 'Bearer ' + ScriptApp.getOAuthToken() },
+    muteHttpExceptions: true
+  });
+  const blob = response.getBlob().setName(nomeArquivo + '.xlsx');
+  const xlsxFile = DriveApp.createFile(blob);
+  const googleSheetFile = DriveApp.getFileById(exportSs.getId());
+
+  console.log('Google Sheets: ' + googleSheetFile.getUrl());
+  console.log('Excel XLSX: ' + xlsxFile.getUrl());
+  return {
+    result: 'success',
+    spreadsheetUrl: googleSheetFile.getUrl(),
+    xlsxUrl: xlsxFile.getUrl(),
+    fileName: xlsxFile.getName()
+  };
+}
+
 function isInscricaoLiberada_(params) {
   return (
     params.TIPO_INSCRICAO === 'Pós-Graduação Participante' &&
@@ -1419,6 +1552,21 @@ function doPost(e) {
       const resultado = enviarEmailsEntradaVagasFarmacogenetica_(sheetPrincipal, sheetMinicursos);
       resultado.result = 'success';
       return ContentService.createTextOutput(JSON.stringify(resultado)).setMimeType(ContentService.MimeType.JSON);
+    }
+
+    // ====== 5.8. GERAR EXCEL DOS CLASSIFICADOS NOS MINICURSOS ======
+    else if (action === 'gerarExcelClassificadosMinicursos') {
+      const codigo = (e.parameter.codigo || '').toString().trim().toUpperCase();
+      if (codigo !== ORGANIZADOR_SECRET_CODE) {
+        return ContentService.createTextOutput(JSON.stringify({
+          result: 'error',
+          message: 'Código de organizador inválido.'
+        })).setMimeType(ContentService.MimeType.JSON);
+      }
+
+      return ContentService.createTextOutput(JSON.stringify(
+        gerarExcelClassificadosMinicursos()
+      )).setMimeType(ContentService.MimeType.JSON);
     }
 
     // ====== 6. BUSCAR DADOS COMPLETOS DO PARTICIPANTE (DASHBOARD) ======
